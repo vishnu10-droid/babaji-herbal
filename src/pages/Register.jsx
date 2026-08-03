@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,7 +32,7 @@ export default function Register() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-        },
+},
         body: JSON.stringify(formData),
       });
 
@@ -40,12 +44,18 @@ export default function Register() {
       if (response.ok) {
         alert("Registration Successful");
 
+        // Auto-login: save user data + token to localStorage and context
+        login(data.data, data.data.token);
+
         setFormData({
           name: "",
           email: "",
           phone: "",
           password: "",
         });
+
+        // Redirect to dashboard after registration
+        navigate("/admin");
       } else {
         alert(data.message || "Registration failed");
       }

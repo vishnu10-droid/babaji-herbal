@@ -25,7 +25,7 @@ async function register(req, res) {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1m",
+        expiresIn: "7d",
       },
     );
 

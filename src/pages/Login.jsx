@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Breadcrumb from "../components/Breadcrumb";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -39,10 +43,11 @@ export default function Login() {
       if (response.ok) {
         alert("Login Successful");
 
-        // Save Token
-        localStorage.setItem("token", data.data.token);
+        // Save full user data + token to localStorage and context
+        login(data.data, data.data.token);
 
-        console.log(data);
+        // Redirect to dashboard after login
+        navigate("/admin");
       } else {
         alert(data.message);
       }

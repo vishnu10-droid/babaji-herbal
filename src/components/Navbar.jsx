@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
   Heart,
@@ -9,7 +9,9 @@ import {
   ChevronDown,
   Leaf,
   LogIn,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -19,12 +21,19 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMobileMenu, setExpandedMobileMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const toggleMobileSubmenu = (label) => {
     setExpandedMobileMenu((prev) => (prev === label ? null : label));
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   return (
@@ -115,12 +124,33 @@ export default function Navbar() {
             <ShoppingCart size={18} />
           </Link>
 
-          {/* Login Button */}
-          <Link to="/login">
-            <button className="rounded-full border border-[#0B6B3A] px-5 py-2 text-sm font-medium text-[#0B6B3A] transition hover:bg-[#0B6B3A] hover:text-white">
-              Login
-            </button>
-          </Link>
+{/* Auth Button: Login or User + Logout */}
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 rounded-full border border-[#0B6B3A]/20 bg-[#0B6B3A]/10 px-4 py-1.5 text-sm font-medium text-[#0B6B3A] transition hover:bg-[#0B6B3A]/20"
+              >
+                <span className="h-6 w-6 rounded-full bg-[#0B6B3A] text-white flex items-center justify-center text-xs font-bold">
+                  {(user?.name || "U").charAt(0).toUpperCase()}
+                </span>
+                <span className="max-w-[120px] truncate">{user?.name || "User"}</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="rounded-full border border-[#0B6B3A] px-4 py-2 text-sm font-medium text-[#0B6B3A] transition hover:bg-[#0B6B3A] hover:text-white"
+                aria-label="Logout"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <Link to="/login">
+              <button className="rounded-full border border-[#0B6B3A] px-5 py-2 text-sm font-medium text-[#0B6B3A] transition hover:bg-[#0B6B3A] hover:text-white">
+                Login
+              </button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Toggle Button */}
@@ -215,12 +245,36 @@ export default function Navbar() {
                 </Link>
               </div>
 
-              <div className="pt-1">
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <button className="flex w-full items-center justify-center gap-1.5 rounded-full border border-[#0B6B3A] py-2.5 text-xs font-bold text-[#0B6B3A] transition hover:bg-[#0B6B3A] hover:text-white">
-                    <LogIn size={14} /> Login
-                  </button>
-                </Link>
+<div className="pt-1">
+                {isAuthenticated ? (
+                  <div className="space-y-2">
+                    <Link
+                      to="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-full border border-[#0B6B3A] py-2.5 text-xs font-bold text-[#0B6B3A] transition hover:bg-[#0B6B3A] hover:text-white"
+                    >
+                      <span className="h-5 w-5 rounded-full bg-[#0B6B3A] text-white flex items-center justify-center text-[10px] font-bold">
+                        {(user?.name || "U").charAt(0).toUpperCase()}
+                      </span>
+                      {user?.name || "User"}
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-full border border-red-500 py-2.5 text-xs font-bold text-red-500 transition hover:bg-red-500 hover:text-white"
+                    >
+                      <LogOut size={14} /> Logout
+                    </button>
+                  </div>
+                ) : (
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <button className="flex w-full items-center justify-center gap-1.5 rounded-full border border-[#0B6B3A] py-2.5 text-xs font-bold text-[#0B6B3A] transition hover:bg-[#0B6B3A] hover:text-white">
+                      <LogIn size={14} /> Login
+                    </button>
+                  </Link>
+                )}
               </div>
             </div>
           </nav>

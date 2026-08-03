@@ -1,12 +1,21 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-router.get('/profile', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Protected profile route is active',
-    user: req.user || null,
-  });
-});
+const productController = require("../controller/productController");
+
+// Create Product
+router.post("/product", productController.store);
+
+// Get All Products
+router.get("/product", productController.list);
+
+// Get Single Product
+router.get("/product/:id", productController.details);
+
+// Update Product
+router.put("/product/:id", productController.update);
+
+// Delete Product
+router.delete("/product/:id", productController.destroy);
 
 module.exports = router;
