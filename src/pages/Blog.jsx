@@ -1,271 +1,232 @@
-import React from 'react';
-import { 
-  Search, 
-  MessageSquare, 
-  User, 
-  Play, 
-  ChevronLeft, 
-  ChevronRight, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  ArrowRight 
-} from 'lucide-react';
+import Breadcrumb from '../components/Breadcrumb'
+import { Link } from 'react-router-dom'
+import {
+  Calendar,
+  Clock,
+  ArrowRight,
+  Leaf,
+  Sparkles,
+  Heart,
+  Droplets,
+} from 'lucide-react'
 
-export default function BlogPage() {
-  const posts = [
-    {
-      id: 1,
-      date: '14',
-      month: 'MAR',
-      author: 'John Carter',
-      comments: '0 Comments',
-      title: 'Options For a Cannabis Education in All Countries',
-      desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      img: 'https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&q=80',
-      isVideo: false,
-    },
-    {
-      id: 2,
-      date: '24',
-      month: 'MAR',
-      author: 'John Carter',
-      comments: '0 Comments',
-      title: "Why CBD Product's Ingredients List Must Be Examined?",
-      desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80',
-      isVideo: false,
-    },
-    {
-      id: 3,
-      date: '28',
-      month: 'MAR',
-      author: 'John Carter',
-      comments: '0 Comments',
-      title: 'CBD oil for pain management Effects Benefits, and uses',
-      desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80',
-      isVideo: false,
-    },
-    {
-      id: 4,
-      date: '14',
-      month: 'APR',
-      author: 'John Carter',
-      comments: '0 Comments',
-      title: 'Cannabidiol (CBD) oil is made from the cannabis plant',
-      desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      img: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80',
-      isVideo: true,
-    },
-  ];
+const articles = [
+  {
+    id: 1,
+    title: 'The Ancient Wisdom of Ashwagandha: Your Natural Stress Reliever',
+    excerpt:
+      'Ashwagandha has been revered in Ayurveda for over 3,000 years. Discover how this adaptogenic herb balances cortisol, improves sleep, and restores your natural energy.',
+    category: 'Herbs & Remedies',
+    date: 'Mar 28, 2025',
+    readTime: '6 min read',
+    icon: Leaf,
+    tag: 'Adaptogen',
+  },
+  {
+    id: 2,
+    title: '10 Ayurvedic Rituals to Boost Your Immunity This Season',
+    excerpt:
+      'Simple daily rituals — from warm turmeric milk to nasya oiling — that strengthen your body’s natural defenses against seasonal changes.',
+    category: 'Wellness Guides',
+    date: 'Mar 20, 2025',
+    readTime: '8 min read',
+    icon: Shield,
+    tag: 'Immunity',
+  },
+  {
+    id: 3,
+    title: 'Skincare the Ayurvedic Way: Glow With Herbal Face Oils',
+    excerpt:
+      'Swap chemical serums for botanical blends. Learn how neem, turmeric, and rose extracts nourish your skin type and restore a radiant complexion.',
+    category: 'Skincare & Beauty',
+    date: 'Mar 12, 2025',
+    readTime: '5 min read',
+    icon: Sparkles,
+    tag: 'Beauty',
+  },
+  {
+    id: 4,
+    title: 'Herbal Teas for Detoxification: A Brew for Every Dosha',
+    excerpt:
+      'From triphala to tulsi-green blends, explore soothing herbal infusions that cleanse gently and align with your dosha for deeper wellness.',
+    category: 'Teas & Elixirs',
+    date: 'Mar 05, 2025',
+    readTime: '7 min read',
+    icon: Droplets,
+    tag: 'Detox',
+  },
+  {
+    id: 5,
+    title: 'Understanding the Three Doshas: Vata, Pitta, and Kapha',
+    excerpt:
+      'Your unique mind-body constitution shapes how you feel, digest, and rest. Decode your prakriti and harmonize it through diet and lifestyle.',
+    category: 'Ayurveda Basics',
+    date: 'Feb 26, 2025',
+    readTime: '9 min read',
+    icon: Heart,
+    tag: 'Dosha',
+  },
+  {
+    id: 6,
+    title: 'Chyawanprash: The Immunity Elixir Your Grandmother Swore By',
+    excerpt:
+      'Packed with amla, honey, ghee, and 40+ herbs, Chyawanprash is a winter staple. Here is how to choose the purest one and take it daily.',
+    category: 'Herbs & Remedies',
+    date: 'Feb 18, 2025',
+    readTime: '4 min read',
+    icon: Leaf,
+    tag: 'Staple',
+  },
+]
 
-  const recentPosts = [
-    { title: 'Adding CBD in Food Tinctures and Capsules', date: 'December 24, 2025', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80' },
-    { title: 'How Does A Lotion Containing CBD Help', date: 'December 22, 2025', img: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80' },
-    { title: 'Guidelines For Consuming Cannabis', date: 'February 10, 2026', img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80' },
-  ];
-
-  const categories = [
-    { name: 'Anxiety Relievers', count: 1 },
-    { name: 'CBD Tinctures', count: 2 },
-    { name: 'Pain Relievers', count: 4 },
-    { name: 'Hemp Rollers', count: 1 },
-    { name: 'Plant Powders', count: 2 },
-    { name: 'Wellness', count: 2 },
-  ];
-
+// Shield is used in the second article
+function Shield({ size = 24, className = '' }) {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
-      
-      {/* ------------------ 1. PAGE BANNER ------------------ */}
-    <section
-  className="relative h-64 md:h-80 bg-cover bg-center flex items-center justify-center px-8 md:px-20 text-white"
-  style={{
-    backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&q=80')`,
-  }}
->
-  <div className="max-w-2xl text-center">
-    <h1 className="text-4xl md:text-5xl font-bold mb-3">
-      Our Blog
-    </h1>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  )
+}
 
-    <p className="text-gray-200 text-sm md:text-base mb-4">
-      Discover the latest herbal wellness tips, health insights, and natural care guides.
-    </p>
+export default function Blog() {
+  return (
+    <>
+      <Breadcrumb items={[{ label: 'Blog' }]} />
 
-    
-  </div>
-</section>
+      <section className="section-shell py-10">
+        {/* Header */}
+        <div className="mb-10 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#0B6B3A]/10 px-4 py-1.5 text-xs font-semibold text-[#0B6B3A]">
+            <Leaf size={14} /> The Wellness Journal
+          </div>
+          <h1 className="mt-3 font-display text-3xl font-bold text-[#1B1B1B] sm:text-4xl">
+            Herbal Insights & Ayurvedic Wisdom
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">
+            Practical guides, ancient remedies, and modern wellness tips —
+            written to help you live in harmony with nature.
+          </p>
+        </div>
 
-      {/* ------------------ 2. MAIN BLOG CONTENT & SIDEBAR ------------------ */}
-      <section className="max-w-6xl mx-auto px-6 py-12 md:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          
-          {/* Left - Blog Posts Feed (2 Cols) */}
-          <div className="lg:col-span-2 space-y-12">
-            {posts.map((post) => (
-              <article key={post.id} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-5">
-                
-                {/* Media Container */}
-                <div className="relative rounded-2xl overflow-hidden h-64 md:h-80 bg-slate-100">
-                  <img src={post.img} alt={post.title} className="w-full h-full object-cover" />
-                  
-                  {/* Date Badge */}
-                  <div className="absolute top-4 left-4 bg-amber-400 text-slate-900 font-bold px-3 py-2 rounded-xl text-center shadow-md leading-tight">
-                    <span className="block text-xl font-black">{post.date}</span>
-                    <span className="text-[10px] tracking-wider uppercase">{post.month}</span>
-                  </div>
-
-                  {/* Optional Video Play Button */}
-                  {post.isVideo && (
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                      <div className="w-14 h-14 rounded-full bg-white text-emerald-600 flex items-center justify-center shadow-xl cursor-pointer hover:scale-105 transition">
-                        <Play className="fill-current ml-1" size={24} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Post Meta */}
-                <div className="flex items-center gap-4 text-xs text-slate-400 font-medium pt-1">
-                  <span className="flex items-center gap-1">
-                    <User size={14} className="text-emerald-500" /> Posted By {post.author}
+        {/* Featured Article */}
+        <Link
+          to="/blog-details"
+          state={{ article: articles[0] }}
+          className="group mb-10 block overflow-hidden rounded-3xl border border-[#0B6B3A]/10 bg-white shadow-lg transition hover:border-[#0B6B3A]/30 hover:shadow-xl"
+        >
+          <div className="grid overflow-hidden md:grid-cols-[1.2fr_1fr]">
+            <div className="flex min-h-[220px] items-center justify-center bg-gradient-to-br from-[#0B6B3A] via-[#0B6B3A]/80 to-[#1B1B1B] p-10 text-white">
+              <Leaf size={72} className="text-emerald-100/90" />
+            </div>
+            <div className="p-7 lg:p-10">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-[#0B6B3A]/10 px-3 py-1 text-[11px] font-bold text-[#0B6B3A]">
+                  Featured
+                </span>
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-semibold text-amber-700">
+                  {articles[0].category}
+                </span>
+              </div>
+              <h2 className="mt-4 text-xl font-bold leading-snug text-[#1B1B1B] transition group-hover:text-[#0B6B3A] lg:text-2xl">
+                {articles[0].title}
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                {articles[0].excerpt}
+              </p>
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                <div className="flex items-center gap-4">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar size={14} /> {articles[0].date}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <MessageSquare size={14} className="text-emerald-500" /> {post.comments}
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock size={14} /> {articles[0].readTime}
                   </span>
                 </div>
-
-                {/* Title & Excerpt */}
-                <h2 className="text-xl md:text-2xl font-bold text-slate-900 leading-snug hover:text-emerald-600 transition cursor-pointer">
-                  {post.title}
-                </h2>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  {post.desc}
-                </p>
-
-                {/* Footer / Read More & Social */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                  <button className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-5 py-2.5 rounded-full transition shadow-sm">
-                    Read More
-                  </button>
-                  <div className="flex items-center gap-3 text-xs text-slate-400 font-semibold">
-                    <span>Read More:</span>
-                    <div className="flex gap-1.5">
-                      {['f', 't', 'in'].map((social, idx) => (
-                        <span key={idx} className="w-6 h-6 rounded-full bg-slate-100 hover:bg-emerald-100 hover:text-emerald-600 flex items-center justify-center cursor-pointer transition text-[10px]">
-                          {social}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-              </article>
-            ))}
-
-            {/* Pagination Controls */}
-            <div className="flex justify-center items-center gap-2 pt-6">
-              <button className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100 text-slate-500 text-xs">
-                <ChevronLeft size={16} />
-              </button>
-              <button className="w-9 h-9 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow">
-                01
-              </button>
-              <button className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100 text-slate-600 text-xs font-semibold">
-                02
-              </button>
-              <button className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100 text-slate-500 text-xs">
-                <ChevronRight size={16} />
-              </button>
+                <span className="inline-flex items-center gap-1 font-bold text-[#0B6B3A] transition group-hover:gap-2">
+                  Read Article <ArrowRight size={14} />
+                </span>
+              </div>
             </div>
           </div>
+        </Link>
 
-          {/* Right - Sidebar */}
-          <aside className="space-y-8">
-            
-            {/* Widget 1: Search */}
-            <div className="bg-slate-100/80 rounded-2xl p-5 border border-slate-200/60">
-              <h4 className="text-sm font-bold text-slate-900 mb-3">Search</h4>
-              <div className="relative flex items-center">
-                <input 
-                  type="text" 
-                  placeholder="Search..." 
-                  className="w-full bg-white rounded-xl py-2.5 pl-4 pr-10 text-xs outline-none border border-slate-200 focus:border-emerald-500 transition shadow-sm"
-                />
-                <button className="absolute right-2 w-7 h-7 bg-emerald-500 text-white rounded-lg flex items-center justify-center hover:bg-emerald-600 transition">
-                  <Search size={14} />
-                </button>
-              </div>
-            </div>
-
-            {/* Widget 2: Recent Posts */}
-            <div className="bg-slate-100/80 rounded-2xl p-5 border border-slate-200/60 space-y-4">
-              <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200/80 pb-3">Recent Posts</h4>
-              <div className="space-y-3">
-                {recentPosts.map((post, i) => (
-                  <div key={i} className="flex gap-3 items-center group cursor-pointer">
-                    <img src={post.img} alt={post.title} className="w-14 h-14 rounded-xl object-cover shrink-0" />
-                    <div>
-                      <h5 className="text-xs font-bold text-slate-800 group-hover:text-emerald-600 transition line-clamp-2">{post.title}</h5>
-                      <span className="text-[10px] text-slate-400 font-medium">{post.date}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Widget 3: Categories */}
-            <div className="bg-slate-100/80 rounded-2xl p-5 border border-slate-200/60 space-y-4">
-              <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200/80 pb-3">Categories</h4>
-              <div className="space-y-2">
-                {categories.map((cat, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-xs py-1.5 border-b border-slate-200/40 last:border-0 hover:text-emerald-600 cursor-pointer transition">
-                    <span className="font-semibold text-slate-700">{cat.name}</span>
-                    <span className="w-6 h-6 rounded-full bg-amber-400 text-slate-900 font-bold text-[10px] flex items-center justify-center shadow-sm">
-                      {cat.count < 10 ? `0${cat.count}` : cat.count}
+        {/* Articles Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {articles.slice(1).map((article) => {
+            const Icon = article.icon
+            return (
+              <Link
+                key={article.id}
+                to="/blog-details"
+                state={{ article }}
+                className="group flex flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#0B6B3A]/30 hover:shadow-xl"
+              >
+                <div className="flex h-44 items-center justify-center bg-gradient-to-br from-[#f4f7f2] to-[#e2ecdf] text-[#0B6B3A]">
+                  <Icon
+                    size={48}
+                    strokeWidth={1.5}
+                    className="transition group-hover:scale-110"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-full bg-[#0B6B3A]/10 px-3 py-1 text-[11px] font-semibold text-[#0B6B3A]">
+                      {article.category}
+                    </span>
+                    <span className="text-[11px] font-medium text-slate-400">
+                      {article.tag}
                     </span>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <h3 className="mt-4 text-base font-bold leading-snug text-[#1B1B1B] transition group-hover:text-[#0B6B3A]">
+                    {article.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-slate-600">
+                    {article.excerpt}
+                  </p>
+                  <div className="mt-5 flex items-center justify-between border-t border-gray-50 pt-4 text-xs text-slate-500">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Calendar size={13} /> {article.date}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock size={13} /> {article.readTime}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
 
-            {/* Widget 4: Quick Links */}
-            <div className="bg-slate-100/80 rounded-2xl p-5 border border-slate-200/60 space-y-3">
-              <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200/80 pb-3">Quick Links</h4>
-              <ul className="space-y-2 text-xs text-slate-600 font-medium">
-                {['Affiliate Template', 'Privacy Advice', 'Legal Processing', 'Terms & Conditions', 'Cannabis Usage'].map((link, i) => (
-                  <li key={i} className="flex items-center gap-1.5 hover:text-emerald-600 cursor-pointer transition">
-                    <span className="text-emerald-500">&gt;</span> {link}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Widget 5: Get Updates Box */}
-            <div className="bg-slate-800 text-white rounded-2xl p-6 border border-slate-700 space-y-4">
-              <h4 className="text-base font-bold">Get Updates</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Subscribe to our newsletter for exclusive insights and weekly offers.
+        {/* Newsletter CTA */}
+        <div className="mt-12 rounded-3xl bg-[#0B6B3A] p-8 text-white shadow-xl lg:p-12">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+            <div>
+              <h2 className="text-2xl font-bold">Never miss a wellness article</h2>
+              <p className="mt-2 max-w-xl text-sm text-white/80">
+                Join our newsletter for weekly Ayurvedic tips, seasonal remedies,
+                and exclusive offers from Babaji Herbal.
               </p>
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-3">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 px-4 text-xs outline-none focus:border-emerald-500 text-white placeholder-slate-500"
-                />
-                <button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs py-2.5 rounded-xl transition shadow-md">
-                  Subscribe
-                </button>
-              </form>
             </div>
-
-          </aside>
-
+            <Link
+              to="/register"
+              className="shrink-0 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0B6B3A] transition hover:bg-[#f4f7f2]"
+            >
+              Subscribe Free
+            </Link>
+          </div>
         </div>
       </section>
-
-    </div>
-  );
+    </>
+  )
 }
+

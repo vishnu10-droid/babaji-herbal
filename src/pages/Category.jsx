@@ -1,20 +1,22 @@
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { 
-  Leaf, 
-  Sparkles, 
-  Heart, 
-  ShieldCheck, 
-  ArrowRight, 
+import {
+  Leaf,
+  Sparkles,
+  Heart,
+  ShieldCheck,
+  ArrowRight,
   Search,
-  Filter
+  Filter,
 } from "lucide-react";
+
 
 const categoryData = [
   {
     id: "herbal-supplements",
     name: "Herbal Supplements",
-    description: "Natural daily boosters for immunity, vitality, and overall wellness.",
+    description:
+      "Natural daily boosters for immunity, vitality, and overall wellness.",
     itemCount: 24,
     icon: Leaf,
     badge: "Popular",
@@ -32,7 +34,8 @@ const categoryData = [
   {
     id: "wellness-teas",
     name: "Wellness Teas & Elixirs",
-    description: "Soothing organic herbal infusions for detoxification and stress relief.",
+    description:
+      "Soothing organic herbal infusions for detoxification and stress relief.",
     itemCount: 15,
     icon: Heart,
     badge: "Organic",
@@ -41,7 +44,8 @@ const categoryData = [
   {
     id: "immunity-boosters",
     name: "Immunity Boosters",
-    description: "Traditional herbal formulations, Chyawanprash, and extract drops.",
+    description:
+      "Traditional herbal formulations, Chyawanprash, and extract drops.",
     itemCount: 12,
     icon: ShieldCheck,
     badge: "Best Seller",
@@ -50,17 +54,17 @@ const categoryData = [
 ];
 
 export default function Category() {
+ 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredCategories = categoryData.filter((cat) =>
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cat.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCategories = categoryData.filter(
+    (cat) =>
+      cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cat.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
-
   return (
     <div className="min-h-screen bg-[#f4f7f2]/50 py-12">
       <div className="section-shell mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        
         {/* Header Section */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 rounded-full bg-[#0B6B3A]/10 px-4 py-1.5 text-xs font-semibold text-[#0B6B3A] mb-4">
@@ -70,12 +74,16 @@ export default function Category() {
             Herbal & Ayurvedic Categories
           </h1>
           <p className="mt-3 text-sm text-gray-600 sm:text-base">
-            Browse our carefully curated collections of 100% natural, authentic herbal products crafted for your health and vitality.
+            Browse our carefully curated collections of 100% natural, authentic
+            herbal products crafted for your health and vitality.
           </p>
 
           {/* Search Bar */}
           <div className="mt-6 relative max-w-md mx-auto">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Search categories..."
@@ -137,7 +145,9 @@ export default function Category() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-sm">No categories found matching "{searchQuery}".</p>
+            <p className="text-gray-500 text-sm">
+              No categories found matching "{searchQuery}".
+            </p>
           </div>
         )}
 
@@ -152,7 +162,8 @@ export default function Category() {
                 Not sure which herb suits your body type?
               </h2>
               <p className="mt-2 text-sm text-white/80 max-w-xl">
-                Consult with our Ayurvedic specialists or browse products filtered specifically by wellness goals.
+                Consult with our Ayurvedic specialists or browse products
+                filtered specifically by wellness goals.
               </p>
             </div>
 
@@ -164,7 +175,6 @@ export default function Category() {
             </RouterLink>
           </div>
         </div>
-
       </div>
     </div>
   );

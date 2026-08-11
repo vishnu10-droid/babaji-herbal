@@ -1,4 +1,21 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+
+const variationSchema = new mongoose.Schema(
+  {
+    size: {
+      type: String,
+      required: true,
+    },
+
+    price: {
+      type: Number,
+      required: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
 
 const productSchema = new mongoose.Schema(
   {
@@ -8,17 +25,16 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
 
-    slug: {
+    category: {
       type: String,
       required: true,
-      unique: true,
-      lowercase: true,
       trim: true,
     },
 
-    description: {
+    brand: {
       type: String,
-      default: "",
+      default: "Babaji Herbal",
+      trim: true,
     },
 
     shortDescription: {
@@ -26,12 +42,37 @@ const productSchema = new mongoose.Schema(
       default: "",
     },
 
-    price: {
+    description: {
+      type: String,
+      default: "",
+    },
+
+    ingredients: {
+      type: String,
+      default: "",
+    },
+
+    indications: {
+      type: String,
+      default: "",
+    },
+
+    dosage: {
+      type: String,
+      default: "",
+    },
+
+    mrp: {
       type: Number,
       required: true,
     },
 
-    discountPrice: {
+    sellingPrice: {
+      type: Number,
+      required: true,
+    },
+
+    discount: {
       type: Number,
       default: 0,
     },
@@ -41,39 +82,16 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
 
-    image: {
+    availability: {
       type: String,
-      default: "",
+      enum: ["In Stock", "Out of Stock"],
+      default: "In Stock",
     },
 
-    gallery: [
-      {
-        type: String,
-      },
-    ],
-
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
-    },
-
-    brand: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Brand",
-      required: true,
-    },
-
-    size: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Size",
-      required: true,
-    },
-
-    color: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Color",
-      required: true,
+    status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
     },
 
     featured: {
@@ -81,14 +99,21 @@ const productSchema = new mongoose.Schema(
       default: false,
     },
 
-    status: {
-      type: Boolean,
-      default: true,
-    },
+    // Product Images
+    images: [
+      {
+        type: String,
+      },
+    ],
+
+    variations: [variationSchema],
   },
+
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+const Product = mongoose.model("Product", productSchema);
+
+export default Product;

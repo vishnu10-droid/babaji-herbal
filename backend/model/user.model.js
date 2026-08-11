@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -26,10 +26,36 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    
+    role: {
+  type: String,
+  enum: ["user", "admin"],
+  default: "user",
+},
+
+    // Store hashed OTP
+    otp: {
+      type: String,
+      default: null,
+    },
+
+    // OTP expiry time
+    otpExpires: {
+      type: Date,
+      default: null,
+    },
+
+    // Email verification status
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export default User;

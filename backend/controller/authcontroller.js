@@ -1,12 +1,16 @@
-const User = require("../model/user.model");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../model/user.model.js";
+import { sendOTP } from "../utils/sendMail.js";
 
-async function register(req, res) {
+// ======================
+// Register
+// ======================
+export const register = async (req, res) => {
   try {
-    const body = req.body;
+    const { name, email, password, phone, role } = req.body;
 
-    const existingUser = await User.findOne({ email: body.email });
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       return res.status(400).json({
@@ -14,49 +18,68 @@ async function register(req, res) {
         message: "User already exists",
       });
     }
-    const hashedPassword = await bcrypt.hash(body.password, 10);
-    body.password = hashedPassword;
-    const user = await User.create(body);
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Hash OTP
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    // Create user (defaults to 'user' role if none provided)
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      role: role || "user",
+      otp: hashedOtp,
+      otpExpires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      isVerified: false,
+    });
+
     const token = jwt.sign(
       {
         id: user._id,
-        email: user.email,
         name: user.name,
+        role: user.role,
       },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      },
+      { expiresIn: "1d" }
     );
 
-    body._id = user._id;
-    body.token = token;
-    delete body.password;
+    // Send OTP
+    // await sendOTP(email, otp);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "User registered successfully",
-      data: body,
+      message: "OTP sent successfully. Please verify your email.",
+      data: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      token,
     });
   } catch (error) {
-    console.log("Register Error:", error);
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
-}
+};
 
-
-
-
-
-async function login(req, res) {
-  console.log("Login Request:", req.body);
+// ======================
+// Verify OTP
+// ======================
+export const verifyOTP = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, otp } = req.body;
 
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -64,47 +87,159 @@ async function login(req, res) {
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
+    if (!user.otp || user.otpExpires < new Date()) {
       return res.status(400).json({
         success: false,
-        message: "Invalid Password",
+        message: "OTP has expired",
       });
     }
 
-    const userData = user.toObject();
+    const isValidOTP = await bcrypt.compare(otp, user.otp);
 
-    console.log("Logged In User:", user);
+    if (!isValidOTP) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    user.isVerified = true;
+    user.otp = null;
+    user.otpExpires = null;
+
+    await user.save();
+
     const token = jwt.sign(
       {
         id: user._id,
         email: user.email,
-        name:user.name
+        role: user.role,
       },
       process.env.JWT_SECRET,
       {
         expiresIn: "7d",
-      },
+      }
     );
-
-    userData.token = token;
-    delete userData.password;
 
     res.status(200).json({
       success: true,
-      message: "Login Successful",
-      data: userData,
+      message: "Email verified successfully",
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          isVerified: user.isVerified,
+        },
+        token,
+      },
     });
   } catch (error) {
-    console.log("Login Error:", error);
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
-}
-module.exports = {
-  register,
-  login,
+};
+
+// ======================
+// Login
+// ======================
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    // if (!user.isVerified) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Please verify your email first",
+    //   });
+    // }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ======================
+// Get All Users
+// ======================
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password -otp");
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ======================
+// Logout
+// ======================
+export const logout = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };

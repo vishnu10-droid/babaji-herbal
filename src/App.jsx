@@ -1,8 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
 import Home from './pages/Home'
-import About from './pages/About'
-import AboutDetails from './pages/AboutDetails'
 import Shop from './pages/Shop'
 import Cart from './pages/Cart'
 import Wishlist from './pages/Wishlist'
@@ -16,8 +14,7 @@ import FAQ from './pages/FAQ'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Terms from './pages/Terms'
 import NotFound from './pages/NotFound'
-import Dashboard from './pages/Dashboard'
-import GalleryPage from './pages/AboutGallery'
+import Dashboard from './dashboard/Dashboard'
 import Category from './pages/Category'
 
 function App() {

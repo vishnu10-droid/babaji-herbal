@@ -1,7 +1,21 @@
-const express = require("express");
-const router = express.Router();
-const authController = require("../controller/authcontroller");
-router.post("/register", authController.register);
-router.post("/login", authController.login);
+import express from "express";
+import {
+  register,
+  verifyOTP,
+  login,
+  getUsers,
+  logout,
+} from "../controller/authcontroller.js";
 
-module.exports = router;
+import { protect } from "../middleware/auth.middleware.js";
+import { admin } from "../middleware/adminMiddleware.js";
+
+const router = express.Router();
+
+router.post("/register", register);
+router.post("/verify-otp", verifyOTP);
+router.post("/login", login);
+router.get("/users", protect, admin, getUsers);
+router.post("/logout", protect, logout);
+
+export default router;

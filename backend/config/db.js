@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 mongoose.set("bufferCommands", false);
 
@@ -18,4 +18,4 @@ async function connectdb() {
   }
 }
 
-module.exports = connectdb;
+export default connectdb;
