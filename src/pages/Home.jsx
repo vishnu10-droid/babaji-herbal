@@ -5,12 +5,12 @@ import OfferBanner from "../components/OfferBanner";
 import StatsSection from "../components/StatsSection";
 import FAQ from "../components/FAQ";
 import Newsletter from "../components/Newsletter";
-import ProductCard from "../components/ProductCard";
 import { useEffect } from "react";
 import { useState } from "react";
+import ProductCard from "../components/ProductCard";
 
 export default function Home() {
-  const [trending, setTrending] = useState([]);
+  const [item, setTrending] = useState([]);
   const fetchProducts = async () => {
     const response = await fetch("http://localhost:3000/api/products", {
       method: "GET",
@@ -36,12 +36,9 @@ export default function Home() {
           </h2>
         </div>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {trending.map((item) => (
-  <ProductCard
-    key={item._id}
-    item={item}
-  />
-))}
+         
+            <ProductCard  key={item._id} item={item} />
+    
         </div>
       </section>
       <OfferBanner />

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AdminSectionPage from "../../../components/admin/AdminSectionPage";
 
 export default function AddCategoryPage() {
+  
   return (
     <AdminSectionPage
       title="Add Category"

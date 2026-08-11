@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 
 const AddCategory = () => {
+  const dispatch = useDispatch();
+  const     navigate = useNavigate();
+
+  const { loading } = useSelector((state) => state.category);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",

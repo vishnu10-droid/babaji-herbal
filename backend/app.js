@@ -59,9 +59,7 @@ app.use(
 // ========================================
 
 app.use("/api/auth", authRouter);
-
 app.use("/api/products", productRouter);
-
 app.use("/api/category", Category);
 
 // ========================================
