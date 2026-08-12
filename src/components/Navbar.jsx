@@ -11,7 +11,7 @@ import {
   LogIn,
   LogOut,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/auth-context";
 
 const navLinks = [
   { label: "Home", to: "/" },

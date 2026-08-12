@@ -7,6 +7,8 @@ import {
   deleteproduct as deleteProductApi,
 } from "../../service/product.api";
 
+const unwrapProduct = (payload) => payload?.product || payload?.data || payload;
+
 // GET PRODUCT
 export const fetchproduct = createAsyncThunk(
   "product/fetchproduct",
@@ -91,7 +93,7 @@ const productSlice = createSlice({
       .addCase(fetchproduct.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.data = action.payload.data || action.payload;
+        state.data = Array.isArray(action.payload) ? action.payload : unwrapProduct(action.payload);
       })
 
       .addCase(fetchproduct.rejected, (state, action) => {
@@ -109,7 +111,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = null;
 
-        const newProduct = action.payload.data || action.payload;
+        const newProduct = unwrapProduct(action.payload);
 
         state.data.push(newProduct);
       })
@@ -129,7 +131,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = null;
 
-        const updatedProduct = action.payload.data || action.payload;
+        const updatedProduct = unwrapProduct(action.payload);
 
         const index = state.data.findIndex(
           (product) => product._id === updatedProduct._id

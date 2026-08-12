@@ -1,8 +1,11 @@
 import { Bell, Mail, Moon, Search, ChevronDown, CalendarRange, Settings, User, LogOut } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/auth-context'
 
 export default function Navbar() {
+  const { user } = useAuth()
+  const initials = (user?.name || 'User').slice(0, 2).toUpperCase()
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -40,10 +43,10 @@ export default function Navbar() {
 
         <div className="group relative hidden md:block">
           <button type="button" className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 px-3 py-2 text-left transition hover:border-emerald-500/30">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/15 font-semibold text-emerald-300">AH</div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/15 font-semibold text-emerald-300">{initials}</div>
             <div className="hidden xl:block">
-              <p className="text-sm font-semibold text-white">Aarav Hegde</p>
-              <p className="text-xs text-slate-400">Admin</p>
+              <p className="text-sm font-semibold text-white">{user?.name || 'User'}</p>
+              <p className="text-xs text-slate-400">{user?.email || ''}</p>
             </div>
             <ChevronDown size={16} className="text-slate-400" />
           </button>

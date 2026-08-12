@@ -1,68 +1,44 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { AuthContext } from "./auth-context";
 
-const AuthContext = createContext(null);
+const USER_KEY = "auth_user";
+const TOKEN_KEY = "auth_token";
+
+const readUser = () => {
+  try {
+    const stored = localStorage.getItem(USER_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+};
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem("auth_user");
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
-
-  const [token, setToken] = useState(() => {
-    try {
-      return localStorage.getItem("auth_token") || null;
-    } catch {
-      return null;
-    }
-  });
-
-  const isAuthenticated = Boolean(token);
+  const [user, setUser] = useState(readUser);
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
 
   useEffect(() => {
-    try {
-      if (token) {
-        localStorage.setItem("auth_token", token);
-      } else {
-        localStorage.removeItem("auth_token");
-      }
-
-      if (user) {
-        localStorage.setItem("auth_user", JSON.stringify(user));
-      } else {
-        localStorage.removeItem("auth_user");
-      }
-    } catch (error) {
-      console.error("Auth persistence error:", error);
-    }
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
+    else localStorage.removeItem(USER_KEY);
   }, [token, user]);
 
-  const login = (userData, authToken) => {
+  const login = useCallback((userData, authToken) => {
     setUser(userData);
     setToken(authToken);
-  };
+  }, []);
 
-  const logout = () => {
+  const updateUser = useCallback((userData) => setUser((current) => ({ ...current, ...userData })), []);
+
+  const logout = useCallback(() => {
     setUser(null);
     setToken(null);
-  };
+  }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ user, token, isAuthenticated, login, logout }}
-    >
+    <AuthContext.Provider value={{ user, token, isAuthenticated: Boolean(token), login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }

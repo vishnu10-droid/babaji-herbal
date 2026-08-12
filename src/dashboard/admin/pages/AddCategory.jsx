@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { createCategory } from "../../../store/slice/category.slice";
 
 const AddCategory = () => {
   const dispatch = useDispatch();
@@ -40,9 +43,10 @@ const AddCategory = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Category Data:", formData);
-
-    // API call yahan kar sakte ho
+    dispatch(createCategory(formData))
+      .unwrap()
+      .then(() => navigate("/admin/categories"))
+      .catch(() => undefined);
   };
 
   return (
@@ -206,6 +210,7 @@ const AddCategory = () => {
 
                 <button
                   type="button"
+                  onClick={() => navigate("/admin/categories")}
                   className="w-1/2 rounded-md border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
                 >
                   Cancel
@@ -213,9 +218,10 @@ const AddCategory = () => {
 
                 <button
                   type="submit"
+                  disabled={loading}
                   className="w-1/2 rounded-md bg-purple-800 px-5 py-3 text-sm font-semibold text-white transition hover:bg-purple-900"
                 >
-                  Add Category
+                  {loading ? "Adding..." : "Add Category"}
                 </button>
 
               </div>

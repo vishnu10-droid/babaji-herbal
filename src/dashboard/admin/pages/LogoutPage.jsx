@@ -1,11 +1,10 @@
-import AdminSectionPage from '../../../components/admin/AdminSectionPage'
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/auth-context";
 
 export default function LogoutPage() {
-  return (
-    <AdminSectionPage title="Logout" description="Signed out successfully from Babaji Herbals admin." badge="Session">
-      <div className="rounded-2xl border border-slate-800 bg-slate-950/50 p-5 text-sm text-slate-300">
-        Logout action placeholder ready to integrate with authentication.
-      </div>
-    </AdminSectionPage>
-  )
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => { logout(); navigate("/login", { replace: true }); }, [logout, navigate]);
+  return null;
 }

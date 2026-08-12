@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutGrid,
   Package,
@@ -18,97 +18,93 @@ import {
   ChevronRight,
   ChevronDown,
   Leaf,
-} from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const menuGroups = [
   {
-    title: 'Management',
+    title: "Management",
     items: [
-      { label: 'Dashboard', to: '/admin', icon: LayoutGrid },
+      { label: "Dashboard", to: "/admin", icon: LayoutGrid },
+      // {
+      //   label: 'Products',
+      //   icon: Package,
+      //   children: [
+      //     { label: 'All Products', to: '/admin/products' },
+      //     { label: 'Add Product', to: '/admin/products/add' },
+      //   ],
+      // },
+      { label: "Products", to: "/admin/products", icon: Package },
+
+      { label: "All Categories", to: "/admin/categories", icon: Boxes },
+
+      { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
+      { label: "Customers", to: "/admin/customers", icon: Users },
+      { label: "Coupons", to: "/admin/coupons", icon: Ticket },
+      { label: "Reviews", to: "/admin/reviews", icon: Star },
+      { label: "Banner Manager", to: "/admin/banner", icon: Image },
+      { label: "Media Gallery", to: "/admin/media", icon: Images },
       {
-        label: 'Products',
-        icon: Package,
-        children: [
-          { label: 'All Products', to: '/admin/products' },
-          { label: 'Add Product', to: '/admin/products/add' },
-        ],
-      },
-      {
-        label: 'Categories',
-        icon: Boxes,
-        children: [
-          { label: 'All Categories', to: '/admin/categories' },
-          { label: 'Add Category', to: '/admin/categories/add' },
-        ],
-      },
-      { label: 'Orders', to: '/admin/orders', icon: ShoppingCart },
-      { label: 'Customers', to: '/admin/customers', icon: Users },
-      { label: 'Coupons', to: '/admin/coupons', icon: Ticket },
-      { label: 'Reviews', to: '/admin/reviews', icon: Star },
-      { label: 'Banner Manager', to: '/admin/banner', icon: Image },
-      { label: 'Media Gallery', to: '/admin/media', icon: Images },
-      {
-        label: 'Reports',
+        label: "Reports",
         icon: BarChart3,
         children: [
-          { label: 'Sales Report', to: '/admin/reports/sales' },
-          { label: 'Customer Report', to: '/admin/reports/customers' },
-          { label: 'Product Report', to: '/admin/reports/products' },
+          { label: "Sales Report", to: "/admin/reports/sales" },
+          { label: "Customer Report", to: "/admin/reports/customers" },
+          { label: "Product Report", to: "/admin/reports/products" },
         ],
       },
     ],
   },
-]
+];
 
 const bottomItems = [
-  { label: 'Settings', to: '/admin/settings', icon: Settings },
-  { label: 'Profile', to: '/admin/profile', icon: User },
-  { label: 'Logout', to: '/admin/logout', icon: LogOut },
-]
+  { label: "Settings", to: "/admin/settings", icon: Settings },
+  { label: "Profile", to: "/admin/profile", icon: User },
+  { label: "Logout", to: "/admin/logout", icon: LogOut },
+];
 
 export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
-  const location = useLocation()
-  const currentPath = location.pathname
+  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
-  const groupedItems = useMemo(() => menuGroups, [])
+  const groupedItems = useMemo(() => menuGroups, []);
 
   const [openDropdowns, setOpenDropdowns] = useState(() => {
-    const initialState = {}
+    const initialState = {};
     menuGroups.forEach((group) => {
       group.items.forEach((item) => {
         if (item.children) {
           const isChildActive = item.children.some(
             (child) =>
               currentPath === child.to ||
-              currentPath.startsWith(`${child.to}/`)
-          )
+              currentPath.startsWith(`${child.to}/`),
+          );
           if (isChildActive) {
-            initialState[item.label] = true
+            initialState[item.label] = true;
           }
         }
-      })
-    })
-    return initialState
-  })
+      });
+    });
+    return initialState;
+  });
 
-  const [hoveredItem, setHoveredItem] = useState(null)
+  const [hoveredItem, setHoveredItem] = useState(null);
 
   const toggleDropdown = (label) => {
     setOpenDropdowns((prev) => ({
       ...prev,
       [label]: !prev[label],
-    }))
-  }
+    }));
+  };
 
   return (
     <motion.aside
       initial={{ opacity: 0, x: -24 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
       className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-slate-800 bg-slate-950/90 px-2 py-2 backdrop-blur-xl lg:flex ${
-        collapsed ? 'w-20' : 'w-[240px]'
+        collapsed ? "w-20" : "w-[240px]"
       }`}
     >
       {/* Compact Header / Brand */}
@@ -119,8 +115,12 @@ export default function Sidebar() {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white">Babaji Herbals</p>
-              <p className="truncate text-[10px] text-slate-400">Back to Nature</p>
+              <p className="truncate text-sm font-semibold text-white">
+                Babaji Herbals
+              </p>
+              <p className="truncate text-[10px] text-slate-400">
+                Back to Nature
+              </p>
             </div>
           )}
         </div>
@@ -144,18 +144,22 @@ export default function Sidebar() {
             )}
             <nav className="space-y-0.5">
               {group.items.map((item) => {
-                const Icon = item.icon
-                const hasChildren = Boolean(item.children?.length)
+                const Icon = item.icon;
+                const hasChildren = Boolean(item.children?.length);
                 const isChildActive =
                   hasChildren &&
                   item.children?.some(
-                    (child) => currentPath === child.to || currentPath.startsWith(`${child.to}/`)
-                  )
+                    (child) =>
+                      currentPath === child.to ||
+                      currentPath.startsWith(`${child.to}/`),
+                  );
                 const active =
-                  (item.to && (currentPath === item.to || currentPath.startsWith(`${item.to}/`))) ||
-                  isChildActive
+                  (item.to &&
+                    (currentPath === item.to ||
+                      currentPath.startsWith(`${item.to}/`))) ||
+                  isChildActive;
 
-                const isOpen = openDropdowns[item.label]
+                const isOpen = openDropdowns[item.label];
 
                 return (
                   <div
@@ -171,18 +175,22 @@ export default function Sidebar() {
                         onClick={() => !collapsed && toggleDropdown(item.label)}
                         className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs font-medium transition-all duration-200 ${
                           active
-                            ? 'bg-emerald-500/15 text-emerald-300'
-                            : 'text-slate-300 hover:bg-slate-900/80 hover:text-white'
+                            ? "bg-emerald-500/15 text-emerald-300"
+                            : "text-slate-300 hover:bg-slate-900/80 hover:text-white"
                         }`}
                       >
                         <span
                           className={`rounded-md ${
-                            active ? 'bg-emerald-500/15 text-emerald-300' : 'bg-slate-900/80 text-slate-400'
+                            active
+                              ? "bg-emerald-500/15 text-emerald-300"
+                              : "bg-slate-900/80 text-slate-400"
                           } p-1 transition group-hover:text-emerald-300`}
                         >
                           <Icon size={14} />
                         </span>
-                        {!collapsed && <span className="flex-1 text-left">{item.label}</span>}
+                        {!collapsed && (
+                          <span className="flex-1 text-left">{item.label}</span>
+                        )}
                         {!collapsed && (
                           <motion.span
                             animate={{ rotate: isOpen ? 180 : 0 }}
@@ -195,21 +203,25 @@ export default function Sidebar() {
                       </button>
                     ) : (
                       <Link
-                        to={item.to ?? '/admin'}
+                        to={item.to ?? "/admin"}
                         className={`group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs font-medium transition-all duration-200 ${
                           active
-                            ? 'bg-emerald-500/15 text-emerald-300'
-                            : 'text-slate-300 hover:bg-slate-900/80 hover:text-white'
+                            ? "bg-emerald-500/15 text-emerald-300"
+                            : "text-slate-300 hover:bg-slate-900/80 hover:text-white"
                         }`}
                       >
                         <span
                           className={`rounded-md ${
-                            active ? 'bg-emerald-500/15 text-emerald-300' : 'bg-slate-900/80 text-slate-400'
+                            active
+                              ? "bg-emerald-500/15 text-emerald-300"
+                              : "bg-slate-900/80 text-slate-400"
                           } p-1 transition group-hover:text-emerald-300`}
                         >
                           <Icon size={14} />
                         </span>
-                        {!collapsed && <span className="flex-1">{item.label}</span>}
+                        {!collapsed && (
+                          <span className="flex-1">{item.label}</span>
+                        )}
                       </Link>
                     )}
 
@@ -219,27 +231,28 @@ export default function Sidebar() {
                         {isOpen && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
+                            animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.2, ease: 'easeInOut' }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
                             className="overflow-hidden"
                           >
                             <div className="ml-6 space-y-0.5 border-l border-slate-800/80 py-0.5 pl-2">
                               {item.children?.map((child) => {
-                                const isChildLinkActive = currentPath === child.to
+                                const isChildLinkActive =
+                                  currentPath === child.to;
                                 return (
                                   <Link
                                     key={child.label}
                                     to={child.to}
                                     className={`block rounded-md px-2 py-1 text-xs transition ${
                                       isChildLinkActive
-                                        ? 'font-medium text-emerald-300 bg-emerald-500/10'
-                                        : 'text-slate-400 hover:text-white hover:bg-slate-900/50'
+                                        ? "font-medium text-emerald-300 bg-emerald-500/10"
+                                        : "text-slate-400 hover:text-white hover:bg-slate-900/50"
                                     }`}
                                   >
                                     {child.label}
                                   </Link>
-                                )
+                                );
                               })}
                             </div>
                           </motion.div>
@@ -265,8 +278,8 @@ export default function Sidebar() {
                               to={child.to}
                               className={`block rounded-md px-2 py-1 text-xs transition ${
                                 currentPath === child.to
-                                  ? 'bg-emerald-500/15 text-emerald-300 font-medium'
-                                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                  ? "bg-emerald-500/15 text-emerald-300 font-medium"
+                                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
                               }`}
                             >
                               {child.label}
@@ -276,7 +289,7 @@ export default function Sidebar() {
                       </motion.div>
                     )}
                   </div>
-                )
+                );
               })}
             </nav>
           </div>
@@ -286,25 +299,29 @@ export default function Sidebar() {
       {/* Compact Bottom Section */}
       <div className="mt-2 space-y-0.5 border-t border-slate-800/80 pt-2">
         {bottomItems.map((item) => {
-          const Icon = item.icon
-          const active = currentPath === item.to
+          const Icon = item.icon;
+          const active = currentPath === item.to;
 
           return (
             <Link
               key={item.label}
               to={item.to}
               className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs font-medium transition ${
-                active ? 'bg-emerald-500/15 text-emerald-300' : 'text-slate-300 hover:bg-slate-900/80 hover:text-white'
+                active
+                  ? "bg-emerald-500/15 text-emerald-300"
+                  : "text-slate-300 hover:bg-slate-900/80 hover:text-white"
               }`}
             >
-              <span className={`rounded-md ${active ? 'bg-emerald-500/15 text-emerald-300' : 'bg-slate-900/80 text-slate-400'} p-1`}>
+              <span
+                className={`rounded-md ${active ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-900/80 text-slate-400"} p-1`}
+              >
                 <Icon size={14} />
               </span>
               {!collapsed && <span>{item.label}</span>}
             </Link>
-          )
+          );
         })}
       </div>
     </motion.aside>
-  )
+  );
 }

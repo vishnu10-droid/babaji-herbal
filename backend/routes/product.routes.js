@@ -9,6 +9,7 @@ import {
   updateProduct,
   deleteProduct,
 } from "../controller/productController.js";
+import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ router.get("/:id", getProduct);
 // "images" must match Postman field name
 router.post(
   "/",
+  protect,
   upload.array("images", 10),
   createProduct
 );
@@ -29,11 +31,12 @@ router.post(
 // UPDATE PRODUCT
 router.put(
   "/:id",
+  protect,
   upload.array("images", 10),
   updateProduct
 );
 
 // DELETE PRODUCT
-router.delete("/:id", deleteProduct);
+router.delete("/:id", protect, deleteProduct);
 
 export default router;

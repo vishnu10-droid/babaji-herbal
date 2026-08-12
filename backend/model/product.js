@@ -14,7 +14,7 @@ const variationSchema = new mongoose.Schema(
   },
   {
     _id: false,
-  }
+  },
 );
 
 const productSchema = new mongoose.Schema(
@@ -111,7 +111,7 @@ const productSchema = new mongoose.Schema(
 
   {
     timestamps: true,
-  }
+  },
 );
 
 const Product = mongoose.model("Product", productSchema);

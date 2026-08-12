@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
+import { API_URL } from "../../../config/config";
 
 export default function AddProductForm() {
   const [product, setProduct] = useState({
@@ -308,18 +309,15 @@ export default function AddProductForm() {
       // API REQUEST
       // =========================================
 
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
 
       const res = await axios.post(
-        "http://localhost:3000/api/products",
+        `${API_URL}/products`,
         data,
         {
           headers: {
             ...(token
-              ? {
-                  token: token,
-                }
+              ? { Authorization: `Bearer ${token}` }
               : {}),
           },
         }

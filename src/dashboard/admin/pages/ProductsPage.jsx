@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchproduct } from "../../../store/slice/product.slice.js";
+import { Link } from "react-router-dom";
 
 export default function ProductsPage() {
   // ==========================================
@@ -52,6 +53,8 @@ export default function ProductsPage() {
           All Products
         </h2>
 
+
+
         <Link
           to="/admin/products/Form"
           className="rounded-lg bg-emerald-600 px-4 py-2 text-white"
@@ -95,7 +98,7 @@ export default function ProductsPage() {
 
               {item.images?.length > 0 ? (
                 <img
-                  src={`http://localhost:3000${item.images[0]}`}
+                  src={`${import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:3000'}${item.images[0]}`}
                   alt={item.name}
                   className="mb-4 h-48 w-full rounded-xl object-cover"
                 />

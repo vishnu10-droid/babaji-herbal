@@ -6,9 +6,7 @@ import { fetchCategories } from "../../../store/slice/category.slice";
 export default function CategoriesPage() {
   const dispatch = useDispatch();
 
-  const { data: categoryData } = useSelector(
-    (state) => state.category
-  );
+  const { data: categoryData, loading, error } = useSelector((state) => state.category);
 
   // console.log(categoryData);
 
@@ -22,9 +20,11 @@ export default function CategoriesPage() {
       description="Organize products under wellness-focused categories."
       badge="Structure"
     >
+      {loading && <p className="text-sm text-slate-400">Loading categories...</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
       <div className="grid gap-3 md:grid-cols-3">
 
-        {categoryData?.data?.map((category) => (
+        {categoryData.map((category) => (
           <div
             key={category._id}
             className="rounded-2xl border border-slate-800 bg-slate-950/50 p-4 text-sm text-white"

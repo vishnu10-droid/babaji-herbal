@@ -1,156 +1,42 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  fetchCatgeory,
-  addCategory,
-  updateCategory,
-  deleteCategory,
-} from "../../service/category.api";
-export const fetchCategories = createAsyncThunk(
-  "category/fetchCategory",
-  async (_, thunkAPI) => {
-    try {
-      const response = await fetchCatgeory();
-      return response;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
-    }
-  },
-);
-export const createCategory = createAsyncThunk(
-  "category/addCategory",
-  async (data, thunkAPI) => {
-    try {
-      const response = await addCategory(data);
-      return response;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
-    }
-  },
-);
-export const updateCategorydata = createAsyncThunk(
-  "category/updateCategory",
-  async ({ data, id }, thunkAPI) => {
-    try {
-      const response = await updateCategory(data, id);
-      return respone;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
-    }
-  },
-);
-export const deleteCatgeorydata = createAsyncThunk(
-  "category/deleteCategory",
-  async (id, thunkAPI) => {
-    try {
-      const response = await deleteCategory(id);
-      return response;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
-    }
-  },
-);
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { addCategory, deleteCategory, fetchCatgeory, updateCategory } from "../../service/category.api";
 
-const initialState = {
-  data: [],
-  loading: false,
-  error: null,
-};
+const getError = (error) => error.response?.data?.message || error.message || "Request failed";
+const unwrap = (payload) => payload?.data || payload || [];
+
+export const fetchCategories = createAsyncThunk("category/fetchCategory", async (_, thunkAPI) => {
+  try { return await fetchCatgeory(); } catch (error) { return thunkAPI.rejectWithValue(getError(error)); }
+});
+export const createCategory = createAsyncThunk("category/addCategory", async (data, thunkAPI) => {
+  try { return await addCategory(data); } catch (error) { return thunkAPI.rejectWithValue(getError(error)); }
+});
+export const updateCategorydata = createAsyncThunk("category/updateCategory", async ({ data, id }, thunkAPI) => {
+  try { return await updateCategory(data, id); } catch (error) { return thunkAPI.rejectWithValue(getError(error)); }
+});
+export const deleteCatgeorydata = createAsyncThunk("category/deleteCategory", async (id, thunkAPI) => {
+  try { await deleteCategory(id); return id; } catch (error) { return thunkAPI.rejectWithValue(getError(error)); }
+});
 
 const categorySlice = createSlice({
   name: "category",
-  initialState,
+  initialState: { data: [], loading: false, error: null },
   extraReducers: (builder) => {
     builder
-
-      // ==========================================
-      // GET CATEGORIES
-      // ==========================================
-
-      .addCase(fetchCategories.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-
-      .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
-        state.data = action.payload;
-      })
-
-      .addCase(fetchCategories.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      // ==========================================
-      // ADD CATEGORY
-      // ==========================================
-
-      .addCase(createCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-
-      .addCase(createCategory.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
-
-        state.data.unshift(action.payload);
-      })
-
-      .addCase(createCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      // ==========================================
-      // UPDATE CATEGORY
-      // ==========================================
-
-      .addCase(updateCategorydata.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-
+      .addCase(fetchCategories.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchCategories.fulfilled, (state, action) => { state.loading = false; state.data = unwrap(action.payload); })
+      .addCase(fetchCategories.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(createCategory.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(createCategory.fulfilled, (state, action) => { state.loading = false; state.data.unshift(unwrap(action.payload)); })
+      .addCase(createCategory.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(updateCategorydata.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
-
-        const updatedCategory = action.payload;
-
-        const index = state.data.findIndex(
-          (item) => item._id === updatedCategory._id,
-        );
-
-        if (index !== -1) {
-          state.data[index] = updatedCategory;
-        }
+        const updated = unwrap(action.payload);
+        const index = state.data.findIndex((item) => item._id === updated._id);
+        if (index !== -1) state.data[index] = updated;
       })
-
-      .addCase(updateCategorydata.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      // ==========================================
-      // DELETE CATEGORY
-      // ==========================================
-
-      .addCase(deleteCatgeorydata.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-
-      .addCase(deleteCatgeorydata.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
-
-        state.data = state.data.filter((item) => item._id !== action.payload);
-      })
-      .addCase(deleteCatgeorydata.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
+      .addCase(updateCategorydata.rejected, (state, action) => { state.error = action.payload; })
+      .addCase(deleteCatgeorydata.fulfilled, (state, action) => { state.data = state.data.filter((item) => item._id !== action.payload); })
+      .addCase(deleteCatgeorydata.rejected, (state, action) => { state.error = action.payload; });
   },
 });
+
 export default categorySlice.reducer;

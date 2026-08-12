@@ -1,26 +1,14 @@
-
 import axios from "axios";
+import { API_URL } from "../config/config";
 
-const products=axios.create({
-    baseURL:"http://localhost:3000/api"
+const products = axios.create({ baseURL: API_URL });
+products.interceptors.request.use((config) => {
+  const token = localStorage.getItem("auth_token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
-export const fetchproduct=async()=>{
-  const response = await products.get("/products");
-  return response.data;
-}
-export const addproduct=async(data)=>{
-    const respone=await products.post("/products",data);
-    return response.data;
-}
-
-export const updateproduct=async(data,id)=>{
-    const response = await products.put(`/products/${id}`,data);
-    return response.data;
-
-}
-export const deleteproduct=async(id)=>{
-    const respone= await products.delete(`/products/${id}`);
-    return response.data
-}
-
+export const fetchproduct = async () => (await products.get("/products")).data;
+export const addproduct = async (data) => (await products.post("/products", data)).data;
+export const updateproduct = async (data, id) => (await products.put(`/products/${id}`, data)).data;
+export const deleteproduct = async (id) => (await products.delete(`/products/${id}`)).data;
