@@ -8,8 +8,10 @@ fs.mkdirSync(uploadPath, { recursive: true });
 const storage = multer.diskStorage({
   destination: (_req, _file, callback) => callback(null, uploadPath),
   filename: (_req, file, callback) => {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_");
-    callback(null, `${Date.now()}-${safeName}${path.extname(file.originalname)}`);
+    const extension = path.extname(file.originalname).toLowerCase();
+    const baseName = path.basename(file.originalname, extension)
+      .replace(/[^a-zA-Z0-9_-]/g, "_");
+    callback(null, `${Date.now()}-${baseName}${extension}`);
   },
 });
 

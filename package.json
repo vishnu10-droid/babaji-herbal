@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "vite",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
@@ -24,6 +25,7 @@
     "react-redux": "^9.3.0",
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
+    "redux-persist": "^6.0.0",
     "swiper": "^14.0.7",
     "tailwindcss": "^4.3.3"
   },

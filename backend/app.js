@@ -5,13 +5,9 @@ import path from "path";
 import authRouter from "./routes/auth.routes.js";
 import productRouter from "./routes/product.routes.js";
 import Category from "./routes/category.routes.js";
+import cartRoutes from "./routes/cart.routes.js";
 
 const app = express();
-
-// ========================================
-// CORS
-// ========================================
-
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -29,10 +25,6 @@ app.use(
   })
 );
 
-// ========================================
-// BODY PARSER
-// ========================================
-
 app.use(express.json());
 
 app.use(
@@ -40,12 +32,6 @@ app.use(
     extended: true,
   })
 );
-
-// ========================================
-// STATIC UPLOADS
-// ========================================
-
-// uploads folder ko public bana rahe hain
 
 app.use(
   "/uploads",
@@ -61,6 +47,7 @@ app.use(
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
 app.use("/api/category", Category);
+app.use("/api/cart", cartRoutes);
 
 // ========================================
 // TEST ROUTE

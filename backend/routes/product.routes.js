@@ -10,6 +10,7 @@ import {
   deleteProduct,
 } from "../controller/productController.js";
 import { protect } from "../middleware/auth.middleware.js";
+import { admin } from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
@@ -24,6 +25,7 @@ router.get("/:id", getProduct);
 router.post(
   "/",
   protect,
+  admin,
   upload.array("images", 10),
   createProduct
 );

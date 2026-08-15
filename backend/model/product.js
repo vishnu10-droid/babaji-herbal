@@ -1,24 +1,67 @@
 import mongoose from "mongoose";
 
+// ========================================
+// PRODUCT VARIATION SCHEMA
+// ========================================
+
 const variationSchema = new mongoose.Schema(
   {
-    size: {
+    // Example: "28 pouches"
+    name: {
       type: String,
       required: true,
+      trim: true,
     },
 
+    // Example: 28
+    pouches: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    // Original price
+    mrp: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    // Actual selling price
     price: {
       type: Number,
       required: true,
+      min: 0,
+    },
+
+    // Variation-specific stock
+    stock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    // Enable/disable individual variation
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   {
-    _id: false,
+    _id: true,
   },
 );
 
+// ========================================
+// PRODUCT SCHEMA
+// ========================================
+
 const productSchema = new mongoose.Schema(
   {
+    // ========================================
+    // BASIC INFORMATION
+    // ========================================
+
     name: {
       type: String,
       required: true,
@@ -29,6 +72,12 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      default: null,
     },
 
     brand: {
@@ -62,24 +111,38 @@ const productSchema = new mongoose.Schema(
       default: "",
     },
 
+    // ========================================
+    // DEFAULT PRODUCT PRICE
+    // ========================================
+    // These values are kept for products without
+    // variations and for backward compatibility.
+
     mrp: {
       type: Number,
       required: true,
+      min: 0,
     },
 
     sellingPrice: {
       type: Number,
       required: true,
+      min: 0,
     },
 
     discount: {
       type: Number,
       default: 0,
+      min: 0,
     },
+
+    // ========================================
+    // DEFAULT PRODUCT STOCK
+    // ========================================
 
     stock: {
       type: Number,
       default: 0,
+      min: 0,
     },
 
     availability: {
@@ -99,14 +162,24 @@ const productSchema = new mongoose.Schema(
       default: false,
     },
 
-    // Product Images
+    // ========================================
+    // PRODUCT IMAGES
+    // ========================================
+
     images: [
       {
         type: String,
       },
     ],
 
-    variations: [variationSchema],
+    // ========================================
+    // PRODUCT VARIATIONS
+    // ========================================
+
+    variations: {
+      type: [variationSchema],
+      default: [],
+    },
   },
 
   {
