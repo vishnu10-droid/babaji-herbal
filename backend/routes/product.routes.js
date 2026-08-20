@@ -22,21 +22,10 @@ router.get("/:id", getProduct);
 
 // CREATE PRODUCT
 // "images" must match Postman field name
-router.post(
-  "/",
-  protect,
-  admin,
-  upload.array("images", 10),
-  createProduct
-);
+router.post("/", protect, admin, upload.array("images", 10), createProduct);
 
 // UPDATE PRODUCT
-router.put(
-  "/:id",
-  protect,
-  upload.array("images", 10),
-  updateProduct
-);
+router.put("/:id", protect, upload.array("images", 10), updateProduct);
 
 // DELETE PRODUCT
 router.delete("/:id", protect, deleteProduct);

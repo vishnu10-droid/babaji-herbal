@@ -9,6 +9,9 @@ category.interceptors.request.use((config) => {
 });
 
 export const fetchCatgeory = async () => (await category.get("/category")).data;
-export const addCategory = async (data) => (await category.post("/category", data)).data;
-export const updateCategory = async (data, id) => (await category.put(`/category/${id}`, data)).data;
-export const deleteCategory = async (id) => (await category.delete(`/category/${id}`)).data;
+export const addCategory = async (data) =>
+  (await category.post("/category", data)).data;
+export const updateCategory = async (data, id) =>
+  (await category.put(`/category/${id}`, data)).data;
+export const deleteCategory = async (id) =>
+  (await category.delete(`/category/${id}`)).data;

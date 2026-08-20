@@ -14,6 +14,7 @@ import {
   API_ORIGIN,
   API_URL,
 } from "../config/config";
+
 import { addToCart } from "../store/slice/cart.slice";
 import { useAuth } from "../context/auth-context";
 
@@ -23,7 +24,6 @@ export default function ProductDetails() {
   const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState(null);
-
   const [error, setError] = useState("");
 
   const [selectedVariationId, setSelectedVariationId] =
@@ -31,6 +31,9 @@ export default function ProductDetails() {
 
   const [cartMessage, setCartMessage] =
     useState("");
+
+  const [isAddingToCart, setIsAddingToCart] =
+    useState(false);
 
   // ========================================
   // FETCH PRODUCT
@@ -43,27 +46,25 @@ export default function ProductDetails() {
       try {
         setError("");
         setProduct(null);
+        setCartMessage("");
 
         const response = await fetch(
           `${API_URL}/products/${id}`,
         );
 
         if (!response.ok) {
-          throw new Error(
-            "Product not found",
-          );
+          throw new Error("Product not found");
         }
 
-        const data =
-          await response.json();
+        const data = await response.json();
 
         if (cancelled) return;
 
         setProduct(data);
 
-        // Automatically select first active variation
+        // Select first active variation
         const firstVariation =
-          data.variations?.find(
+          data?.variations?.find(
             (variation) =>
               variation.isActive !== false,
           );
@@ -78,7 +79,8 @@ export default function ProductDetails() {
       } catch (requestError) {
         if (!cancelled) {
           setError(
-            requestError.message,
+            requestError?.message ||
+              "Unable to load product.",
           );
         }
       }
@@ -95,38 +97,34 @@ export default function ProductDetails() {
   // SELECTED VARIATION
   // ========================================
 
-  const selectedVariation =
-    useMemo(() => {
-      if (
-        !product?.variations?.length
-      ) {
-        return null;
-      }
+  const selectedVariation = useMemo(() => {
+    if (!product?.variations?.length) {
+      return null;
+    }
 
-      return (
-        product.variations.find(
-          (variation) =>
-            variation._id ===
-            selectedVariationId,
-        ) ||
-        product.variations.find(
-          (variation) =>
-            variation.isActive !== false,
-        ) ||
-        product.variations[0]
-      );
-    }, [
-      product,
-      selectedVariationId,
-    ]);
+    return (
+      product.variations.find(
+        (variation) =>
+          variation._id === selectedVariationId,
+      ) ||
+      product.variations.find(
+        (variation) =>
+          variation.isActive !== false,
+      ) ||
+      product.variations[0]
+    );
+  }, [
+    product,
+    selectedVariationId,
+  ]);
 
   // ========================================
-  // IMAGE
+  // PRODUCT IMAGE
   // ========================================
 
   const image = product?.images?.[0]
     ? `${API_ORIGIN}${product.images[0]}`
-    : "https://placehold.co/700x600/eaf2ff/2563eb?text=Babaji+Herbals";
+    : "https://placehold.co/700x600/ffffff/2563eb?text=Babaji+Herbals";
 
   // ========================================
   // CURRENT PRICE
@@ -169,33 +167,63 @@ export default function ProductDetails() {
   // ========================================
 
   const handleAddToCart = async () => {
-    if (
-      selectedVariation &&
-      currentStock <= 0
-    ) {
-      setCartMessage(
-        "This variation is out of stock.",
-      );
-
+    if (!product || isAddingToCart) {
       return;
     }
 
+    // Login check
     if (!isAuthenticated) {
-      setCartMessage("Please login to add products to cart.");
+      setCartMessage(
+        "Please login to add products to cart.",
+      );
+      return;
+    }
+
+    // Stock check
+    if (Number(currentStock) <= 0) {
+      setCartMessage(
+        "This product is out of stock.",
+      );
       return;
     }
 
     try {
-      await dispatch(addToCart({
-        productId: product._id,
-        variationId: selectedVariation?._id || undefined,
-        quantity: 1,
-      })).unwrap();
+      setIsAddingToCart(true);
+      setCartMessage("");
 
-      setCartMessage(selectedVariation ? `${selectedVariation.name} added to cart` : `${product.name} added to cart`);
-      setTimeout(() => setCartMessage(""), 3000);
+      const payload = {
+        productId: product._id,
+        quantity: 1,
+      };
+
+      if (selectedVariation?._id) {
+        payload.variationId =
+          selectedVariation._id;
+      }
+
+      await dispatch(
+        addToCart(payload),
+      ).unwrap();
+
+      setCartMessage(
+        selectedVariation
+          ? `${selectedVariation.name} added to cart`
+          : `${product.name} added to cart`,
+      );
+
+      setTimeout(() => {
+        setCartMessage("");
+      }, 3000);
     } catch (requestError) {
-      setCartMessage(requestError || "Product could not be added to cart.");
+      const message =
+        typeof requestError === "string"
+          ? requestError
+          : requestError?.message ||
+            "Product could not be added to cart.";
+
+      setCartMessage(message);
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -227,6 +255,10 @@ export default function ProductDetails() {
     );
   }
 
+  // ========================================
+  // PRODUCT DETAILS
+  // ========================================
+
   return (
     <>
       {/* ========================================
@@ -252,12 +284,19 @@ export default function ProductDetails() {
               PRODUCT IMAGE
           ======================================== */}
 
-          <div className="flex min-h-[500px] items-center justify-center rounded-[1.5rem] bg-blue-50 p-8">
+          <div className="flex min-h-[500px] items-center justify-center overflow-hidden rounded-[1.5rem] bg-white p-6">
+
             <img
               src={image}
               alt={product.name}
-              className="h-[420px] w-full rounded-[1.5rem] object-contain"
+              className="
+                block
+                max-h-[450px]
+                max-w-full
+                object-contain
+              "
             />
+
           </div>
 
           {/* ========================================
@@ -290,11 +329,11 @@ export default function ProductDetails() {
                 VARIATIONS
             ======================================== */}
 
-            {product.variations?.length >
-              0 && (
+            {product.variations?.length > 0 && (
               <div className="mt-7">
 
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+
                   <h2 className="text-lg font-bold text-slate-900">
                     Variations
                   </h2>
@@ -303,116 +342,129 @@ export default function ProductDetails() {
                     <span className="text-sm text-slate-500">
                       Selected:{" "}
                       <span className="font-bold text-blue-600">
-                        {
-                          selectedVariation.name
-                        }
+                        {selectedVariation.name}
                       </span>
                     </span>
                   )}
+
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
+
                   {product.variations
                     .filter(
                       (variation) =>
-                        variation.isActive !==
-                        false,
+                        variation.isActive !== false,
                     )
-                    .map(
-                      (variation) => {
-                        const isSelected =
-                          selectedVariation?._id ===
-                          variation._id;
+                    .map((variation) => {
 
-                        const variationDiscount =
-                          variation.mrp >
-                          variation.price
-                            ? Math.round(
-                                ((variation.mrp -
-                                  variation.price) /
-                                  variation.mrp) *
-                                  100,
-                              )
-                            : 0;
+                      const isSelected =
+                        selectedVariation?._id ===
+                        variation._id;
 
-                        return (
-                          <button
-                            key={
-                              variation._id
-                            }
-                            type="button"
-                            onClick={() =>
-                              setSelectedVariationId(
-                                variation._id,
-                              )
-                            }
-                            className={`relative rounded-xl border-2 p-4 text-left transition ${
+                      const variationDiscount =
+                        variation.mrp >
+                        variation.price
+                          ? Math.round(
+                              ((variation.mrp -
+                                variation.price) /
+                                variation.mrp) *
+                                100,
+                            )
+                          : 0;
+
+                      const variationStock =
+                        Number(
+                          variation.stock,
+                        ) || 0;
+
+                      return (
+                        <button
+                          key={variation._id}
+                          type="button"
+                          disabled={
+                            variationStock <= 0
+                          }
+                          onClick={() =>
+                            setSelectedVariationId(
+                              variation._id,
+                            )
+                          }
+                          className={`relative rounded-xl border-2 p-4 text-left transition ${
+                            isSelected
+                              ? "border-blue-600 bg-blue-50 shadow-md"
+                              : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
+                          } ${
+                            variationStock <= 0
+                              ? "cursor-not-allowed opacity-50"
+                              : ""
+                          }`}
+                        >
+
+                          {/* CHECK ICON */}
+
+                          {isSelected && (
+                            <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white">
+                              <Check size={12} />
+                            </span>
+                          )}
+
+                          {/* VARIATION NAME */}
+
+                          <p
+                            className={`pr-5 text-sm font-bold ${
                               isSelected
-                                ? "border-blue-600 bg-blue-50 shadow-md"
-                                : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
+                                ? "text-blue-700"
+                                : "text-slate-800"
                             }`}
                           >
-                            {/* CHECK ICON */}
+                            {variation.name}
+                          </p>
 
-                            {isSelected && (
-                              <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white">
-                                <Check
-                                  size={
-                                    12
-                                  }
-                                />
-                              </span>
+                          {/* PRICE */}
+
+                          <p className="mt-2 text-lg font-bold text-slate-900">
+                            ₹
+                            {Number(
+                              variation.price,
+                            ).toLocaleString(
+                              "en-IN",
                             )}
+                          </p>
 
-                            {/* VARIATION NAME */}
+                          {/* POUCHES */}
 
-                            <p
-                              className={`pr-5 text-sm font-bold ${
-                                isSelected
-                                  ? "text-blue-700"
-                                  : "text-slate-800"
-                              }`}
-                            >
-                              {
-                                variation.name
-                              }
-                            </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {variation.pouches ?? 0}{" "}
+                            pouches
+                          </p>
 
-                            {/* PRICE */}
+                          {/* STOCK */}
 
-                            <p className="mt-2 text-lg font-bold text-slate-900">
-                              ₹
-                              {Number(
-                                variation.price,
-                              ).toLocaleString(
-                                "en-IN",
-                              )}
-                            </p>
+                          <p
+                            className={`mt-1 text-xs font-semibold ${
+                              variationStock > 0
+                                ? "text-emerald-600"
+                                : "text-rose-600"
+                            }`}
+                          >
+                            {variationStock > 0
+                              ? "In Stock"
+                              : "Out of Stock"}
+                          </p>
 
-                            {/* POUCHES */}
+                          {/* DISCOUNT */}
 
-                            <p className="mt-1 text-xs text-slate-500">
-                              {
-                                variation.pouches
-                              }{" "}
-                              pouches
-                            </p>
+                          {variationDiscount > 0 && (
+                            <span className="mt-2 inline-flex rounded-full bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-700">
+                              {variationDiscount}% OFF
+                            </span>
+                          )}
 
-                            {/* DISCOUNT */}
+                        </button>
+                      );
+                    })}
 
-                            {variationDiscount >
-                              0 && (
-                              <span className="mt-2 inline-flex rounded-full bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-700">
-                                {
-                                  variationDiscount
-                                }
-                                % OFF
-                              </span>
-                            )}
-                          </button>
-                        );
-                      },
-                    )}
                 </div>
               </div>
             )}
@@ -469,25 +521,23 @@ export default function ProductDetails() {
                   SELECTED POUCHES
               ======================================== */}
 
-              {currentPouches && (
+              {currentPouches != null && (
                 <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
+
                   <p className="text-xs font-bold uppercase tracking-wider text-blue-500">
                     Selected Variation
                   </p>
 
                   <div className="mt-2 flex items-center justify-between gap-3">
+
                     <span className="text-lg font-bold text-blue-800">
-                      {
-                        selectedVariation?.name
-                      }
+                      {selectedVariation?.name}
                     </span>
 
                     <span className="text-lg font-bold text-blue-800">
-                      {
-                        currentPouches
-                      }{" "}
-                      pouches
+                      {currentPouches} pouches
                     </span>
+
                   </div>
 
                   <p className="mt-2 text-sm text-blue-600">
@@ -498,8 +548,10 @@ export default function ProductDetails() {
                       "en-IN",
                     )}
                   </p>
+
                 </div>
               )}
+
             </div>
 
             {/* ========================================
@@ -507,17 +559,8 @@ export default function ProductDetails() {
             ======================================== */}
 
             <div className="mt-4">
-              {selectedVariation ? (
-                currentStock > 0 ? (
-                  <p className="text-sm font-semibold text-emerald-600">
-                    ✓ In Stock
-                  </p>
-                ) : (
-                  <p className="text-sm font-semibold text-rose-600">
-                    Out of Stock
-                  </p>
-                )
-              ) : product.stock > 0 ? (
+
+              {Number(currentStock) > 0 ? (
                 <p className="text-sm font-semibold text-emerald-600">
                   ✓ In Stock
                 </p>
@@ -526,6 +569,7 @@ export default function ProductDetails() {
                   Out of Stock
                 </p>
               )}
+
             </div>
 
             {/* ========================================
@@ -533,6 +577,7 @@ export default function ProductDetails() {
             ======================================== */}
 
             <div className="mt-5 flex items-center gap-1 text-amber-500">
+
               {[1, 2, 3, 4, 5].map(
                 (star) => (
                   <Star
@@ -546,6 +591,7 @@ export default function ProductDetails() {
               <span className="ml-1 text-sm text-slate-500">
                 Customer favourite
               </span>
+
             </div>
 
             {/* ========================================
@@ -553,29 +599,74 @@ export default function ProductDetails() {
             ======================================== */}
 
             <Button
-              type="button" onClick={handleAddToCart} disabled={
-                selectedVariation
-                  ? currentStock <= 0
-                  : product.stock <= 0}
-        className="mt-8 rounded-full bg-blue-600 px-7 py-3 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+              type="button"
+              onClick={handleAddToCart}
+              disabled={
+                !product ||
+                Number(currentStock) <= 0 ||
+                isAddingToCart
+              }
+              className="
+                mt-8
+                flex
+                w-full
+                items-center
+                justify-center
+                rounded-full
+                bg-blue-600
+                px-7
+                py-4
+                text-base
+                font-bold
+                text-white
+                shadow-md
+                transition
+                duration-200
+                hover:bg-blue-700
+                hover:shadow-lg
+                active:scale-[0.98]
+                disabled:cursor-not-allowed
+                disabled:bg-slate-400
+                disabled:shadow-none
+              "
             >
+
               <ShoppingCart
                 className="mr-2"
-                size={17}
+                size={19}
               />
 
-              Add to Cart
+              {isAddingToCart
+                ? "Adding..."
+                : Number(currentStock) <= 0
+                  ? "Out of Stock"
+                  : "Add to Cart"}
+
             </Button>
 
             {/* ========================================
-                CART SUCCESS MESSAGE
+                CART MESSAGE
             ======================================== */}
 
             {cartMessage && (
-              <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-                ✓ {cartMessage}
+              <div
+                className={`mt-4 rounded-xl border px-4 py-3 text-sm font-semibold ${
+                  cartMessage
+                    .toLowerCase()
+                    .includes("added")
+                    ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+                    : "border-rose-100 bg-rose-50 text-rose-700"
+                }`}
+              >
+                {cartMessage
+                  .toLowerCase()
+                  .includes("added")
+                  ? "✓"
+                  : "⚠"}{" "}
+                {cartMessage}
               </div>
             )}
+
           </div>
         </div>
       </section>

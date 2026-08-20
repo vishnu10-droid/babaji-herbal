@@ -7,7 +7,6 @@ import Wishlist from "./pages/Wishlist";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogDetails from "./pages/BlogDetails";
 import FAQ from "./pages/FAQ";
@@ -18,18 +17,20 @@ import Dashboard from "./dashboard/Dashboard";
 import Category from "./pages/Category";
 import CategoryProducts from "./pages/CategoryProducts";
 import ProductDetails from "./pages/ProductDetails";
-import AdminLogin from "./pages/AdminLogin";
 import { useAuth } from "./context/auth-context";
-
+import Contact from "./pages/Contact";
 function ProtectedDashboard() {
   const { isAuthenticated, user } = useAuth();
-  return isAuthenticated && user?.role === "admin" ? <Dashboard /> : <Navigate to="/admin/login" replace />;
+  return isAuthenticated && user?.role === "admin" ? (
+    <Dashboard />
+  ) : (
+    <Navigate to="/admin/login" replace />
+  );
 }
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/admin/login" element={<AdminLogin />} />
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/category" element={<Category />} />

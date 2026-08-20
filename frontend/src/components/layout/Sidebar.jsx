@@ -43,8 +43,11 @@ const menuGroups = [
           { label: "Sales Report", to: "/admin/reports/sales" },
           { label: "Customer Report", to: "/admin/reports/customers" },
           { label: "Product Report", to: "/admin/reports/products" },
+          
         ],
+        
       },
+      { label: "Contact", to: "/admin/contact", icon: LayoutGrid },
     ],
   },
 ];

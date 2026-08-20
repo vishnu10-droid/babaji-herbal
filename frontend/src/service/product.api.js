@@ -8,7 +8,11 @@ products.interceptors.request.use((config) => {
   return config;
 });
 
-export const fetchproduct = async (params) => (await products.get("/products", { params })).data;
-export const addproduct = async (data) => (await products.post("/products", data)).data;
-export const updateproduct = async (data, id) => (await products.put(`/products/${id}`, data)).data;
-export const deleteproduct = async (id) => (await products.delete(`/products/${id}`)).data;
+export const fetchproduct = async (params) =>
+  (await products.get("/products", { params })).data;
+export const addproduct = async (data) =>
+  (await products.post("/products", data)).data;
+export const updateproduct = async (data, id) =>
+  (await products.put(`/products/${id}`, data)).data;
+export const deleteproduct = async (id) =>
+  (await products.delete(`/products/${id}`)).data;

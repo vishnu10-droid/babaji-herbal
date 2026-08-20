@@ -13,38 +13,18 @@ import { protect } from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 // Get logged-in user's cart
-router.get(
-  "/",
-  protect,
-  getCart
-);
+router.get("/", protect, getCart);
 
 // Add product / variation
-router.post(
-  "/add",
-  protect,
-  addToCart
-);
+router.post("/add", protect, addToCart);
 
 // Update quantity
-router.put(
-  "/item/:itemId",
-  protect,
-  updateCartItem
-);
+router.put("/item/:itemId", protect, updateCartItem);
 
 // Remove item
-router.delete(
-  "/item/:itemId",
-  protect,
-  removeCartItem
-);
+router.delete("/item/:itemId", protect, removeCartItem);
 
 // Clear cart
-router.delete(
-  "/clear",
-  protect,
-  clearCart
-);
+router.delete("/clear", protect, clearCart);
 
 export default router;

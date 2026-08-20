@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
@@ -12,6 +13,10 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../context/auth-context";
+import {
+  fetchWishlist,
+  resetWishlist,
+} from "../store/slice/wishlist.slice";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -22,10 +27,19 @@ const navLinks = [
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMobileMenu, setExpandedMobileMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchWishlist());
+    } else {
+      dispatch(resetWishlist());
+    }
+  }, [dispatch, isAuthenticated]);
 
   const toggleMobileSubmenu = (label) => {
     setExpandedMobileMenu((prev) => (prev === label ? null : label));

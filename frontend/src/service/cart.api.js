@@ -21,18 +21,13 @@ export const addToCartApi = async (data) => {
   return response.data;
 };
 
-export const updateCartApi = async (
-  itemId,
-  quantity
-) => {
+export const updateCartApi = async (itemId, quantity) => {
   const response = await cartApi.put(`/cart/item/${itemId}`, { quantity });
 
   return response.data;
 };
 
-export const removeCartApi = async (
-  itemId
-) => {
+export const removeCartApi = async (itemId) => {
   const response = await cartApi.delete(`/cart/item/${itemId}`);
 
   return response.data;

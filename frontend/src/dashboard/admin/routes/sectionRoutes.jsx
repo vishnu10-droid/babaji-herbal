@@ -11,6 +11,7 @@ import SettingsPage from '../pages/SettingsPage'
 import ProfilePage from '../pages/ProfilePage'
 import LogoutPage from '../pages/LogoutPage'
 import AddCategory from '../pages/AddCategory'
+import ContactPage from '../pages/ContactPage'
 
 export function renderSectionPage(pathname) {
   const path = pathname.replace(/\/+$/, '') || '/admin'
@@ -27,5 +28,6 @@ export function renderSectionPage(pathname) {
   if (path === '/admin/settings') return <SettingsPage />
   if (path === '/admin/profile') return <ProfilePage />
   if (path === '/admin/logout') return <LogoutPage />
+   if (path === '/admin/contact') return <ContactPage />
   return null
 }
