@@ -405,6 +405,8 @@ export const updateCartItem = async (
 
     await cart.save();
 
+    await cart.populate("items.productId");
+
     return res.status(200).json({
       success: true,
       message:
@@ -478,6 +480,8 @@ export const removeCartItem = async (
 
     await cart.save();
 
+    await cart.populate("items.productId");
+
     return res.status(200).json({
       success: true,
       message:
@@ -533,6 +537,8 @@ export const clearCart = async (
     cart.totalAmount = 0;
 
     await cart.save();
+
+    await cart.populate("items.productId");
 
     return res.status(200).json({
       success: true,

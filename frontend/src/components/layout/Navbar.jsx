@@ -11,7 +11,7 @@ export default function Navbar() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-blue-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-xl"
+      className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-emerald-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-xl"
     >
       <div className="flex items-center gap-3">
         <button type="button" className="rounded-2xl border border-slate-800 bg-slate-900/80 p-2 text-slate-300 transition hover:text-emerald-300 lg:hidden">
@@ -20,8 +20,8 @@ export default function Navbar() {
           <span className="mt-1 block h-0.5 w-4 bg-current" />
         </button>
 
-        <div className="hidden items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 px-3 py-2 md:flex">
-          <Search size={16} className="text-blue-500" />
+        <div className="hidden items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/70 px-3 py-2 md:flex">
+          <Search size={16} className="text-emerald-600" />
           <input
             type="text"
             placeholder="Search reports, products, customers"

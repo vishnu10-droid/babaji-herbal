@@ -1,4 +1,11 @@
+import { useEffect, useState } from "react";
 import AdminSectionPage from "../../../components/admin/AdminSectionPage";
-import AdminTable, { StatusBadge } from "../../../components/admin/AdminTable";
-const reviews = [{ id: "REV-1001", customer: "Ashok Kumar", product: "Ashwagandha Capsules", rating: "4.9 / 5", date: "12 Apr 2026", status: "Approved" }, { id: "REV-1002", customer: "Meena Shah", product: "Turmeric Face Oil", rating: "4.8 / 5", date: "11 Apr 2026", status: "Approved" }];
-export default function ReviewsPage() { return <AdminSectionPage title="Reviews" description="Monitor customer sentiment and review approvals." badge="Feedback"><AdminTable rows={reviews} columns={[{ key: "id", label: "Review ID" }, { key: "customer", label: "Customer" }, { key: "product", label: "Product" }, { key: "rating", label: "Rating", render: (row) => <span className="font-semibold text-amber-600">★ {row.rating}</span> }, { key: "date", label: "Date" }, { key: "status", label: "Status", render: (row) => <StatusBadge tone="green">{row.status}</StatusBadge> }]} /></AdminSectionPage>; }
+import AdminTable from "../../../components/admin/AdminTable";
+import { getReviews, setReviewStatus } from "../../../service/admin.api";
+
+export default function ReviewsPage() {
+  const [reviews, setReviews] = useState([]); const [error, setError] = useState("");
+  useEffect(() => { getReviews().then(setReviews).catch((e) => setError(e.response?.data?.message || "Could not load reviews.")); }, []);
+  const update = async (id, status) => { try { const review = await setReviewStatus(id, status); setReviews((all) => all.map((item) => item._id === id ? { ...item, ...review } : item)); } catch { setError("Review status could not be saved."); } };
+  return <AdminSectionPage title="Reviews" description="Approve or reject real product feedback." badge="Feedback">{error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-600">{error}</p>}<AdminTable emptyMessage="No product reviews have been submitted yet." rows={reviews} columns={[{ key: "customer", label: "Customer", render: (row) => row.user?.name || "Deleted user" }, { key: "product", label: "Product", render: (row) => row.product?.name || "Deleted product" }, { key: "rating", label: "Rating", render: (row) => <span className="font-semibold text-amber-600">★ {row.rating}/5</span> }, { key: "comment", label: "Review", render: (row) => row.comment || "—" }, { key: "status", label: "Status", render: (row) => <select value={row.status} onChange={(e) => update(row._id, e.target.value)} className="rounded-lg border border-slate-200 px-2 py-1 text-xs"><option>Pending</option><option>Approved</option><option>Rejected</option></select> }]} /></AdminSectionPage>;
+}

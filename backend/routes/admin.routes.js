@@ -1,0 +1,12 @@
+import express from "express";
+import { protect } from "../middleware/auth.middleware.js";
+import { admin } from "../middleware/adminMiddleware.js";
+import { getAdminOrders, updateOrderStatus, getCustomers, getReviews, updateReviewStatus, getSettings, updateSettings, getProductReport } from "../controller/admin.controller.js";
+const router = express.Router();
+router.use(protect, admin);
+router.get("/orders", getAdminOrders); router.patch("/orders/:id", updateOrderStatus);
+router.get("/customers", getCustomers);
+router.get("/reviews", getReviews); router.patch("/reviews/:id", updateReviewStatus);
+router.route("/settings").get(getSettings).put(updateSettings);
+router.get("/reports/products", getProductReport);
+export default router;

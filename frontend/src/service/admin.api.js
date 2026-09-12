@@ -1,0 +1,12 @@
+import axios from "axios";
+import { API_URL } from "../config/config";
+const api = axios.create({ baseURL: API_URL });
+api.interceptors.request.use((config) => { const token = localStorage.getItem("auth_token"); if (token) config.headers.Authorization = `Bearer ${token}`; return config; });
+export const getAdminOrders = () => api.get("/admin/orders").then((r) => r.data.orders);
+export const setOrderStatus = (id, status) => api.patch(`/admin/orders/${id}`, { status }).then((r) => r.data.order);
+export const getCustomers = () => api.get("/admin/customers").then((r) => r.data.customers);
+export const getReviews = () => api.get("/admin/reviews").then((r) => r.data.reviews);
+export const setReviewStatus = (id, status) => api.patch(`/admin/reviews/${id}`, { status }).then((r) => r.data.review);
+export const getSettings = () => api.get("/admin/settings").then((r) => r.data.settings);
+export const saveSettings = (settings) => api.put("/admin/settings", settings).then((r) => r.data.settings);
+export const getProductReport = () => api.get("/admin/reports/products").then((r) => r.data.products);

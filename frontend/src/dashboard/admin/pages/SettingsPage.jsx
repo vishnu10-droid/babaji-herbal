@@ -1,11 +1,12 @@
-import AdminSectionPage from '../../../components/admin/AdminSectionPage'
+import { useEffect, useState } from "react";
+import AdminSectionPage from "../../../components/admin/AdminSectionPage";
+import { getSettings, saveSettings } from "../../../service/admin.api";
 
 export default function SettingsPage() {
-  return (
-    <AdminSectionPage title="Settings" description="Manage your operational preferences and platform controls." badge="Config">
-      <div className="rounded-2xl border border-slate-800 bg-slate-950/50 p-5 text-sm text-slate-300">
-        Store settings preview: policy, tax, shipping, inventory sync, and notification preferences.
-      </div>
-    </AdminSectionPage>
-  )
+  const [form, setForm] = useState(null); const [message, setMessage] = useState("");
+  useEffect(() => { getSettings().then(setForm).catch(() => setMessage("Could not load settings.")); }, []);
+  const change = (event) => { const { name, value, type, checked } = event.target; setForm((current) => ({ ...current, [name]: type === "checkbox" ? checked : value })); };
+  const submit = async (event) => { event.preventDefault(); try { setForm(await saveSettings({ ...form, shippingFee: Number(form.shippingFee), freeShippingAbove: Number(form.freeShippingAbove), taxRate: Number(form.taxRate) })); setMessage("Settings saved."); } catch (e) { setMessage(e.response?.data?.message || "Could not save settings."); } };
+  if (!form) return <AdminSectionPage title="Settings" description="Manage store-wide shopping rules." badge="Config"><p className="text-sm text-blue-600">Loading settings…</p></AdminSectionPage>;
+  return <AdminSectionPage title="Settings" description="Manage store-wide shopping rules." badge="Config"><form onSubmit={submit} className="max-w-3xl space-y-5 rounded-2xl border border-blue-100 bg-white p-6 shadow-sm"><div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">Store name<input name="storeName" value={form.storeName} onChange={change} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5" /></label><label className="text-sm font-semibold">Support email<input name="supportEmail" type="email" value={form.supportEmail} onChange={change} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5" /></label><label className="text-sm font-semibold">Shipping fee (₹)<input name="shippingFee" type="number" min="0" value={form.shippingFee} onChange={change} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5" /></label><label className="text-sm font-semibold">Free shipping above (₹)<input name="freeShippingAbove" type="number" min="0" value={form.freeShippingAbove} onChange={change} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5" /></label></div><label className="flex items-center gap-3 text-sm font-semibold"><input name="inventoryAlerts" type="checkbox" checked={form.inventoryAlerts} onChange={change} className="h-4 w-4 accent-blue-600" /> Enable low-stock alerts</label>{message && <p className={message === "Settings saved." ? "text-sm text-emerald-600" : "text-sm text-rose-600"}>{message}</p>}<button className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Save settings</button></form></AdminSectionPage>;
 }

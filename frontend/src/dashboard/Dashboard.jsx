@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import { ArrowUpRight, Leaf, Sparkles } from "lucide-react";
 import Sidebar from "../components/layout/Sidebar";
 import Navbar from "../components/layout/Navbar";
 import StatsCard from "../components/dashboard/StatsCard";
@@ -16,7 +17,7 @@ import { renderSectionPage } from "./admin/routes/sectionRoutes.jsx";
 export default function Dashboard() {
   const pathname = useLocation().pathname;
   return (
-    <div className="min-h-screen bg-[#f4f8ff] text-slate-900">
+    <div className="min-h-screen bg-[#f6faf7] text-slate-900">
       <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1">
@@ -25,18 +26,22 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="space-y-5 p-3 md:p-6"
+            className="relative space-y-6 overflow-hidden p-4 md:p-6 lg:p-8"
           >
             {pathname === "/admin" || pathname === "/admin/" ? (
               <>
-                <div className="rounded-3xl bg-gradient-to-r from-blue-900 to-blue-500 p-6 text-white shadow-xl shadow-blue-600/15">
-                  <p className="text-sm text-blue-100">Welcome back</p>
-                  <h1 className="mt-1 text-2xl font-bold md:text-3xl">
-                    Store overview
-                  </h1>
-                  <p className="mt-2 text-sm text-blue-100">
-                    Track your wellness store performance from one place.
-                  </p>
+                <div className="relative overflow-hidden rounded-[2rem] bg-[#123d2a] p-6 text-white shadow-[0_22px_55px_rgba(18,61,42,0.25)] md:p-8">
+                  <div className="absolute -right-10 -top-16 h-56 w-56 rounded-full bg-emerald-400/20 blur-3xl" />
+                  <div className="absolute -bottom-24 right-1/4 h-44 w-44 rounded-full border border-emerald-100/15" />
+                  <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                    <div className="max-w-xl">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/20 bg-white/10 px-3 py-1 text-xs font-semibold text-emerald-100"><Sparkles size={14} /> Your wellness business, at a glance</div>
+                      <p className="mt-5 text-sm font-medium text-emerald-100">Good morning, Admin</p>
+                      <h1 className="mt-1 font-serif text-3xl font-bold tracking-tight md:text-4xl">Grow with clarity.</h1>
+                      <p className="mt-3 text-sm leading-6 text-emerald-50/80">Monitor inventory, fulfil orders, and keep every customer moment moving smoothly.</p>
+                    </div>
+                    <div className="flex min-w-[190px] items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm"><span className="rounded-xl bg-emerald-300 p-2.5 text-[#123d2a]"><Leaf size={20} /></span><div><p className="text-xs text-emerald-100">Store health</p><p className="mt-0.5 font-semibold">All systems ready</p></div><ArrowUpRight className="ml-auto text-emerald-200" size={18} /></div>
+                  </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                   {stats.map((stat) => (

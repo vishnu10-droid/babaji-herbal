@@ -6,17 +6,17 @@ export default function AdminTable({
   emptyMessage = "No records found.",
 }) {
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_12px_35px_rgba(37,99,235,0.08)]">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-[0_14px_35px_rgba(15,61,42,0.07)]">
       <div className="w-full max-w-full overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-blue-50 text-xs uppercase tracking-wider text-blue-700">
+          <thead className="bg-[#f3f8f3] text-xs uppercase tracking-wider text-emerald-800">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
                   className={`px-4 py-4 font-semibold ${
                     column.key === "actions"
-                      ? "sticky right-0 z-10 whitespace-nowrap bg-blue-50"
+                      ? "sticky right-0 z-10 whitespace-nowrap bg-[#f3f8f3]"
                       : ""
                   }`}
                 >
@@ -34,7 +34,7 @@ export default function AdminTable({
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.04 }}
-                  className="border-t border-blue-50 text-slate-700 transition hover:bg-blue-50/50"
+                  className="border-t border-emerald-50 text-slate-700 transition hover:bg-emerald-50/40"
                 >
                   {columns.map((column) => (
                     <td

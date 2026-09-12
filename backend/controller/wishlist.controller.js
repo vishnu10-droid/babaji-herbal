@@ -69,10 +69,17 @@ export const getWishlist = async (req, res) => {
       .populate("product")
       .sort({ createdAt: -1 });
 
+    // A product may have been deleted after it was saved. Remove those stale
+    // wishlist references so customers never see an unusable “details unavailable” card.
+    const staleIds = wishlist.filter((item) => !item.product).map((item) => item._id);
+    if (staleIds.length) {
+      await Wishlist.deleteMany({ _id: { $in: staleIds } });
+    }
+
     return res.status(200).json({
       success: true,
-      count: wishlist.length,
-      wishlist,
+      count: wishlist.length - staleIds.length,
+      wishlist: wishlist.filter((item) => item.product),
     });
   } catch (error) {
     console.error("Get wishlist error:", error);

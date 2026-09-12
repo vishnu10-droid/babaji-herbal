@@ -103,13 +103,14 @@ export default function Cart() {
                 const name = item.productName || product.name || "Product";
                 const variation = item.variationName || (item.pouches ? `${item.pouches} pouches` : "");
                 const isUpdating = updatingItemId === item._id;
+                const lineTotal = Number(item.price || 0) * Number(item.quantity || 0);
                 return <div key={item._id} className="group flex flex-col items-center gap-5 rounded-3xl border border-emerald-900/10 bg-white p-5 shadow-sm transition hover:shadow-md sm:flex-row">
                   <img src={productImage(item.image || product.images?.[0])} alt={name} className="h-24 w-24 shrink-0 rounded-2xl border border-gray-100 bg-gray-50 object-cover sm:h-28 sm:w-28" />
                   <div className="w-full flex-1 space-y-1 text-center sm:text-left">
                     <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#0b6b3a]">{product.category || "Herbal care"}</span>
                     <h3 className="text-base font-bold leading-snug text-gray-900">{name}</h3>
                     {variation && <p className="text-xs font-medium text-gray-500">{variation}</p>}
-                    <div className="flex items-center justify-center gap-2 pt-1 sm:justify-start"><span className="text-base font-extrabold text-[#0b6b3a]">{formatMoney(item.price)}</span>{Number(item.mrp) > Number(item.price) && <span className="text-xs text-gray-400 line-through">{formatMoney(item.mrp)}</span>}</div>
+                    <div className="flex items-center justify-center gap-2 pt-1 sm:justify-start"><span className="text-base font-extrabold text-[#0b6b3a]">{formatMoney(lineTotal)}</span><span className="text-xs text-gray-500">{formatMoney(item.price)} each</span>{Number(item.mrp) > Number(item.price) && <span className="text-xs text-gray-400 line-through">{formatMoney(Number(item.mrp) * Number(item.quantity || 0))}</span>}</div>
                   </div>
                   <div className="flex w-full items-center justify-between gap-4 border-t border-gray-100 pt-3 sm:w-auto sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
                     <div className="flex items-center rounded-full border border-gray-200 bg-gray-50 p-1">

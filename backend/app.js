@@ -10,6 +10,8 @@ import cartRoutes from "./routes/cart.routes.js";
 import wishlistRoutes from "./routes/wishlist.routes.js";
 import contactRouter from "./routes/contact.routes.js";
 import uploadRouter from "./routes/upload.routes.js";
+import orderRouter from "./routes/order.routes.js";
+import adminRouter from "./routes/admin.routes.js";
 
 const app = express();
 app.use(
@@ -42,6 +44,8 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/contact", contactRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/orders", orderRouter);
+app.use("/api/admin", adminRouter);
 
 // ========================================
 // TEST ROUTE

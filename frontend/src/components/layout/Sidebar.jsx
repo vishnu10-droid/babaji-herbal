@@ -98,7 +98,7 @@ export default function Sidebar() {
       initial={{ opacity: 0, x: -24 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-blue-900/30 bg-blue-700 px-2 py-2 text-white shadow-xl shadow-blue-900/20 lg:flex ${
+      className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-emerald-950/30 bg-[#123d2a] px-2 py-2 text-white shadow-xl shadow-emerald-950/20 lg:flex ${
         collapsed ? "w-20" : "w-[240px]"
       }`}
     >
