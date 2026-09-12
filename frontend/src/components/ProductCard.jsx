@@ -1,16 +1,9 @@
 import { useMemo, useState } from "react";
-import {
-  Heart,
-  ShoppingBag,
-  Star,
-} from "lucide-react";
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { API_ORIGIN } from "../config/config";
+import { thumbnail } from "../utils/image";
 import { addToCart } from "../store/slice/cart.slice";
 import {
   addToWishlist,
@@ -30,8 +23,7 @@ const fallbackImage =
 // =====================================================
 
 const variationLabel = (variation) =>
-  variation.name ||
-  `${variation.pouches} pouches`;
+  variation.name || `${variation.pouches} pouches`;
 
 // =====================================================
 // PRODUCT CARD
@@ -41,21 +33,13 @@ export default function ProductCard({ item }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const wishlistItems = useSelector(
-    (state) => state.wishlist.items
-  );
+  const wishlistItems = useSelector((state) => state.wishlist.items);
 
   const { isAuthenticated } = useAuth();
 
-  const [
-    selectedVariationId,
-    setSelectedVariationId,
-  ] = useState("");
+  const [selectedVariationId, setSelectedVariationId] = useState("");
 
-  const [
-    cartMessage,
-    setCartMessage,
-  ] = useState("");
+  const [cartMessage, setCartMessage] = useState("");
 
   // =====================================================
   // ACTIVE VARIATIONS
@@ -64,10 +48,9 @@ export default function ProductCard({ item }) {
   const activeVariations = useMemo(
     () =>
       (item.variations || []).filter(
-        (variation) =>
-          variation.isActive !== false
+        (variation) => variation.isActive !== false,
       ),
-    [item.variations]
+    [item.variations],
   );
 
   // =====================================================
@@ -76,34 +59,22 @@ export default function ProductCard({ item }) {
 
   const selectedVariation =
     activeVariations.find(
-      (variation) =>
-        String(variation._id) ===
-        String(selectedVariationId)
-    ) ||
-    activeVariations[0];
+      (variation) => String(variation._id) === String(selectedVariationId),
+    ) || activeVariations[0];
 
   // =====================================================
   // PRICE
   // =====================================================
 
   const price =
-    Number(
-      selectedVariation?.price ??
-        item.sellingPrice ??
-        item.price ??
-        0
-    ) || 0;
+    Number(selectedVariation?.price ?? item.sellingPrice ?? item.price ?? 0) ||
+    0;
 
   // =====================================================
   // MRP
   // =====================================================
 
-  const mrp =
-    Number(
-      selectedVariation?.mrp ??
-        item.mrp ??
-        price
-    ) || price;
+  const mrp = Number(selectedVariation?.mrp ?? item.mrp ?? price) || price;
 
   // =====================================================
   // DISCOUNT
@@ -111,46 +82,30 @@ export default function ProductCard({ item }) {
 
   const hasDiscount = mrp > price;
 
-  const discount = hasDiscount
-    ? Math.round(
-        ((mrp - price) / mrp) * 100
-      )
-    : 0;
+  const discount = hasDiscount ? Math.round(((mrp - price) / mrp) * 100) : 0;
 
   // =====================================================
   // STOCK
   // =====================================================
 
-  const stock =
-    Number(
-      selectedVariation?.stock ??
-        item.stock ??
-        0
-    ) || 0;
+  const stock = Number(selectedVariation?.stock ?? item.stock ?? 0) || 0;
 
   // =====================================================
   // WISHLIST STATUS
   // =====================================================
 
-  const isWishlisted = wishlistItems.some(
-    (wishlistItem) => {
-      const wishlistProductId =
-        wishlistItem.product?._id ||
-        wishlistItem.product;
+  const isWishlisted = wishlistItems.some((wishlistItem) => {
+    const wishlistProductId = wishlistItem.product?._id || wishlistItem.product;
 
-      return (
-        String(wishlistProductId) ===
-        String(item._id)
-      );
-    }
-  );
+    return String(wishlistProductId) === String(item._id);
+  });
 
   // =====================================================
   // IMAGE
   // =====================================================
 
   const image = item.images?.[0]
-    ? `${API_ORIGIN}${item.images[0]}`
+    ? thumbnail(item.images[0], 400)
     : fallbackImage;
 
   // =====================================================
@@ -164,9 +119,7 @@ export default function ProductCard({ item }) {
     }
 
     if (!isAuthenticated) {
-      setCartMessage(
-        "Please login to add products"
-      );
+      setCartMessage("Please login to add products");
       return;
     }
 
@@ -176,19 +129,14 @@ export default function ProductCard({ item }) {
       await dispatch(
         addToCart({
           productId: item._id,
-          variationId:
-            selectedVariation?._id ||
-            undefined,
+          variationId: selectedVariation?._id || undefined,
           quantity: 1,
-        })
+        }),
       ).unwrap();
 
       navigate("/cart");
     } catch (requestError) {
-      setCartMessage(
-        requestError ||
-          "Could not add to cart"
-      );
+      setCartMessage(requestError || "Could not add to cart");
     }
   };
 
@@ -198,9 +146,7 @@ export default function ProductCard({ item }) {
 
   const toggleWishlist = async () => {
     if (!isAuthenticated) {
-      setCartMessage(
-        "Please login to use your wishlist"
-      );
+      setCartMessage("Please login to use your wishlist");
       return;
     }
 
@@ -208,19 +154,12 @@ export default function ProductCard({ item }) {
       setCartMessage("");
 
       if (isWishlisted) {
-        await dispatch(
-          removeFromWishlist(item._id)
-        ).unwrap();
+        await dispatch(removeFromWishlist(item._id)).unwrap();
       } else {
-        await dispatch(
-          addToWishlist(item._id)
-        ).unwrap();
+        await dispatch(addToWishlist(item._id)).unwrap();
       }
     } catch (requestError) {
-      setCartMessage(
-        requestError ||
-          "Could not update wishlist"
-      );
+      setCartMessage(requestError || "Could not update wishlist");
     }
   };
 
@@ -254,10 +193,7 @@ export default function ProductCard({ item }) {
           bg-[#edf4eb]
         "
       >
-        <Link
-          to={`/product/${item._id}`}
-          className="block"
-        >
+        <Link to={`/product/${item._id}`} className="block">
           <img
             src={image}
             alt={item.name}
@@ -303,9 +239,7 @@ export default function ProductCard({ item }) {
         <button
           type="button"
           onClick={toggleWishlist}
-          aria-label={`${isWishlisted ? "Remove" : "Add"} ${
-            item.name
-          } ${
+          aria-label={`${isWishlisted ? "Remove" : "Add"} ${item.name} ${
             isWishlisted ? "from" : "to"
           } wishlist`}
           className={`
@@ -319,25 +253,14 @@ export default function ProductCard({ item }) {
             justify-center
             rounded-full
             bg-white
-            ${
-              isWishlisted
-                ? "text-red-500"
-                : "text-[#276344]"
-            }
+            ${isWishlisted ? "text-red-500" : "text-[#276344]"}
             shadow-sm
             transition
             hover:bg-[#174d32]
             hover:text-white
           `}
         >
-          <Heart
-            size={13}
-            fill={
-              isWishlisted
-                ? "currentColor"
-                : "none"
-            }
-          />
+          <Heart size={13} fill={isWishlisted ? "currentColor" : "none"} />
         </button>
 
         {/* =================================================
@@ -374,7 +297,6 @@ export default function ProductCard({ item }) {
       ================================================== */}
 
       <div className="p-3">
-
         {/* =================================================
             CATEGORY + RATING
         ================================================== */}
@@ -411,11 +333,7 @@ export default function ProductCard({ item }) {
               text-[#d69721]
             "
           >
-            <Star
-              size={10}
-              fill="currentColor"
-            />
-
+            <Star size={10} fill="currentColor" />
             5.0
           </span>
         </div>
@@ -462,8 +380,7 @@ export default function ProductCard({ item }) {
               text-[#174d32]
             "
           >
-            ₹
-            {price.toLocaleString("en-IN")}
+            ₹{price.toLocaleString("en-IN")}
           </span>
 
           {/* MRP */}
@@ -476,8 +393,7 @@ export default function ProductCard({ item }) {
                 line-through
               "
             >
-              ₹
-              {mrp.toLocaleString("en-IN")}
+              ₹{mrp.toLocaleString("en-IN")}
             </span>
           )}
         </div>
@@ -488,20 +404,11 @@ export default function ProductCard({ item }) {
 
         {activeVariations.length > 0 && (
           <label className="mt-2.5 block">
-
-            <span className="sr-only">
-              Select pouch variation
-            </span>
+            <span className="sr-only">Select pouch variation</span>
 
             <select
-              value={
-                selectedVariation?._id || ""
-              }
-              onChange={(event) =>
-                setSelectedVariationId(
-                  event.target.value
-                )
-              }
+              value={selectedVariation?._id || ""}
+              onChange={(event) => setSelectedVariationId(event.target.value)}
               className="
                 h-8
                 w-full
@@ -520,22 +427,12 @@ export default function ProductCard({ item }) {
                 focus:ring-[#28714a]/15
               "
             >
-              {activeVariations.map(
-                (variation) => (
-                  <option
-                    key={variation._id}
-                    value={variation._id}
-                  >
-                    {variationLabel(
-                      variation
-                    )}{" "}
-                    - ₹
-                    {Number(
-                      variation.price
-                    ).toLocaleString("en-IN")}
-                  </option>
-                )
-              )}
+              {activeVariations.map((variation) => (
+                <option key={variation._id} value={variation._id}>
+                  {variationLabel(variation)} - ₹
+                  {Number(variation.price).toLocaleString("en-IN")}
+                </option>
+              ))}
             </select>
           </label>
         )}
@@ -571,9 +468,7 @@ export default function ProductCard({ item }) {
         >
           <ShoppingBag size={13} />
 
-          {stock > 0
-            ? "Add To Cart"
-            : "Out of Stock"}
+          {stock > 0 ? "Add To Cart" : "Out of Stock"}
         </button>
 
         {/* =================================================

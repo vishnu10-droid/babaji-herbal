@@ -7,6 +7,8 @@ const publicUser = (user) => ({
   name: user.name,
   email: user.email,
   phone: user.phone || "",
+  image: user.image || "",
+  imageFileId: user.imageFileId || "",
   role: user.role || "user",
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
@@ -175,6 +177,19 @@ export const updateProfile = async (req, res) => {
     req.user.name = name.trim();
     req.user.email = normalizedEmail;
     req.user.phone = phone?.trim() || "";
+
+    // Profile image (ImageKit se uploaded { url, fileId })
+    if (Object.hasOwn(req.body, "image")) {
+      const imageValue = req.body.image;
+
+      if (typeof imageValue === "string") {
+        req.user.image = imageValue.trim();
+        if (!imageValue.trim()) req.user.imageFileId = "";
+      } else if (imageValue && typeof imageValue === "object") {
+        req.user.image = imageValue.url || "";
+        req.user.imageFileId = imageValue.fileId || "";
+      }
+    }
 
     // Don't change req.user.role here
     await req.user.save();

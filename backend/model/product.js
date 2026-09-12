@@ -165,12 +165,20 @@ const productSchema = new mongoose.Schema(
     // ========================================
     // PRODUCT IMAGES
     // ========================================
+    //
+    // New format:
+    //   [
+    //     { url: "https://ik.imagekit.io/...", fileId: "..." }
+    //   ]
+    //
+    // Note: Mixed is used so already-existing
+    // string entries (local /uploads paths)
+    // continue to work during migration.
 
-    images: [
-      {
-        type: String,
-      },
-    ],
+    images: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+    },
 
     // ========================================
     // PRODUCT VARIATIONS

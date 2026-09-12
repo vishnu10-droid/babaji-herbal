@@ -12,6 +12,17 @@ dist
 dist-ssr
 *.local
 
+# Environment variables - kabhi commit nahi ho
+.env
+.env.*
+!.env.example
+
+# Locally uploaded images (ab ImageKit use hota hai)
+uploads
+backend/uploads
+frontend/uploads
+*_uploads
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

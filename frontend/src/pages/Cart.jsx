@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ArrowLeft, Lock, Minus, Plus, ShoppingBag, Trash2, Truck } from "lucide-react";
 import Breadcrumb from "../components/Breadcrumb";
 import Button from "../components/Button";
-import { API_ORIGIN } from "../config/config";
+import { resolveImage } from "../utils/image";
 import { clearCart, fetchCart, removeCartItem, updateCartItem } from "../store/slice/cart.slice";
 import { useAuth } from "../context/auth-context";
 
@@ -12,7 +12,7 @@ const formatMoney = (amount) => `₹${Number(amount || 0).toLocaleString("en-IN"
 
 const productImage = (image) => {
   if (!image) return "https://placehold.co/180x180/eaf2ff/2563eb?text=Babaji+Herbals";
-  return image.startsWith("http") ? image : `${API_ORIGIN}${image}`;
+  return resolveImage(image);
 };
 
 export default function Cart() {

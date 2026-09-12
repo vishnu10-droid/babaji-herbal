@@ -1,6 +1,10 @@
 import Product from "../model/product.js";
 import Category from "../model/category.js";
 import mongoose from "mongoose";
+import {
+  deleteImagekitFile,
+  uploadMultipleToImageKit,
+} from "../services/imagekitUpload.js";
 
 // ========================================
 // HELPERS
@@ -50,14 +54,86 @@ const getCategoryFromRequest = async ({
 };
 
 // ========================================
+// IMAGE HELPERS
+// ========================================
+//
+// Supported image shapes:
+//   - string path   ("/uploads/products/x.jpg")
+//   - string URL    ("https://...")
+//   - object        ({ url, fileId })
+// Normalized shape:
+//   { url, fileId }
+
+const imageToObject = (image) => {
+  if (!image) {
+    return null;
+  }
+
+  if (typeof image === "string") {
+    const trimmed = image.trim();
+
+    if (!trimmed) {
+      return null;
+    }
+
+    return { url: trimmed, fileId: "" };
+  }
+
+  if (typeof image === "object") {
+    const url =
+      typeof image.url === "string" ? image.url.trim() : "";
+
+    if (!url) {
+      return null;
+    }
+
+    return {
+      url,
+      fileId:
+        typeof image.fileId === "string"
+          ? image.fileId.trim()
+          : "",
+    };
+  }
+
+  return null;
+};
+
+const parseImages = (images) => {
+  if (!images || images.length === 0) {
+    return [];
+  }
+
+  let list = images;
+
+  if (typeof images === "string") {
+    try {
+      list = JSON.parse(images);
+    } catch {
+      list = [images];
+    }
+  }
+
+  if (!Array.isArray(list)) {
+    list = [list];
+  }
+
+  return list.map(imageToObject).filter(Boolean);
+};
+
+const getFileIds = (images) =>
+  (images || [])
+    .map((image) =>
+      typeof image === "string" ? "" : image?.fileId || "",
+    )
+    .filter(Boolean);
+
+// ========================================
 // CREATE PRODUCT
 // ========================================
 
 export const createProduct = async (req, res) => {
   try {
-    console.log("BODY:", req.body);
-    console.log("FILES:", req.files);
-
     const {
       name,
       category,
@@ -81,14 +157,21 @@ export const createProduct = async (req, res) => {
     // ========================================
     // IMAGES
     // ========================================
+    //
+    // Two sources:
+    //   1. req.body.images - frontend ne pehle
+    //      upload karke { url, fileId } bheje
+    //   2. req.files        - raw files (legacy
+    //      direct-upload flow) jo yahan ImageKit
+    //      par upload hote hain
 
-    let images = [];
+    let images = parseImages(req.body.images);
 
     if (req.files && req.files.length > 0) {
-      images = req.files.map(
-        (file) =>
-          `/uploads/products/${file.filename}`,
-      );
+      const uploaded =
+        await uploadMultipleToImageKit(req.files, "products");
+
+      images = [...images, ...uploaded];
     }
 
     // ========================================
@@ -118,7 +201,7 @@ export const createProduct = async (req, res) => {
     try {
       parsedVariations =
         parseVariations(variations);
-    } catch (error) {
+    } catch {
       return res.status(400).json({
         success: false,
         message: "Invalid variations JSON",
@@ -163,7 +246,11 @@ export const createProduct = async (req, res) => {
 
       status,
 
-      featured,
+      featured:
+
+        typeof featured === "string"
+          ? featured === "true"
+          : Boolean(featured),
 
       images,
 
@@ -289,6 +376,16 @@ export const getProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
+    const existingProduct =
+      await Product.findById(req.params.id);
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product Not Found",
+      });
+    }
+
     const updatedData = {
       ...req.body,
     };
@@ -335,16 +432,62 @@ export const updateProduct = async (req, res) => {
     // ========================================
     // IMAGES
     // ========================================
+    //
+    // New image list banai jaati hai:
+    //   - agar body me images aaye to unhe
+    //     use karo (frontend already ImageKit
+    //     par upload kar chuka hai)
+    //   - agar raw files aaye to unhe ImageKit
+    //     par upload karo aur new list me add
+    //     karo
+    //   - jo purani images new list me nahi
+    //     hain (remove hue fileIds), unhe
+    //     ImageKit se delete karo
 
-    if (
-      req.files &&
-      req.files.length > 0
-    ) {
-      updatedData.images =
-        req.files.map(
-          (file) =>
-            `/uploads/products/${file.filename}`,
+    let newImages;
+
+    if (Object.hasOwn(req.body, "images")) {
+      newImages = parseImages(req.body.images);
+    } else {
+      newImages = (existingProduct.images || []).map(
+        (image) =>
+          typeof image === "string"
+            ? { url: image, fileId: "" }
+            : {
+                url: image?.url || "",
+                fileId: image?.fileId || "",
+              },
+      );
+    }
+
+    if (req.files && req.files.length > 0) {
+      const uploaded =
+        await uploadMultipleToImageKit(
+          req.files,
+          "products",
         );
+
+      newImages = [...newImages, ...uploaded];
+    }
+
+    updatedData.images = newImages;
+
+    // ========================================
+    // DELETE REMOVED IMAGES FROM IMAGEKIT
+    // ========================================
+
+    const previousFileIds = new Set(
+      getFileIds(existingProduct.images),
+    );
+
+    const currentFileIds = new Set(
+      getFileIds(newImages),
+    );
+
+    for (const fileId of previousFileIds) {
+      if (!currentFileIds.has(fileId)) {
+        await deleteImagekitFile(fileId);
+      }
     }
 
     // ========================================
@@ -362,7 +505,7 @@ export const updateProduct = async (req, res) => {
           parseVariations(
             updatedData.variations,
           );
-      } catch (error) {
+      } catch {
         return res.status(400).json({
           success: false,
           message:
@@ -409,13 +552,23 @@ export const updateProduct = async (req, res) => {
         Number(updatedData.stock) || 0;
     }
 
+    if (
+      updatedData.featured !==
+      undefined
+    ) {
+      updatedData.featured =
+        typeof updatedData.featured === "string"
+          ? updatedData.featured === "true"
+          : Boolean(updatedData.featured);
+    }
+
     // ========================================
     // UPDATE PRODUCT
     // ========================================
 
     const product =
       await Product.findByIdAndUpdate(
-        req.params.id,
+        existingProduct._id,
         updatedData,
         {
           new: true,
@@ -464,6 +617,16 @@ export const deleteProduct = async (req, res) => {
         success: false,
         message: "Product Not Found",
       });
+    }
+
+    // ========================================
+    // DELETE ASSOCIATED IMAGEKIT IMAGES
+    // ========================================
+
+    const fileIds = getFileIds(product.images);
+
+    for (const fileId of fileIds) {
+      await deleteImagekitFile(fileId);
     }
 
     return res.status(200).json({

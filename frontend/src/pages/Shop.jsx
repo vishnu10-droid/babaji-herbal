@@ -1,25 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Filter,
-  Search,
   SlidersHorizontal,
   X,
   ChevronDown,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+
 import ProductCard from "../components/ProductCard";
+
 import { fetchproduct } from "../store/slice/product.Slice";
 import { fetchCategories } from "../store/slice/category.slice";
 
 export default function Shop() {
-  const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
+  const [categoriesExpanded, setCategoriesExpanded] =
+    useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] =
+    useSearchParams();
 
   const dispatch = useDispatch();
+
+  // =====================================================
+  // PRODUCTS
+  // =====================================================
 
   const {
     data: products = [],
@@ -27,83 +33,95 @@ export default function Shop() {
     error,
   } = useSelector((state) => state.product);
 
-  const { data: categories = [], loading: categoriesLoading } = useSelector(
-    (state) => state.category,
-  );
+  // =====================================================
+  // CATEGORIES
+  // =====================================================
 
-  // Selected category from URL
-  const selectedCategoryId = searchParams.get("category") || "";
+  const {
+    data: categories = [],
+    loading: categoriesLoading,
+  } = useSelector((state) => state.category);
 
-  // ============================
+  // =====================================================
+  // SELECTED CATEGORY
+  // =====================================================
+
+  const selectedCategoryId =
+    searchParams.get("category") || "";
+
+  // =====================================================
   // FETCH CATEGORIES
-  // ============================
+  // =====================================================
+
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  // ============================
+  // =====================================================
   // FETCH PRODUCTS
-  // ============================
+  // =====================================================
+
   useEffect(() => {
     if (selectedCategoryId) {
       dispatch(
         fetchproduct({
           categoryId: selectedCategoryId,
-        }),
+        })
       );
     } else {
       dispatch(fetchproduct());
     }
   }, [dispatch, selectedCategoryId]);
 
-  // ============================
+  // =====================================================
   // ACTIVE CATEGORIES
-  // ============================
+  // =====================================================
+
   const activeCategories = useMemo(() => {
-    return categories.filter((category) => category.isActive);
+    return categories.filter(
+      (category) => category.isActive
+    );
   }, [categories]);
 
-  // ============================
+  // =====================================================
   // SELECTED CATEGORY
-  // ============================
+  // =====================================================
+
   const selectedCategory = useMemo(() => {
     return activeCategories.find(
-      (category) => category._id === selectedCategoryId,
+      (category) =>
+        category._id === selectedCategoryId
     );
-  }, [activeCategories, selectedCategoryId]);
+  }, [
+    activeCategories,
+    selectedCategoryId,
+  ]);
 
-  const visibleCategories = categoriesExpanded
-    ? activeCategories
-    : activeCategories.slice(0, 6);
-  const totalProductCount = activeCategories.reduce(
-    (total, category) => total + Number(category.productCount || 0),
-    0,
-  );
+  // =====================================================
+  // VISIBLE CATEGORIES
+  // =====================================================
 
-  // ============================
-  // SEARCH FILTER
-  // ============================
-  const filteredProducts = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+  const visibleCategories =
+    categoriesExpanded
+      ? activeCategories
+      : activeCategories.slice(0, 6);
 
-    if (!normalizedQuery) {
-      return products;
-    }
+  // =====================================================
+  // TOTAL PRODUCT COUNT
+  // =====================================================
 
-    return products.filter((product) => {
-      const searchableText = `
-        ${product.name || ""}
-        ${product.category || ""}
-        ${product.brand || ""}
-      `.toLowerCase();
+  const totalProductCount =
+    activeCategories.reduce(
+      (total, category) =>
+        total +
+        Number(category.productCount || 0),
+      0
+    );
 
-      return searchableText.includes(normalizedQuery);
-    });
-  }, [products, query]);
-
-  // ============================
+  // =====================================================
   // CATEGORY SELECT
-  // ============================
+  // =====================================================
+
   const selectCategory = (categoryId) => {
     if (categoryId) {
       setSearchParams({
@@ -116,224 +134,514 @@ export default function Shop() {
     setFiltersOpen(false);
   };
 
-  // ============================
+  // =====================================================
   // CLEAR FILTERS
-  // ============================
+  // =====================================================
+
   const clearFilters = () => {
-    setQuery("");
     setSearchParams({});
     setFiltersOpen(false);
   };
 
+  // =====================================================
+  // RETURN
+  // =====================================================
+
   return (
-    <section className="section-shell py-12">
-      {/* ================= HEADER ================= */}
-      <div className="mb-10 text-center">
-        <p className="text-xs font-bold uppercase tracking-[.3em] text-[#28714a]">
+    <section className="w-full px-2 py-8 sm:px-3 md:px-4 lg:px-5">
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
+      <div className="mx-auto mb-8 max-w-3xl text-center">
+
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#28714a]">
           Our collection
         </p>
 
-        <h1 className="mt-2 font-serif text-4xl font-semibold text-[#173b29] sm:text-5xl">
+        <h1 className="mt-2 font-serif text-3xl font-semibold text-[#173b29] sm:text-4xl">
           Shop herbal products
         </h1>
 
-        <p className="mx-auto mt-3 max-w-xl text-slate-500">
-          Find natural essentials selected for your everyday wellness ritual.
+        <p className="mx-auto mt-2 max-w-xl text-sm text-slate-500">
+          Find natural essentials selected for your
+          everyday wellness ritual.
         </p>
+
       </div>
 
-      {/* ================= SEARCH + MOBILE FILTER ================= */}
-      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5b8767]"
-            size={18}
-          />
 
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search products..."
-            className="w-full rounded-full border border-[#cfe1d0] bg-white py-3 pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-[#28714a] focus:ring-2 focus:ring-[#28714a]/10"
-          />
-        </div>
+      {/* =================================================
+          MOBILE FILTER BUTTON
+      ================================================= */}
 
-        {/* Mobile category button */}
+      <div className="mb-5 flex justify-end lg:hidden">
+
         <button
           type="button"
-          onClick={() => setFiltersOpen((open) => !open)}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-[#cfe1d0] bg-white px-5 py-3 text-sm font-bold text-[#174d32] transition hover:bg-[#edf4eb] lg:hidden"
+          onClick={() =>
+            setFiltersOpen((open) => !open)
+          }
+          className="
+            inline-flex
+            items-center
+            justify-center
+            gap-2
+            rounded-full
+            border
+            border-[#cfe1d0]
+            bg-white
+            px-4
+            py-2.5
+            text-sm
+            font-bold
+            text-[#174d32]
+            transition
+            hover:bg-[#edf4eb]
+          "
         >
-          <SlidersHorizontal size={17} />
+
+          <SlidersHorizontal size={16} />
+
           Categories
+
         </button>
+
       </div>
 
-      {/* ================= MAIN LAYOUT ================= */}
-      <div className="grid gap-8 lg:grid-cols-[250px_minmax(0,1fr)]">
-        {/* ================= FILTER SIDEBAR ================= */}
-        {/* ================= CATEGORY FILTER ================= */}
+
+      {/* =================================================
+          MAIN LAYOUT
+      ================================================= */}
+
+      <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+
+
+        {/* =================================================
+            FILTER SIDEBAR
+        ================================================= */}
+
         <aside
-          className={`${
-            filtersOpen ? "block" : "hidden"
-          } rounded-2xl border border-[#dce8dc] bg-white p-5 shadow-sm lg:block lg:self-start`}
+          className={`
+            ${
+              filtersOpen
+                ? "block"
+                : "hidden"
+            }
+            rounded-xl
+            border
+            border-[#dce8dc]
+            bg-white
+            p-4
+            shadow-sm
+            lg:block
+            lg:self-start
+          `}
         >
+
+          {/* FILTER HEADER */}
+
           <div className="flex items-center justify-between">
+
             <div>
-              <h2 className="flex items-center gap-2 font-bold text-[#173b29]">
-                <Filter size={17} className="text-[#28714a]" />
+
+              <h2 className="flex items-center gap-2 text-sm font-bold text-[#173b29]">
+
+                <Filter
+                  size={16}
+                  className="text-[#28714a]"
+                />
+
                 Filter
+
               </h2>
 
-              <p className="mt-1 text-xs text-slate-400">Filter by category</p>
+              <p className="mt-1 text-[11px] text-slate-400">
+                Filter by category
+              </p>
+
             </div>
+
 
             {selectedCategoryId && (
               <button
                 type="button"
-                onClick={() => selectCategory("")}
-                className="text-xs font-bold text-[#28714a] hover:underline"
+                onClick={() =>
+                  selectCategory("")
+                }
+                className="text-[11px] font-bold text-[#28714a] hover:underline"
               >
                 Clear
               </button>
             )}
+
           </div>
 
-          {/* Flipkart-style category filter: one category can be applied at a time. */}
-          <div className="mt-6 border-t border-[#e4eee4] pt-5">
-            <button type="button" onClick={() => setCategoriesExpanded((expanded) => !expanded)} className="flex w-full items-center justify-between text-left">
-              <h3 className="text-sm font-bold uppercase tracking-wide text-[#173b29]">Categories</h3>
-              <ChevronDown size={18} className={`text-[#28714a] transition-transform ${categoriesExpanded ? "rotate-180" : ""}`} />
+
+          {/* CATEGORY FILTER */}
+
+          <div className="mt-5 border-t border-[#e4eee4] pt-4">
+
+            <button
+              type="button"
+              onClick={() =>
+                setCategoriesExpanded(
+                  (expanded) => !expanded
+                )
+              }
+              className="flex w-full items-center justify-between text-left"
+            >
+
+              <h3 className="text-xs font-bold uppercase tracking-wide text-[#173b29]">
+                Categories
+              </h3>
+
+              <ChevronDown
+                size={17}
+                className={`
+                  text-[#28714a]
+                  transition-transform
+                  ${
+                    categoriesExpanded
+                      ? "rotate-180"
+                      : ""
+                  }
+                `}
+              />
+
             </button>
 
-            <div className="mt-4 space-y-3">
-              <label className="flex cursor-pointer items-center justify-between gap-3 text-sm text-slate-700">
-                <span className="flex items-center gap-3"><input type="checkbox" checked={!selectedCategoryId} onChange={() => selectCategory("")} className="h-4 w-4 rounded border-slate-300 accent-[#28714a]" /> All Categories</span>
-                <span className="text-xs text-slate-400">{totalProductCount}</span>
+
+            <div className="mt-3 space-y-2.5">
+
+              {/* ALL CATEGORIES */}
+
+              <label className="flex cursor-pointer items-center justify-between gap-2 text-xs text-slate-700">
+
+                <span className="flex items-center gap-2">
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      !selectedCategoryId
+                    }
+                    onChange={() =>
+                      selectCategory("")
+                    }
+                    className="h-3.5 w-3.5 rounded border-slate-300 accent-[#28714a]"
+                  />
+
+                  All Categories
+
+                </span>
+
+                <span className="text-[10px] text-slate-400">
+                  {totalProductCount}
+                </span>
+
               </label>
 
-              {categoriesLoading && <p className="text-sm text-slate-500">Loading categories...</p>}
-              {!categoriesLoading && visibleCategories.map((category) => {
-                const isSelected = selectedCategoryId === category._id;
-                return <label key={category._id} className="flex cursor-pointer items-center justify-between gap-3 text-sm text-slate-700">
-                  <span className="flex min-w-0 items-center gap-3"><input type="checkbox" checked={isSelected} onChange={() => selectCategory(isSelected ? "" : category._id)} className="h-4 w-4 shrink-0 rounded border-slate-300 accent-[#28714a]" /> <span className="truncate">{category.name}</span></span>
-                  <span className="text-xs text-slate-400">{category.productCount || 0}</span>
-                </label>;
-              })}
+
+              {/* LOADING */}
+
+              {categoriesLoading && (
+                <p className="text-xs text-slate-500">
+                  Loading categories...
+                </p>
+              )}
+
+
+              {/* CATEGORY LIST */}
+
+              {!categoriesLoading &&
+                visibleCategories.map(
+                  (category) => {
+
+                    const isSelected =
+                      selectedCategoryId ===
+                      category._id;
+
+                    return (
+                      <label
+                        key={category._id}
+                        className="
+                          flex
+                          cursor-pointer
+                          items-center
+                          justify-between
+                          gap-2
+                          text-xs
+                          text-slate-700
+                        "
+                      >
+
+                        <span className="flex min-w-0 items-center gap-2">
+
+                          <input
+                            type="checkbox"
+                            checked={
+                              isSelected
+                            }
+                            onChange={() =>
+                              selectCategory(
+                                isSelected
+                                  ? ""
+                                  : category._id
+                              )
+                            }
+                            className="h-3.5 w-3.5 shrink-0 rounded border-slate-300 accent-[#28714a]"
+                          />
+
+                          <span className="truncate">
+                            {category.name}
+                          </span>
+
+                        </span>
+
+                        <span className="text-[10px] text-slate-400">
+                          {category.productCount ||
+                            0}
+                        </span>
+
+                      </label>
+                    );
+                  }
+                )}
+
             </div>
 
-            {activeCategories.length > 6 && <button type="button" onClick={() => setCategoriesExpanded((expanded) => !expanded)} className="mt-5 text-xs font-bold uppercase tracking-wide text-[#28714a] hover:underline">{categoriesExpanded ? "Show less" : `+ ${activeCategories.length - 6} more`}</button>}
+
+            {/* SHOW MORE */}
+
+            {activeCategories.length > 6 && (
+              <button
+                type="button"
+                onClick={() =>
+                  setCategoriesExpanded(
+                    (expanded) => !expanded
+                  )
+                }
+                className="mt-4 text-[10px] font-bold uppercase tracking-wide text-[#28714a] hover:underline"
+              >
+                {categoriesExpanded
+                  ? "Show less"
+                  : `+ ${
+                      activeCategories.length -
+                      6
+                    } more`}
+              </button>
+            )}
+
           </div>
 
+
           {/* ACTIVE FILTER */}
+
           {selectedCategory && (
-            <div className="mt-6 rounded-xl border border-[#dce8dc] bg-[#f7faf6] p-4">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="mt-5 rounded-lg border border-[#dce8dc] bg-[#f7faf6] p-3">
+
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Active filter
               </p>
 
-              <div className="mt-2 flex items-center justify-between gap-2">
-                <span className="truncate text-sm font-bold text-[#174d32]">
+              <div className="mt-1.5 flex items-center justify-between gap-2">
+
+                <span className="truncate text-xs font-bold text-[#174d32]">
                   {selectedCategory.name}
                 </span>
 
                 <button
                   type="button"
-                  onClick={() => selectCategory("")}
+                  onClick={() =>
+                    selectCategory("")
+                  }
                   className="rounded-full bg-white p-1.5 text-slate-500 transition hover:bg-rose-50 hover:text-rose-500"
                 >
-                  <X size={14} />
+                  <X size={13} />
                 </button>
+
               </div>
+
             </div>
           )}
+
         </aside>
 
-        {/* ================= PRODUCTS ================= */}
-        <div>
-          {/* Products header */}
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-slate-500">
-                {filteredProducts.length} product
-                {filteredProducts.length === 1 ? "" : "s"}
-                {selectedCategory ? ` in ${selectedCategory.name}` : ""}
-              </p>
-            </div>
 
-            {/* Active category chip */}
+        {/* =================================================
+            PRODUCTS
+        ================================================= */}
+
+        <div className="min-w-0">
+
+          {/* PRODUCTS HEADER */}
+
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+
+            <p className="text-xs text-slate-500">
+
+              {products.length} product
+              {products.length === 1
+                ? ""
+                : "s"}
+
+              {selectedCategory
+                ? ` in ${selectedCategory.name}`
+                : ""}
+
+            </p>
+
+
+            {/* ACTIVE CATEGORY */}
+
             {selectedCategory && (
               <button
                 type="button"
-                onClick={() => selectCategory("")}
-                className="inline-flex items-center gap-1 rounded-full bg-[#edf4eb] px-3 py-1.5 text-xs font-bold text-[#28714a] transition hover:bg-[#dfeedd]"
+                onClick={() =>
+                  selectCategory("")
+                }
+                className="
+                  inline-flex
+                  items-center
+                  gap-1
+                  rounded-full
+                  bg-[#edf4eb]
+                  px-2.5
+                  py-1
+                  text-[10px]
+                  font-bold
+                  text-[#28714a]
+                  transition
+                  hover:bg-[#dfeedd]
+                "
               >
+
                 {selectedCategory.name}
-                <X size={14} />
+
+                <X size={12} />
+
               </button>
             )}
+
           </div>
 
-          {/* Loading */}
+
+          {/* =================================================
+              LOADING
+          ================================================= */}
+
           {loading && (
             <div className="flex min-h-60 items-center justify-center">
+
               <div className="text-center">
+
                 <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-[#dce8dc] border-t-[#28714a]" />
 
                 <p className="mt-3 text-sm text-[#28714a]">
                   Loading products...
                 </p>
+
               </div>
+
             </div>
           )}
 
-          {/* Error */}
+
+          {/* =================================================
+              ERROR
+          ================================================= */}
+
           {error && (
             <div className="rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {error}
             </div>
           )}
 
-          {/* Products */}
-          {!loading && !error && filteredProducts.length > 0 && (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product._id} item={product} />
-              ))}
-            </div>
-          )}
 
-          {/* No products */}
-          {!loading && !error && filteredProducts.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-[#c8dec9] bg-[#f8faf7] px-6 py-16 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#edf4eb] text-[#28714a]">
-                <Search size={24} />
+          {/* =================================================
+              PRODUCTS
+          ================================================= */}
+
+          {!loading &&
+            !error &&
+            products.length > 0 && (
+
+              <div
+                className="
+                  grid
+                  grid-cols-2
+                  gap-2
+                  sm:grid-cols-3
+                  sm:gap-2
+                  lg:grid-cols-4
+                  lg:gap-2
+                "
+              >
+
+                {products.map((product) => (
+                  <ProductCard
+                    key={product._id}
+                    item={product}
+                  />
+                ))}
+
               </div>
 
-              <p className="mt-4 font-semibold text-[#173b29]">
-                No products found
-              </p>
+            )}
 
-              <p className="mt-2 text-sm text-slate-500">
-                {selectedCategory
-                  ? `No products are available in ${selectedCategory.name}.`
-                  : "Try another search or category."}
-              </p>
 
-              {(selectedCategoryId || query) && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="mt-5 rounded-full bg-[#174d32] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#28714a]"
-                >
-                  Clear all filters
-                </button>
-              )}
-            </div>
-          )}
+          {/* =================================================
+              NO PRODUCTS
+          ================================================= */}
+
+          {!loading &&
+            !error &&
+            products.length === 0 && (
+
+              <div className="rounded-2xl border border-dashed border-[#c8dec9] bg-[#f8faf7] px-6 py-14 text-center">
+
+                <p className="font-semibold text-[#173b29]">
+                  No products found
+                </p>
+
+                <p className="mt-2 text-sm text-slate-500">
+                  No products are available
+                  {selectedCategory
+                    ? ` in ${selectedCategory.name}`
+                    : ""}.
+                </p>
+
+
+                {selectedCategoryId && (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="
+                      mt-5
+                      rounded-full
+                      bg-[#174d32]
+                      px-5
+                      py-2.5
+                      text-sm
+                      font-bold
+                      text-white
+                      transition
+                      hover:bg-[#28714a]
+                    "
+                  >
+                    Clear filter
+                  </button>
+                )}
+
+              </div>
+
+            )}
+
         </div>
+
       </div>
+
     </section>
   );
 }

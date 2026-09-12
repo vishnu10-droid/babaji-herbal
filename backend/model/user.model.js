@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema(
 
     phone: { type: String, default: "", trim: true },
 
+    image: { type: String, default: "" },
+
+    imageFileId: { type: String, default: "" },
+
     role: {
       type: String,
       enum: ["user", "admin"],

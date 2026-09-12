@@ -1,19 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import {
-  ShoppingCart,
-  Star,
-  Check,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingCart, Star, Check } from "lucide-react";
 
 import Breadcrumb from "../components/Breadcrumb";
 import Button from "../components/Button";
 
-import {
-  API_ORIGIN,
-  API_URL,
-} from "../config/config";
+import { API_URL } from "../config/config";
+import { detailImage } from "../utils/image";
 
 import { addToCart } from "../store/slice/cart.slice";
 import { useAuth } from "../context/auth-context";
@@ -26,18 +20,14 @@ export default function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [error, setError] = useState("");
 
-  const [selectedVariationId, setSelectedVariationId] =
-    useState("");
+  const [selectedVariationId, setSelectedVariationId] = useState("");
+  const [cartMessage, setCartMessage] = useState("");
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const [cartMessage, setCartMessage] =
-    useState("");
-
-  const [isAddingToCart, setIsAddingToCart] =
-    useState(false);
-
-  // ========================================
+  // =====================================================
   // FETCH PRODUCT
-  // ========================================
+  // =====================================================
 
   useEffect(() => {
     let cancelled = false;
@@ -48,9 +38,7 @@ export default function ProductDetails() {
         setProduct(null);
         setCartMessage("");
 
-        const response = await fetch(
-          `${API_URL}/products/${id}`,
-        );
+        const response = await fetch(`${API_URL}/products/${id}`);
 
         if (!response.ok) {
           throw new Error("Product not found");
@@ -61,27 +49,20 @@ export default function ProductDetails() {
         if (cancelled) return;
 
         setProduct(data);
+        setActiveImageIndex(0);
 
-        // Select first active variation
-        const firstVariation =
-          data?.variations?.find(
-            (variation) =>
-              variation.isActive !== false,
-          );
+        const firstVariation = data?.variations?.find(
+          (variation) => variation.isActive !== false,
+        );
 
         if (firstVariation) {
-          setSelectedVariationId(
-            firstVariation._id,
-          );
+          setSelectedVariationId(firstVariation._id);
         } else {
           setSelectedVariationId("");
         }
       } catch (requestError) {
         if (!cancelled) {
-          setError(
-            requestError?.message ||
-              "Unable to load product.",
-          );
+          setError(requestError?.message || "Unable to load product.");
         }
       }
     };
@@ -93,9 +74,24 @@ export default function ProductDetails() {
     };
   }, [id]);
 
-  // ========================================
+  const productImages = useMemo(
+    () => product?.images?.map((productImage) => detailImage(productImage, 700)) || [],
+    [product],
+  );
+
+  useEffect(() => {
+    if (productImages.length < 2) return undefined;
+
+    const slider = window.setInterval(() => {
+      setActiveImageIndex((index) => (index + 1) % productImages.length);
+    }, 3000);
+
+    return () => window.clearInterval(slider);
+  }, [productImages.length]);
+
+  // =====================================================
   // SELECTED VARIATION
-  // ========================================
+  // =====================================================
 
   const selectedVariation = useMemo(() => {
     if (!product?.variations?.length) {
@@ -104,86 +100,71 @@ export default function ProductDetails() {
 
     return (
       product.variations.find(
-        (variation) =>
-          variation._id === selectedVariationId,
+        (variation) => variation._id === selectedVariationId,
       ) ||
       product.variations.find(
-        (variation) =>
-          variation.isActive !== false,
+        (variation) => variation.isActive !== false,
       ) ||
       product.variations[0]
     );
-  }, [
-    product,
-    selectedVariationId,
-  ]);
+  }, [product, selectedVariationId]);
 
-  // ========================================
+  // =====================================================
   // PRODUCT IMAGE
-  // ========================================
+  // =====================================================
 
-  const image = product?.images?.[0]
-    ? `${API_ORIGIN}${product.images[0]}`
-    : "https://placehold.co/700x600/ffffff/2563eb?text=Babaji+Herbals";
+  const image = productImages[activeImageIndex]
+    ? productImages[activeImageIndex]
+    : "https://placehold.co/500x450/ffffff/2563eb?text=Babaji+Herbals";
 
-  // ========================================
-  // CURRENT PRICE
-  // ========================================
+  const showPreviousImage = () => {
+    setActiveImageIndex((index) =>
+      (index - 1 + productImages.length) % productImages.length,
+    );
+  };
+
+  const showNextImage = () => {
+    setActiveImageIndex((index) => (index + 1) % productImages.length);
+  };
+
+  // =====================================================
+  // PRICE
+  // =====================================================
 
   const currentPrice =
-    selectedVariation?.price ??
-    product?.sellingPrice ??
-    0;
+    selectedVariation?.price ?? product?.sellingPrice ?? 0;
 
-  const currentMrp =
-    selectedVariation?.mrp ??
-    product?.mrp ??
-    currentPrice;
-
-  const currentPouches =
-    selectedVariation?.pouches ??
-    null;
+const currentMrp =
+    selectedVariation?.mrp ?? product?.mrp ?? currentPrice;
 
   const currentStock =
-    selectedVariation?.stock ??
-    product?.stock ??
-    0;
+    selectedVariation?.stock ?? product?.stock ?? 0;
 
-  // ========================================
+  // =====================================================
   // DISCOUNT
-  // ========================================
+  // =====================================================
 
   const discount =
     currentMrp > currentPrice
-      ? Math.round(
-          ((currentMrp - currentPrice) /
-            currentMrp) *
-            100,
-        )
+      ? Math.round(((currentMrp - currentPrice) / currentMrp) * 100)
       : 0;
 
-  // ========================================
+  // =====================================================
   // ADD TO CART
-  // ========================================
+  // =====================================================
 
   const handleAddToCart = async () => {
     if (!product || isAddingToCart) {
       return;
     }
 
-    // Login check
     if (!isAuthenticated) {
-      setCartMessage(
-        "Please login to add products to cart.",
-      );
+      setCartMessage("Please login to add products to cart.");
       return;
     }
 
-    // Stock check
     if (Number(currentStock) <= 0) {
-      setCartMessage(
-        "This product is out of stock.",
-      );
+      setCartMessage("This product is out of stock.");
       return;
     }
 
@@ -197,13 +178,10 @@ export default function ProductDetails() {
       };
 
       if (selectedVariation?._id) {
-        payload.variationId =
-          selectedVariation._id;
+        payload.variationId = selectedVariation._id;
       }
 
-      await dispatch(
-        addToCart(payload),
-      ).unwrap();
+      await dispatch(addToCart(payload)).unwrap();
 
       setCartMessage(
         selectedVariation
@@ -227,43 +205,41 @@ export default function ProductDetails() {
     }
   };
 
-  // ========================================
+  // =====================================================
   // LOADING
-  // ========================================
+  // =====================================================
 
   if (!product && !error) {
     return (
-      <section className="section-shell py-20 text-center">
-        <p className="text-blue-600">
+      <section className="section-shell py-10 text-center">
+        <p className="text-sm text-blue-600">
           Loading product...
         </p>
       </section>
     );
   }
 
-  // ========================================
+  // =====================================================
   // ERROR
-  // ========================================
+  // =====================================================
 
   if (error) {
     return (
-      <section className="section-shell py-20 text-center">
-        <p className="text-rose-600">
-          {error}
-        </p>
+      <section className="section-shell py-10 text-center">
+        <p className="text-sm text-rose-600">{error}</p>
       </section>
     );
   }
 
-  // ========================================
+  // =====================================================
   // PRODUCT DETAILS
-  // ========================================
+  // =====================================================
 
   return (
     <>
-      {/* ========================================
+      {/* =================================================
           BREADCRUMB
-      ======================================== */}
+      ================================================= */}
 
       <Breadcrumb
         items={[
@@ -277,94 +253,163 @@ export default function ProductDetails() {
         ]}
       />
 
-      <section className="section-shell py-10">
-        <div className="grid gap-8 rounded-[2rem] bg-white p-6 shadow-lg lg:grid-cols-2">
+      {/* =================================================
+          COMPACT PRODUCT SECTION
+      ================================================= */}
 
-          {/* ========================================
-              PRODUCT IMAGE
-          ======================================== */}
+      <section className="section-shell px-3 py-2 sm:px-4 sm:py-3">
+        <div
+          className="
+            mx-auto
+            grid
+            w-full
+            max-w-4xl
+            grid-cols-1
+            gap-3
+            rounded-xl
+            bg-white
+            p-3
+            shadow-md
+            sm:grid-cols-[230px_minmax(0,1fr)]
+            sm:gap-4
+            sm:p-4
+            lg:grid-cols-[270px_minmax(0,1fr)]
+          "
+        >
+          {/* =================================================
+              IMAGE
+          ================================================= */}
 
-          <div className="flex min-h-[500px] items-center justify-center overflow-hidden rounded-[1.5rem] bg-white p-6">
-
+          <div
+            className="
+              relative
+              flex
+              h-[220px]
+              items-center
+              justify-center
+              overflow-hidden
+              rounded-lg
+              bg-slate-50
+              p-2
+              sm:h-[300px]
+              lg:h-[330px]
+            "
+          >
             <img
+              key={image}
               src={image}
               alt={product.name}
               className="
-                block
-                max-h-[450px]
-                max-w-full
+                h-full
+                w-full
                 object-contain
               "
             />
-
+            {productImages.length > 1 && (
+              <>
+                <button type="button" onClick={showPreviousImage} aria-label="Show previous product image" className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow transition hover:bg-white">
+                  <ChevronLeft size={20} />
+                </button>
+                <button type="button" onClick={showNextImage} aria-label="Show next product image" className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow transition hover:bg-white">
+                  <ChevronRight size={20} />
+                </button>
+                <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-slate-900/50 px-2 py-1.5">
+                  {productImages.map((_, index) => (
+                    <button key={index} type="button" onClick={() => setActiveImageIndex(index)} aria-label={`Show product image ${index + 1}`} className={`h-2 w-2 rounded-full transition ${activeImageIndex === index ? "bg-white" : "bg-white/45 hover:bg-white/75"}`} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
-          {/* ========================================
-              PRODUCT INFORMATION
-          ======================================== */}
+          {/* =================================================
+              INFORMATION
+          ================================================= */}
 
-          <div className="py-2">
-
+          <div className="min-w-0">
             {/* CATEGORY */}
 
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-600">
-              {product.category}
+            <p
+              className="
+                text-[9px]
+                font-bold
+                uppercase
+                tracking-[0.25em]
+                text-blue-600
+              "
+            >
+              {product.category || "Herbal Care"}
             </p>
 
-            {/* PRODUCT NAME */}
+            {/* NAME */}
 
-            <h1 className="mt-3 font-display text-4xl font-bold text-slate-900">
+            <h1
+              className="
+                mt-1
+                text-xl
+                font-bold
+                leading-6
+                text-slate-900
+                sm:text-2xl
+                sm:leading-7
+              "
+            >
               {product.name}
             </h1>
 
             {/* DESCRIPTION */}
 
-            <p className="mt-3 leading-7 text-slate-600">
+            <p
+              className="
+                mt-1.5
+                line-clamp-2
+                text-[11px]
+                leading-4
+                text-slate-500
+              "
+            >
               {product.description ||
                 product.shortDescription ||
                 "Natural herbal care for your daily wellness routine."}
             </p>
 
-            {/* ========================================
+            {/* =================================================
                 VARIATIONS
-            ======================================== */}
+            ================================================= */}
 
             {product.variations?.length > 0 && (
-              <div className="mt-7">
-
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-
-                  <h2 className="text-lg font-bold text-slate-900">
+              <div className="mt-3">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-slate-900">
                     Variations
                   </h2>
 
                   {selectedVariation && (
-                    <span className="text-sm text-slate-500">
+                    <span className="text-[10px] text-slate-500">
                       Selected:{" "}
                       <span className="font-bold text-blue-600">
                         {selectedVariation.name}
                       </span>
                     </span>
                   )}
-
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-
+                <div className="grid grid-cols-2 gap-1.5">
                   {product.variations
                     .filter(
                       (variation) =>
                         variation.isActive !== false,
                     )
                     .map((variation) => {
-
                       const isSelected =
                         selectedVariation?._id ===
                         variation._id;
 
+                      const variationStock =
+                        Number(variation.stock) || 0;
+
                       const variationDiscount =
-                        variation.mrp >
-                        variation.price
+                        variation.mrp > variation.price
                           ? Math.round(
                               ((variation.mrp -
                                 variation.price) /
@@ -373,230 +418,264 @@ export default function ProductDetails() {
                             )
                           : 0;
 
-                      const variationStock =
-                        Number(
-                          variation.stock,
-                        ) || 0;
-
                       return (
                         <button
                           key={variation._id}
                           type="button"
-                          disabled={
-                            variationStock <= 0
-                          }
+                          disabled={variationStock <= 0}
                           onClick={() =>
                             setSelectedVariationId(
                               variation._id,
                             )
                           }
-                          className={`relative rounded-xl border-2 p-4 text-left transition ${
-                            isSelected
-                              ? "border-blue-600 bg-blue-50 shadow-md"
-                              : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
-                          } ${
-                            variationStock <= 0
-                              ? "cursor-not-allowed opacity-50"
-                              : ""
-                          }`}
+                          className={`
+                            relative
+                            rounded-md
+                            border
+                            p-2
+                            text-left
+                            transition
+                            ${
+                              isSelected
+                                ? "border-blue-600 bg-blue-50 shadow-sm"
+                                : "border-slate-200 bg-white hover:border-blue-300"
+                            }
+                            ${
+                              variationStock <= 0
+                                ? "cursor-not-allowed opacity-50"
+                                : ""
+                            }
+                          `}
                         >
-
-                          {/* CHECK ICON */}
+                          {/* CHECK */}
 
                           {isSelected && (
-                            <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white">
-                              <Check size={12} />
+                            <span
+                              className="
+                                absolute
+                                right-1.5
+                                top-1.5
+                                flex
+                                h-4
+                                w-4
+                                items-center
+                                justify-center
+                                rounded-full
+                                bg-blue-600
+                                text-white
+                              "
+                            >
+                              <Check size={10} />
                             </span>
                           )}
 
-                          {/* VARIATION NAME */}
+                          {/* NAME */}
 
                           <p
-                            className={`pr-5 text-sm font-bold ${
-                              isSelected
-                                ? "text-blue-700"
-                                : "text-slate-800"
-                            }`}
+                            className={`
+                              pr-5
+                              text-[11px]
+                              font-bold
+                              ${
+                                isSelected
+                                  ? "text-blue-700"
+                                  : "text-slate-800"
+                              }
+                            `}
                           >
-                            {variation.name}
+                            {variation.name ||
+                              `${variation.pouches} pouches`}
                           </p>
 
                           {/* PRICE */}
 
-                          <p className="mt-2 text-lg font-bold text-slate-900">
-                            ₹
-                            {Number(
-                              variation.price,
-                            ).toLocaleString(
-                              "en-IN",
+                          <div className="mt-0.5 flex items-center gap-1.5">
+                            <span className="text-sm font-bold text-slate-900">
+                              ₹
+                              {Number(
+                                variation.price,
+                              ).toLocaleString("en-IN")}
+                            </span>
+
+                            {variation.mrp >
+                              variation.price && (
+                              <span className="text-[9px] text-slate-400 line-through">
+                                ₹
+                                {Number(
+                                  variation.mrp,
+                                ).toLocaleString("en-IN")}
+                              </span>
                             )}
-                          </p>
+                          </div>
 
-                          {/* POUCHES */}
+                          {/* POUCHES + STOCK */}
 
-                          <p className="mt-1 text-xs text-slate-500">
-                            {variation.pouches ?? 0}{" "}
-                            pouches
-                          </p>
+                          <div className="mt-0.5 flex items-center justify-between">
+                            <span className="text-[9px] text-slate-500">
+                              {variation.pouches ?? 0}{" "}
+                              pouches
+                            </span>
 
-                          {/* STOCK */}
-
-                          <p
-                            className={`mt-1 text-xs font-semibold ${
-                              variationStock > 0
-                                ? "text-emerald-600"
-                                : "text-rose-600"
-                            }`}
-                          >
-                            {variationStock > 0
-                              ? "In Stock"
-                              : "Out of Stock"}
-                          </p>
+                            <span
+                              className={`
+                                text-[9px]
+                                font-semibold
+                                ${
+                                  variationStock > 0
+                                    ? "text-emerald-600"
+                                    : "text-rose-600"
+                                }
+                              `}
+                            >
+                              {variationStock > 0
+                                ? "In Stock"
+                                : "Out"}
+                            </span>
+                          </div>
 
                           {/* DISCOUNT */}
 
                           {variationDiscount > 0 && (
-                            <span className="mt-2 inline-flex rounded-full bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-700">
+                            <span
+                              className="
+                                mt-1
+                                inline-block
+                                rounded
+                                bg-blue-100
+                                px-1.5
+                                py-0.5
+                                text-[8px]
+                                font-bold
+                                text-blue-700
+                              "
+                            >
                               {variationDiscount}% OFF
                             </span>
                           )}
-
                         </button>
                       );
                     })}
-
                 </div>
               </div>
             )}
 
-            {/* ========================================
-                PRICE
-            ======================================== */}
+            {/* =================================================
+                PRICE SECTION
+            ================================================= */}
 
-            <div className="mt-7 border-t border-slate-100 pt-6">
+            <div
+              className="
+                mt-3
+                flex
+                flex-wrap
+                items-end
+                gap-x-4
+                gap-y-1
+                border-t
+                border-slate-100
+                pt-2.5
+              "
+            >
+              {/* MRP */}
+
+              <div>
+                <p className="text-[9px] text-slate-400">
+                  Product MRP
+                </p>
+
+                <p className="text-xs font-semibold text-slate-400 line-through">
+                  ₹{Number(currentMrp).toLocaleString("en-IN")}
+                </p>
+              </div>
+
+              {/* SELLING PRICE */}
+
+              <div>
+                <p className="text-[9px] text-slate-500">
+                  Selling Price
+                </p>
+
+                <p className="text-xl font-bold text-slate-900">
+                  ₹
+                  {Number(currentPrice).toLocaleString(
+                    "en-IN",
+                  )}
+                </p>
+              </div>
 
               {/* DISCOUNT */}
 
               {discount > 0 && (
-                <span className="inline-flex rounded bg-blue-600 px-3 py-1.5 text-xs font-bold text-white">
+                <span
+                  className="
+                    mb-0.5
+                    rounded
+                    bg-blue-600
+                    px-1.5
+                    py-0.5
+                    text-[8px]
+                    font-bold
+                    text-white
+                  "
+                >
                   {discount}% OFF
                 </span>
               )}
 
-              {/* MRP */}
-
-              <p className="mt-4 text-sm text-slate-400">
-                Product MRP:
+              <p className="mb-1 text-[9px] text-slate-400">
+                Inclusive of all taxes
               </p>
-
-              <p className="text-sm font-semibold text-slate-400 line-through">
-                ₹
-                {Number(
-                  currentMrp,
-                ).toLocaleString(
-                  "en-IN",
-                )}
-              </p>
-
-              {/* SELLING PRICE */}
-
-              <p className="mt-4 text-sm text-slate-600">
-                Selling Price:
-              </p>
-
-              <p className="mt-1 text-3xl font-bold text-slate-900">
-                ₹
-                {Number(
-                  currentPrice,
-                ).toLocaleString(
-                  "en-IN",
-                )}
-              </p>
-
-              <p className="mt-2 text-sm text-slate-500">
-                (Inclusive of all taxes)
-              </p>
-
-              {/* ========================================
-                  SELECTED POUCHES
-              ======================================== */}
-
-              {currentPouches != null && (
-                <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
-
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-500">
-                    Selected Variation
-                  </p>
-
-                  <div className="mt-2 flex items-center justify-between gap-3">
-
-                    <span className="text-lg font-bold text-blue-800">
-                      {selectedVariation?.name}
-                    </span>
-
-                    <span className="text-lg font-bold text-blue-800">
-                      {currentPouches} pouches
-                    </span>
-
-                  </div>
-
-                  <p className="mt-2 text-sm text-blue-600">
-                    Price: ₹
-                    {Number(
-                      currentPrice,
-                    ).toLocaleString(
-                      "en-IN",
-                    )}
-                  </p>
-
-                </div>
-              )}
-
             </div>
 
-            {/* ========================================
-                STOCK
-            ======================================== */}
+            {/* =================================================
+                STOCK + RATING
+            ================================================= */}
 
-            <div className="mt-4">
+            <div className="mt-2 flex items-center justify-between">
+              {/* STOCK */}
 
               {Number(currentStock) > 0 ? (
-                <p className="text-sm font-semibold text-emerald-600">
+                <span
+                  className="
+                    text-[10px]
+                    font-bold
+                    text-emerald-600
+                  "
+                >
                   ✓ In Stock
-                </p>
+                </span>
               ) : (
-                <p className="text-sm font-semibold text-rose-600">
+                <span
+                  className="
+                    text-[10px]
+                    font-bold
+                    text-rose-600
+                  "
+                >
                   Out of Stock
-                </p>
+                </span>
               )}
 
-            </div>
+              {/* RATING */}
 
-            {/* ========================================
-                RATING
-            ======================================== */}
-
-            <div className="mt-5 flex items-center gap-1 text-amber-500">
-
-              {[1, 2, 3, 4, 5].map(
-                (star) => (
+              <div className="flex items-center gap-0.5 text-amber-500">
+                {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    size={16}
+                    size={12}
                     fill="currentColor"
                   />
-                ),
-              )}
+                ))}
 
-              <span className="ml-1 text-sm text-slate-500">
-                Customer favourite
-              </span>
-
+                <span className="ml-1 text-[9px] text-slate-500">
+                  5.0
+                </span>
+              </div>
             </div>
 
-            {/* ========================================
+            {/* =================================================
                 ADD TO CART
-            ======================================== */}
+            ================================================= */}
 
             <Button
               type="button"
@@ -607,33 +686,29 @@ export default function ProductDetails() {
                 isAddingToCart
               }
               className="
-                mt-8
+                mt-3
                 flex
+                h-9
                 w-full
                 items-center
                 justify-center
-                rounded-full
+                rounded-md
                 bg-blue-600
-                px-7
-                py-4
-                text-base
+                px-4
+                text-xs
                 font-bold
                 text-white
-                shadow-md
+                shadow-sm
                 transition
-                duration-200
                 hover:bg-blue-700
-                hover:shadow-lg
                 active:scale-[0.98]
                 disabled:cursor-not-allowed
                 disabled:bg-slate-400
-                disabled:shadow-none
               "
             >
-
               <ShoppingCart
-                className="mr-2"
-                size={19}
+                className="mr-1.5"
+                size={15}
               />
 
               {isAddingToCart
@@ -641,32 +716,34 @@ export default function ProductDetails() {
                 : Number(currentStock) <= 0
                   ? "Out of Stock"
                   : "Add to Cart"}
-
             </Button>
 
-            {/* ========================================
+            {/* =================================================
                 CART MESSAGE
-            ======================================== */}
+            ================================================= */}
 
             {cartMessage && (
               <div
-                className={`mt-4 rounded-xl border px-4 py-3 text-sm font-semibold ${
-                  cartMessage
-                    .toLowerCase()
-                    .includes("added")
-                    ? "border-emerald-100 bg-emerald-50 text-emerald-700"
-                    : "border-rose-100 bg-rose-50 text-rose-700"
-                }`}
+                className={`
+                  mt-2
+                  rounded-md
+                  border
+                  px-2.5
+                  py-1.5
+                  text-[10px]
+                  font-semibold
+                  ${
+                    cartMessage
+                      .toLowerCase()
+                      .includes("added")
+                      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+                      : "border-rose-100 bg-rose-50 text-rose-700"
+                  }
+                `}
               >
-                {cartMessage
-                  .toLowerCase()
-                  .includes("added")
-                  ? "✓"
-                  : "⚠"}{" "}
                 {cartMessage}
               </div>
             )}
-
           </div>
         </div>
       </section>
