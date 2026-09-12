@@ -6,7 +6,7 @@ import { API_URL } from "../config/config";
 // ========================================
 
 export const createContact = async (data) => {
-  const response = await axios.post(`${API_URL}/api/contact`, data);
+  const response = await axios.post(`${API_URL}/contact`, data);
 
   return response.data;
 };
@@ -16,7 +16,7 @@ export const createContact = async (data) => {
 // ========================================
 
 export const getContacts = async () => {
-  const response = await axios.get(`${API_URL}/api/contact`);
+  const response = await axios.get(`${API_URL}/contact`);
 
   return response.data;
 };
