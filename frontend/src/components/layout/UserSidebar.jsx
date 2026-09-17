@@ -32,6 +32,16 @@ const UserSidebar = () => {
       icon: "🛒",
     },
     {
+      name: "Transactions",
+      path: "/account/transactions",
+      icon: "💳",
+    },
+    {
+      name: "My Reviews",
+      path: "/account/reviews",
+      icon: "⭐",
+    },
+    {
       name: "Settings",
       path: "/account/settings",
       icon: "⚙️",

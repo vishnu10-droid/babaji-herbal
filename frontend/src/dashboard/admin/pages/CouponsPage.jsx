@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import AdminSectionPage from "../../../components/admin/AdminSectionPage";
-import AdminTable, { StatusBadge } from "../../../components/admin/AdminTable";
+import AdminTable, { StatusBadge, TableActions } from "../../../components/admin/AdminTable";
 import { createCoupon, deleteCoupon, getCoupons, updateCoupon } from "../../../service/coupon.api";
 
 const emptyForm = {
@@ -19,6 +20,7 @@ export default function CouponsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modal, setModal] = useState(false);
+  const [viewingCoupon, setViewingCoupon] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -144,18 +146,39 @@ export default function CouponsPage() {
               key: "actions",
               label: "Actions",
               render: (row) => (
-                <div className="flex gap-2">
-                  <button onClick={() => openEdit(row)} className="rounded-lg border border-slate-200 px-3 py-1 text-xs font-semibold hover:bg-slate-50">
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(row._id)} className="rounded-lg bg-red-50 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-100">
-                    Delete
-                  </button>
-                </div>
+                <TableActions
+                  itemName={row.code}
+                  viewLabel="View coupon"
+                  editLabel="Edit coupon"
+                  deleteLabel="Delete coupon"
+                  onView={() => setViewingCoupon(row)}
+                  onEdit={() => openEdit(row)}
+                  onDelete={() => handleDelete(row._id)}
+                />
               ),
             },
           ]}
         />
+      )}
+
+      {viewingCoupon && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3">
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div><h2 className="text-base font-bold">Coupon details</h2><p className="mt-1 text-sm text-slate-500">Full information for <span className="font-bold text-blue-600">{viewingCoupon.code}</span></p></div>
+              <button type="button" onClick={() => setViewingCoupon(null)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="Close coupon details"><X size={18} /></button>
+            </div>
+            <dl className="space-y-2.5 text-sm">
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Campaign</dt><dd className="font-semibold text-slate-900">{viewingCoupon.campaign || "—"}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Discount</dt><dd className="font-semibold text-slate-900">{discountLabel(viewingCoupon)}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Min order</dt><dd className="font-semibold text-slate-900">₹{Number(viewingCoupon.minOrder || 0).toLocaleString("en-IN")}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Max uses</dt><dd className="font-semibold text-slate-900">{viewingCoupon.maxUses || "Unlimited"}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Status</dt><dd><StatusBadge tone={viewingCoupon.isActive ? "green" : "rose"}>{viewingCoupon.isActive ? "Active" : "Inactive"}</StatusBadge></dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Expiry</dt><dd className="font-semibold text-slate-900">{viewingCoupon.expiry ? new Date(viewingCoupon.expiry).toLocaleDateString("en-IN") : "No expiry"}</dd></div>
+            </dl>
+            <div className="mt-5 flex justify-end"><button type="button" onClick={() => setViewingCoupon(null)} className="rounded-xl border px-4 py-2 text-sm font-semibold">Close</button></div>
+          </div>
+        </div>
       )}
 
       {modal && (

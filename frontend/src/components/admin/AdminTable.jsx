@@ -1,4 +1,50 @@
 import { motion } from "framer-motion";
+import { Eye, Pencil, Trash2 } from "lucide-react";
+
+export function TableIconButton({ label, onClick, tone = "blue", children, ariaLabel }) {
+  const tones = {
+    blue: "text-blue-700 hover:bg-blue-50",
+    rose: "text-rose-600 hover:bg-rose-50",
+    emerald: "text-emerald-700 hover:bg-emerald-50",
+    slate: "text-slate-600 hover:bg-slate-100",
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={ariaLabel || label}
+      className={`group relative rounded-lg p-2 transition ${tones[tone] || tones.blue}`}
+    >
+      {children}
+      <span className="pointer-events-none absolute -top-8 left-1/2 z-20 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white shadow-lg group-hover:block">
+        {label}
+      </span>
+    </button>
+  );
+}
+
+export function TableActions({ onView, onEdit, onDelete, viewLabel = "View details", editLabel = "Edit", deleteLabel = "Delete", itemName = "" }) {
+  return (
+    <div className="flex items-center gap-1">
+      {onView && (
+        <TableIconButton label={viewLabel} ariaLabel={itemName ? `View ${itemName}` : viewLabel} onClick={onView} tone="emerald">
+          <Eye size={17} />
+        </TableIconButton>
+      )}
+      {onEdit && (
+        <TableIconButton label={editLabel} ariaLabel={itemName ? `Edit ${itemName}` : editLabel} onClick={onEdit} tone="blue">
+          <Pencil size={17} />
+        </TableIconButton>
+      )}
+      {onDelete && (
+        <TableIconButton label={deleteLabel} ariaLabel={itemName ? `Delete ${itemName}` : deleteLabel} onClick={onDelete} tone="rose">
+          <Trash2 size={17} />
+        </TableIconButton>
+      )}
+    </div>
+  );
+}
 
 export default function AdminTable({
   columns,

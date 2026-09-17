@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import AdminSectionPage from "../../../components/admin/AdminSectionPage";
-import AdminTable, { StatusBadge } from "../../../components/admin/AdminTable";
+import AdminTable, { StatusBadge, TableActions } from "../../../components/admin/AdminTable";
 import ImageUploader from "../../../components/ImageUploader";
 import {
   createproduct,
@@ -425,6 +425,7 @@ export default function ProductsPage() {
   const [addingProduct, setAddingProduct] = useState(false);
   const [addForm, setAddForm] = useState(emptyProductForm);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [viewingProduct, setViewingProduct] = useState(null);
   const [form, setForm] = useState(null);
   const [actionError, setActionError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -626,24 +627,15 @@ export default function ProductsPage() {
       key: "actions",
       label: "Actions",
       render: (item) => (
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => startEdit(item)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
-            aria-label={`Edit ${item.name}`}
-          >
-            <Pencil size={15} /> Edit
-          </button>
-          <button
-            type="button"
-            onClick={() => removeProduct(item)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
-            aria-label={`Delete ${item.name}`}
-          >
-            <Trash2 size={15} /> Delete
-          </button>
-        </div>
+        <TableActions
+          itemName={item.name}
+          viewLabel="View product"
+          editLabel="Edit product"
+          deleteLabel="Delete product"
+          onView={() => setViewingProduct(item)}
+          onEdit={() => startEdit(item)}
+          onDelete={() => removeProduct(item)}
+        />
       ),
     },
   ];
@@ -678,7 +670,47 @@ export default function ProductsPage() {
           {error}
         </p>
       )}
-      {!loading && <AdminTable columns={columns} rows={products} />}
+      {!loading && <AdminTable columns={columns} rows={products} emptyMessage="No products found. Add your first product." />}
+
+      {viewingProduct && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/45 p-4">
+          <div className="mx-auto my-8 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Product details</h2>
+                <p className="mt-1 text-sm text-slate-500">{viewingProduct.name}</p>
+              </div>
+              <button type="button" onClick={() => setViewingProduct(null)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="Close product details">
+                <X size={20} />
+              </button>
+            </div>
+            {viewingProduct.images?.[0] && <img src={thumbnail(viewingProduct.images[0], 600)} alt={viewingProduct.name} className="h-52 w-full rounded-xl object-cover" />}
+            <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <div><dt className="text-slate-500">Category</dt><dd className="font-semibold text-slate-900">{viewingProduct.category || "—"}</dd></div>
+              <div><dt className="text-slate-500">Brand</dt><dd className="font-semibold text-slate-900">{viewingProduct.brand || "—"}</dd></div>
+              <div><dt className="text-slate-500">MRP</dt><dd className="font-semibold text-slate-900">Rs. {viewingProduct.mrp || 0}</dd></div>
+              <div><dt className="text-slate-500">Selling price</dt><dd className="font-semibold text-slate-900">Rs. {viewingProduct.sellingPrice || 0}</dd></div>
+              <div><dt className="text-slate-500">Stock</dt><dd className="font-semibold text-slate-900">{viewingProduct.stock ?? 0}</dd></div>
+              <div><dt className="text-slate-500">Status</dt><dd><StatusBadge tone={viewingProduct.status === "Active" ? "green" : "rose"}>{viewingProduct.status || "Draft"}</StatusBadge></dd></div>
+            </dl>
+            {viewingProduct.shortDescription && <p className="mt-4 text-sm text-slate-600">{viewingProduct.shortDescription}</p>}
+            {Array.isArray(viewingProduct.variations) && viewingProduct.variations.length > 0 && (
+              <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm">
+                <p className="font-semibold text-slate-700">Variations ({viewingProduct.variations.length})</p>
+                <ul className="mt-2 space-y-1 text-slate-600">
+                  {viewingProduct.variations.map((v, i) => (
+                    <li key={v._id || i}>{v.name || `${v.pouches} pouches`} — Rs. {v.price} (Stock: {v.stock ?? 0})</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="mt-6 flex justify-end gap-3">
+              <button type="button" onClick={() => { setViewingProduct(null); startEdit(viewingProduct); }} className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Edit product</button>
+              <button type="button" onClick={() => setViewingProduct(null)} className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {addingProduct && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/45 p-4">

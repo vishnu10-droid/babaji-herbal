@@ -48,6 +48,28 @@ export const updateProfile = async (data, token) => {
   return response.data;
 };
 
+// CHANGE PASSWORD
+export const changePassword = async (data, token) => {
+  const response = await api.put("/password", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
+
+// DELETE ACCOUNT
+export const deleteAccount = async (token) => {
+  const response = await api.delete("/account", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
+
 // GET USERS
 export const getUsers = async (token) => {
   const response = await api.get("/users", {
