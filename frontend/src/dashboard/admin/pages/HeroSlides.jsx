@@ -396,7 +396,7 @@ export default function HeroSlides() {
                         </p>
 
                         <p className="mt-1 text-[9px] text-slate-400">
-                          JPG, PNG, WEBP • Max 40MB
+                          Best size: 1920 x 800px (landscape) • JPG, PNG, WEBP • Max 40MB
                         </p>
                       </div>
                     )}
