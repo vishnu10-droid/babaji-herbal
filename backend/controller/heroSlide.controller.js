@@ -101,13 +101,6 @@ export const createHeroSlide = async (req, res) => {
       sortOrder,
     } = req.body;
 
-    if (!eyebrow || !title || !description || !action || !to) {
-      return res.status(400).json({
-        success: false,
-        message: "All required fields are required",
-      });
-    }
-
     if (!req.file && !req.body.image) {
       return res.status(400).json({
         success: false,
@@ -126,11 +119,11 @@ export const createHeroSlide = async (req, res) => {
     }
 
     const slide = await HeroSlide.create({
-      eyebrow,
-      title,
-      description,
-      action,
-      to,
+      eyebrow: eyebrow || "",
+      title: title || "",
+      description: description || "",
+      action: action || "",
+      to: to || "/shop",
       image,
       imageFileId,
       position: position || "center",

@@ -4,31 +4,31 @@ const heroSlideSchema = new mongoose.Schema(
   {
     eyebrow: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     title: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     description: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     action: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     to: {
       type: String,
-      required: true,
+      default: "/shop",
       trim: true,
     },
 

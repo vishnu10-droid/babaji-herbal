@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Edit, ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
 
 import {
   createHeroSlide,
@@ -17,17 +17,6 @@ const resolveImage = (image) => {
   return `${API_ORIGIN}${image.startsWith("/") ? image : `/${image}`}`;
 };
 
-const emptyForm = {
-  eyebrow: "",
-  title: "",
-  description: "",
-  action: "",
-  to: "/shop",
-  position: "center",
-  sortOrder: 0,
-  isActive: true,
-};
-
 export default function HeroSlides() {
   const [slides, setSlides] = useState([]);
 
@@ -38,8 +27,6 @@ export default function HeroSlides() {
   const [modal, setModal] = useState(false);
 
   const [editingId, setEditingId] = useState(null);
-
-  const [form, setForm] = useState(emptyForm);
 
   const [image, setImage] = useState(null);
 
@@ -91,8 +78,6 @@ export default function HeroSlides() {
   const openAdd = () => {
     setEditingId(null);
 
-    setForm(emptyForm);
-
     setImage(null);
 
     setPreview("");
@@ -101,22 +86,11 @@ export default function HeroSlides() {
   };
 
   /* =========================
-     OPEN EDIT
+     OPEN EDIT (sirf image badlo)
   ========================= */
 
   const openEdit = (slide) => {
     setEditingId(slide._id);
-
-    setForm({
-      eyebrow: slide.eyebrow || "",
-      title: slide.title || "",
-      description: slide.description || "",
-      action: slide.action || "",
-      to: slide.to || "/shop",
-      position: slide.position || "center",
-      sortOrder: slide.sortOrder || 0,
-      isActive: slide.isActive ?? true,
-    });
 
     setImage(null);
 
@@ -136,25 +110,9 @@ export default function HeroSlides() {
 
     setEditingId(null);
 
-    setForm(emptyForm);
-
     setImage(null);
 
     setPreview("");
-  };
-
-  /* =========================
-     CHANGE
-  ========================= */
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-
-      [name]: type === "checkbox" ? checked : value,
-    }));
   };
 
   /* =========================
@@ -183,7 +141,7 @@ export default function HeroSlides() {
   };
 
   /* =========================
-     SUBMIT
+     SUBMIT (sirf image)
   ========================= */
 
   const handleSubmit = async (e) => {
@@ -199,14 +157,15 @@ export default function HeroSlides() {
 
       const formData = new FormData();
 
-      formData.append("eyebrow", form.eyebrow?.trim() || "");
-      formData.append("title", form.title?.trim() || "");
-      formData.append("description", form.description?.trim() || "");
-      formData.append("action", form.action?.trim() || "");
-      formData.append("to", form.to?.trim() || "/shop");
-      formData.append("position", form.position || "center");
-      formData.append("sortOrder", String(form.sortOrder ?? 0));
-      formData.append("isActive", String(form.isActive));
+      // Backend compatibility ke liye default text values
+      formData.append("eyebrow", "");
+      formData.append("title", "");
+      formData.append("description", "");
+      formData.append("action", "");
+      formData.append("to", "/shop");
+      formData.append("position", "center");
+      formData.append("sortOrder", "0");
+      formData.append("isActive", "true");
 
       if (image) {
         formData.append("image", image);
@@ -222,7 +181,6 @@ export default function HeroSlides() {
 
       setModal(false);
       setEditingId(null);
-      setForm(emptyForm);
       setImage(null);
       setPreview("");
     } catch (error) {
@@ -333,11 +291,8 @@ export default function HeroSlides() {
                 <div className="relative h-44 bg-slate-100">
                   <img
                     src={resolveImage(slide.image)}
-                    alt={slide.title}
+                    alt="Hero slide"
                     className="h-full w-full object-cover"
-                    style={{
-                      objectPosition: slide.position || "center",
-                    }}
                   />
 
                   <div className="absolute left-2 top-2">
@@ -351,58 +306,35 @@ export default function HeroSlides() {
                       {slide.isActive ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </div>
-
-                  <div className="absolute right-2 top-2">
-                    <span className="rounded-full bg-black/60 px-2 py-1 text-[9px] font-bold text-white">
-                      #{slide.sortOrder}
-                    </span>
-                  </div>
                 </div>
 
-                {/* CONTENT */}
+                {/* ACTIONS */}
 
-                <div className="p-3">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-600">
-                    {slide.eyebrow}
-                  </p>
+                <div className="flex items-center gap-2 p-3">
+                  <button
+                    onClick={() => openEdit(slide)}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Change Image
+                  </button>
 
-                  <h2 className="mt-1 line-clamp-2 text-sm font-bold text-slate-900">
-                    {slide.title}
-                  </h2>
+                  <button
+                    onClick={() => handleToggle(slide._id)}
+                    className={`rounded-lg px-3 py-2 text-[10px] font-semibold ${
+                      slide.isActive
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-emerald-50 text-emerald-700"
+                    }`}
+                  >
+                    {slide.isActive ? "Disable" : "Enable"}
+                  </button>
 
-                  <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-slate-500">
-                    {slide.description}
-                  </p>
-
-                  {/* ACTIONS */}
-
-                  <div className="mt-3 flex items-center gap-2">
-                    <button
-                      onClick={() => openEdit(slide)}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      <Edit size={12} />
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() => handleToggle(slide._id)}
-                      className={`rounded-lg px-3 py-2 text-[10px] font-semibold ${
-                        slide.isActive
-                          ? "bg-amber-50 text-amber-700"
-                          : "bg-emerald-50 text-emerald-700"
-                      }`}
-                    >
-                      {slide.isActive ? "Disable" : "Enable"}
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(slide._id)}
-                      className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100"
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleDelete(slide._id)}
+                    className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100"
+                  >
+                    <Trash2 size={13} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -411,22 +343,22 @@ export default function HeroSlides() {
       </div>
 
       {/* =========================
-          MODAL
+          MODAL - SIRF IMAGE
       ========================= */}
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3">
-          <div className="max-h-[95vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-2xl">
+          <div className="w-full max-w-md overflow-y-auto rounded-xl bg-white shadow-2xl">
             {/* MODAL HEADER */}
 
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-3">
+            <div className="flex items-center justify-between border-b bg-white px-4 py-3">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">
-                  {editingId ? "Edit Hero Slide" : "Add Hero Slide"}
+                  {editingId ? "Change Hero Image" : "Add Hero Image"}
                 </h2>
 
                 <p className="text-[9px] text-slate-500">
-                  Add content and hero image
+                  Sirf image select karo
                 </p>
               </div>
 
@@ -444,11 +376,6 @@ export default function HeroSlides() {
               {/* IMAGE */}
 
               <div>
-                <label className="mb-1 block text-[10px] font-semibold text-slate-700">
-                  Hero Image
-                  {!editingId && <span className="text-red-500"> *</span>}
-                </label>
-
                 <label className="block cursor-pointer">
                   <div className="flex min-h-[180px] items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-300 bg-slate-50">
                     {preview ? (
@@ -469,7 +396,7 @@ export default function HeroSlides() {
                         </p>
 
                         <p className="mt-1 text-[9px] text-slate-400">
-                          JPG, PNG, WEBP • Max 5MB
+                          JPG, PNG, WEBP • Max 40MB
                         </p>
                       </div>
                     )}
@@ -483,157 +410,6 @@ export default function HeroSlides() {
                   />
                 </label>
               </div>
-
-              {/* EYEBROW */}
-
-              <div>
-                <label className="mb-1 block text-[10px] font-semibold text-slate-700">
-                  Eyebrow
-                </label>
-
-                <input
-                  name="eyebrow"
-                  value={form.eyebrow}
-                  onChange={handleChange}
-                  placeholder="Rooted in Ayurveda"
-                  required
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              {/* TITLE */}
-
-              <div>
-                <label className="mb-1 block text-[10px] font-semibold text-slate-700">
-                  Title
-                </label>
-
-                <textarea
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="Everyday wellness, made naturally."
-                  rows={2}
-                  required
-                  className="w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              {/* DESCRIPTION */}
-
-              <div>
-                <label className="mb-1 block text-[10px] font-semibold text-slate-700">
-                  Description
-                </label>
-
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  placeholder="Thoughtfully selected herbal remedies..."
-                  rows={3}
-                  required
-                  className="w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              {/* ACTION + LINK */}
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-[10px] font-semibold text-slate-700">
-                    Button Text
-                  </label>
-
-                  <input
-                    name="action"
-                    value={form.action}
-                    onChange={handleChange}
-                    placeholder="Shop wellness"
-                    required
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-[10px] font-semibold text-slate-700">
-                    Button Link
-                  </label>
-
-                  <input
-                    name="to"
-                    value={form.to}
-                    onChange={handleChange}
-                    placeholder="/shop"
-                    required
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-
-              {/* POSITION + SORT */}
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-[10px] font-semibold text-slate-700">
-                    Image Position
-                  </label>
-
-                  <select
-                    name="position"
-                    value={form.position}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-emerald-500"
-                  >
-                    <option value="center">Center</option>
-
-                    <option value="center top">Center Top</option>
-
-                    <option value="center bottom">Center Bottom</option>
-
-                    <option value="left center">Left</option>
-
-                    <option value="right center">Right</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-[10px] font-semibold text-slate-700">
-                    Sort Order
-                  </label>
-
-                  <input
-                    type="number"
-                    name="sortOrder"
-                    value={form.sortOrder}
-                    onChange={handleChange}
-                    min="0"
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-
-              {/* ACTIVE */}
-
-              <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-slate-50 p-3">
-                <input
-                  type="checkbox"
-                  name="isActive"
-                  checked={form.isActive}
-                  onChange={handleChange}
-                  className="h-4 w-4 accent-emerald-600"
-                />
-
-                <div>
-                  <p className="text-xs font-semibold text-slate-700">
-                    Active Slide
-                  </p>
-
-                  <p className="text-[9px] text-slate-500">
-                    Show this slide on homepage
-                  </p>
-                </div>
-              </label>
 
               {/* BUTTONS */}
 
@@ -653,7 +429,7 @@ export default function HeroSlides() {
                 >
                   {saving && <Loader2 size={13} className="animate-spin" />}
 
-                  {editingId ? "Update Slide" : "Add Slide"}
+                  {editingId ? "Update Image" : "Add Image"}
                 </button>
               </div>
             </form>
