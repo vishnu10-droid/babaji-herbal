@@ -1,9 +1,11 @@
 import express from "express";
 import { protect } from "../middleware/auth.middleware.js";
 import { admin } from "../middleware/adminMiddleware.js";
-import { getAdminOrders, updateOrderStatus, getCustomers, getReviews, updateReviewStatus, getSettings, updateSettings, getProductReport } from "../controller/admin.controller.js";
+import { getAdminOrders, updateOrderStatus, getCustomers, getReviews, updateReviewStatus, getSettings, updateSettings, getProductReport, getDashboardStats, getMedia } from "../controller/admin.controller.js";
 const router = express.Router();
 router.use(protect, admin);
+router.get("/stats", getDashboardStats);
+router.get("/media", getMedia);
 router.get("/orders", getAdminOrders); router.patch("/orders/:id", updateOrderStatus);
 router.get("/customers", getCustomers);
 router.get("/reviews", getReviews); router.patch("/reviews/:id", updateReviewStatus);

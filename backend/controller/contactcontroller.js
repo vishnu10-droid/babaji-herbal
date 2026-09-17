@@ -63,3 +63,27 @@ export const getContact = async (req, res) => {
     });
   }
 };
+
+export const deleteContact = async (req, res) => {
+  try {
+    const contact = await Contact.findByIdAndDelete(req.params.id);
+
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: "Contact message not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Contact message deleted",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete contact message",
+      error: error.message,
+    });
+  }
+};

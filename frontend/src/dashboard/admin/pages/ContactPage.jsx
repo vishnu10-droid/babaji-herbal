@@ -2,6 +2,12 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 // import { API_URL } from "../config/config";
 import { API_URL } from "../../../config/config";
+import { deleteContact } from "../../../service/admin.api";
+
+const authHeaders = () => {
+  const token = localStorage.getItem("auth_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 export default function ContactPage() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +17,7 @@ export default function ContactPage() {
       setLoading(true);
       setError("");
 
-      const response = await axios.get(`${API_URL}/contact`);
+      const response = await axios.get(`${API_URL}/contact`, { headers: authHeaders() });
 
       setContacts(response.data.contacts || []);
     } catch (error) {
@@ -31,6 +37,16 @@ export default function ContactPage() {
   useEffect(() => {
     getContacts();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this message?")) return;
+    try {
+      await deleteContact(id);
+      setContacts((prev) => prev.filter((c) => c._id !== id));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to delete message");
+    }
+  };
 
   if (loading) {
     return (
@@ -91,6 +107,10 @@ export default function ContactPage() {
                   <th className="px-6 py-4 text-left text-sm font-semibold">
                     Date
                   </th>
+
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Action
+                  </th>
                 </tr>
               </thead>
 
@@ -111,6 +131,15 @@ export default function ContactPage() {
 
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {new Date(contact.createdAt).toLocaleDateString()}
+                    </td>
+
+                    <td className="whitespace-nowrap px-6 py-4 text-sm">
+                      <button
+                        onClick={() => handleDelete(contact._id)}
+                        className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

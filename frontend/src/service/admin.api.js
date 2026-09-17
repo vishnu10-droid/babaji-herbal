@@ -10,3 +10,6 @@ export const setReviewStatus = (id, status) => api.patch(`/admin/reviews/${id}`,
 export const getSettings = () => api.get("/admin/settings").then((r) => r.data.settings);
 export const saveSettings = (settings) => api.put("/admin/settings", settings).then((r) => r.data.settings);
 export const getProductReport = () => api.get("/admin/reports/products").then((r) => r.data.products);
+export const getDashboardStats = () => api.get("/admin/stats").then((r) => r.data.stats);
+export const getMedia = () => api.get("/admin/media").then((r) => r.data);
+export const deleteContact = (id) => api.delete(`/contact/${id}`).then((r) => r.data);

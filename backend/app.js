@@ -14,6 +14,7 @@ import uploadRouter from "./routes/upload.routes.js";
 import orderRouter from "./routes/order.routes.js";
 import adminRouter from "./routes/admin.routes.js";
 import heroSlideRouteS from "./routes/heroSlide.routes.js";
+import couponRouter from "./routes/coupon.routes.js";
 
 dotenv.config();
 
@@ -66,6 +67,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/hero-slides",heroSlideRouteS)
 // Backward-compatible alias (old singular path)
 app.use("/api/hero-slide",heroSlideRouteS)
+app.use("/api/coupons", couponRouter);
 
 // ========================================
 // TEST ROUTE
