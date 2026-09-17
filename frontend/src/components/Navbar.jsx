@@ -19,6 +19,7 @@ import {
   fetchWishlist,
   resetWishlist,
 } from "../store/slice/wishlist.slice";
+import { fetchCart, resetCart } from "../store/slice/cart.slice";
 import { fetchCategories } from "../store/slice/category.slice";
 
 const navLinks = [
@@ -36,18 +37,29 @@ export default function Navbar() {
     (state) => state.category
   );
 
+  const wishlistItems = useSelector((state) => state.wishlist.items || []);
+  const cartItems = useSelector((state) => state.cart.items || []);
+
+  const wishlistCount = wishlistItems.length;
+  const cartCount = cartItems.reduce(
+    (total, item) => total + Number(item.quantity || 1),
+    0
+  );
+
   const navigate = useNavigate();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMobileMenu, setExpandedMobileMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch wishlist when user is authenticated
+  // Fetch wishlist + cart when user is authenticated
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchWishlist());
+      dispatch(fetchCart());
     } else {
       dispatch(resetWishlist());
+      dispatch(resetCart());
     }
   }, [dispatch, isAuthenticated]);
 
@@ -165,19 +177,29 @@ export default function Navbar() {
           {/* Wishlist */}
           <Link
             to="/wishlist"
-            className="rounded-full border border-[#0B6B3A]/10 p-2 text-[#0B6B3A] transition hover:bg-[#f0f8f3]"
+            className="relative rounded-full border border-[#0B6B3A]/10 p-2 text-[#0B6B3A] transition hover:bg-[#f0f8f3]"
             aria-label="Wishlist"
           >
             <Heart size={18} />
+            {wishlistCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {wishlistCount > 99 ? "99+" : wishlistCount}
+              </span>
+            )}
           </Link>
 
           {/* Cart */}
           <Link
             to="/cart"
-            className="rounded-full border border-[#0B6B3A]/10 p-2 text-[#0B6B3A] transition hover:bg-[#f0f8f3]"
+            className="relative rounded-full border border-[#0B6B3A]/10 p-2 text-[#0B6B3A] transition hover:bg-[#f0f8f3]"
             aria-label="Cart"
           >
             <ShoppingCart size={18} />
+            {cartCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#0B6B3A] px-1 text-[10px] font-bold text-white">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
           </Link>
 
           {/* AUTH BUTTON */}
@@ -299,19 +321,35 @@ export default function Navbar() {
                 <Link
                   to="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-[#0B6B3A]"
+                  className="relative flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-[#0B6B3A]"
                 >
-                  <Heart size={16} className="text-[#0B6B3A]" />
+                  <span className="relative">
+                    <Heart size={16} className="text-[#0B6B3A]" />
+                    {wishlistCount > 0 && (
+                      <span className="absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                        {wishlistCount > 99 ? "99+" : wishlistCount}
+                      </span>
+                    )}
+                  </span>
                   Wishlist
+                  {wishlistCount > 0 && <span>({wishlistCount})</span>}
                 </Link>
 
                 <Link
                   to="/cart"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-[#0B6B3A]"
+                  className="relative flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-[#0B6B3A]"
                 >
-                  <ShoppingCart size={16} className="text-[#0B6B3A]" />
+                  <span className="relative">
+                    <ShoppingCart size={16} className="text-[#0B6B3A]" />
+                    {cartCount > 0 && (
+                      <span className="absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#0B6B3A] px-1 text-[9px] font-bold text-white">
+                        {cartCount > 99 ? "99+" : cartCount}
+                      </span>
+                    )}
+                  </span>
                   Cart
+                  {cartCount > 0 && <span>({cartCount})</span>}
                 </Link>
               </div>
 

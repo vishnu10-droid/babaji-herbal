@@ -35,6 +35,7 @@ const menuGroups = [
       { label: "Coupons", to: "/admin/coupons", icon: Ticket },
       { label: "Reviews", to: "/admin/reviews", icon: Star },
       { label: "Banner Manager", to: "/admin/banner", icon: Image },
+      { label: "Hero Slides", to: "/admin/hero-slides", icon: Images },
       { label: "Media Gallery", to: "/admin/media", icon: Images },
       {
         label: "Reports",

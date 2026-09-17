@@ -123,7 +123,9 @@ const cartSlice = createSlice({
 
   initialState,
 
-  reducers: {},
+  reducers: {
+    resetCart: () => initialState,
+  },
 
   extraReducers: (builder) => {
     builder
@@ -175,5 +177,7 @@ const cartSlice = createSlice({
       });
   },
 });
+
+export const { resetCart } = cartSlice.actions;
 
 export default cartSlice.reducer;

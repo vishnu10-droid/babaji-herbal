@@ -14,6 +14,7 @@ const IMAGEKIT_ROOT_FOLDER = "/baba-ji-herbal";
 const ALLOWED_FOLDERS = [
   "products",
   "categories",
+  "hero",
   "brands",
   "users",
 ];

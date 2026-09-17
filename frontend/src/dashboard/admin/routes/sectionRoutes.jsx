@@ -12,6 +12,7 @@ import ProfilePage from '../pages/ProfilePage'
 import LogoutPage from '../pages/LogoutPage'
 import AddCategory from '../pages/AddCategory'
 import ContactPage from '../pages/ContactPage'
+import HeroSlides from '../pages/HeroSlides'
 
 export function renderSectionPage(pathname) {
   const path = pathname.replace(/\/+$/, '') || '/admin'
@@ -23,6 +24,7 @@ export function renderSectionPage(pathname) {
   if (path === '/admin/coupons') return <CouponsPage />
   if (path === '/admin/reviews') return <ReviewsPage />
   if (path === '/admin/banner') return <BannerPage />
+  if (path === '/admin/hero-slides') return <HeroSlides />
   if (path === '/admin/media') return <MediaPage />
   if (path.startsWith('/admin/reports')) return <ReportsPage />
   if (path === '/admin/settings') return <SettingsPage />
