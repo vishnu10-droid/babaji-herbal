@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { RefreshCw, X } from "lucide-react";
+import { RefreshCw, X, Mail, MessageSquare } from "lucide-react";
 import { API_URL } from "../../../config/config";
 import AdminSectionPage from "../../../components/admin/AdminSectionPage";
-import AdminTable, { TableActions } from "../../../components/admin/AdminTable";
+import AdminTable, { StatusBadge, TableActions } from "../../../components/admin/AdminTable";
 import { deleteContact } from "../../../service/admin.api";
 
 const authHeaders = () => {
@@ -45,11 +45,72 @@ export default function ContactPage() {
   };
 
   const columns = [
-    { key: "name", label: "Name", render: (row) => <span className="font-semibold text-slate-900">{row.name}</span> },
-    { key: "email", label: "Email", render: (row) => <span className="text-slate-600">{row.email}</span> },
-    { key: "phone", label: "Phone", render: (row) => <span className="text-slate-600">{row.phone || "—"}</span> },
-    { key: "message", label: "Message", render: (row) => <span className="block max-w-sm truncate text-slate-500">{row.message}</span> },
-    { key: "createdAt", label: "Date", render: (row) => (row.createdAt ? new Date(row.createdAt).toLocaleDateString("en-IN") : "—") },
+    {
+      key: "name",
+      label: "Sender",
+      render: (row) => {
+        const initials = (row.name || "C").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+        return (
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-[10px] font-bold text-emerald-700">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-bold text-slate-800">{row.name}</p>
+              <p className="mt-0.5 truncate text-[8px] text-slate-400">{row.email}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "contact",
+      label: "Contact",
+      render: (row) => (
+        <div className="min-w-0">
+          <p className="flex items-center gap-1 truncate text-[10px] font-semibold text-slate-700">
+            <Mail size={11} className="shrink-0 text-slate-400" />
+            <span className="truncate">{row.email}</span>
+          </p>
+          <p className="mt-0.5 whitespace-nowrap text-[8px] text-slate-400">{row.phone || "No phone"}</p>
+        </div>
+      ),
+    },
+    {
+      key: "message",
+      label: "Message",
+      render: (row) => (
+        <div className="min-w-0">
+          <p title={row.message} className="max-w-[260px] truncate text-[10px] text-slate-600">
+            {row.message}
+          </p>
+          <p className="mt-0.5 text-[8px] text-slate-400">{row.message?.length || 0} chars</p>
+        </div>
+      ),
+    },
+    {
+      key: "createdAt",
+      label: "Received",
+      render: (row) => (
+        <div>
+          <p className="whitespace-nowrap text-[9px] font-semibold text-slate-600">
+            {row.createdAt
+              ? new Date(row.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+              : "—"}
+          </p>
+          {row.createdAt && (
+            <p className="mt-0.5 whitespace-nowrap text-[8px] text-slate-400">
+              {new Date(row.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: () => <StatusBadge tone="blue">New</StatusBadge>,
+    },
     {
       key: "actions",
       label: "Actions",
@@ -76,11 +137,34 @@ export default function ContactPage() {
         </button>
       }
     >
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <span className="rounded-xl bg-emerald-50 p-2.5 text-emerald-600"><MessageSquare size={18} /></span>
+          <div><p className="text-xs text-slate-500">Total messages</p><p className="text-xl font-bold text-slate-900">{contacts.length}</p></div>
+        </div>
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <span className="rounded-xl bg-blue-50 p-2.5 text-blue-600"><Mail size={18} /></span>
+          <div><p className="text-xs text-slate-500">Needs reply</p><p className="text-xl font-bold text-slate-900">{contacts.length}</p></div>
+        </div>
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <span className="rounded-xl bg-amber-50 p-2.5 text-amber-600"><RefreshCw size={18} /></span>
+          <div><p className="text-xs text-slate-500">Inbox status</p><p className="text-sm font-bold text-emerald-600">Live</p></div>
+        </div>
+      </div>
+
       {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-600">{error}</p>}
       {loading ? (
         <p className="rounded-3xl border border-emerald-100 bg-white p-12 text-center text-sm font-medium text-emerald-700">Loading messages…</p>
       ) : (
-        <AdminTable rows={contacts} columns={columns} emptyMessage="No contact messages found." />
+        <AdminTable
+          title="Contact Messages"
+          subtitle="Inbox from the contact page"
+          entityPlural="messages"
+          rows={contacts}
+          columns={columns}
+          emptyMessage="No contact messages found."
+          emptyHint="New enquiries will appear here."
+        />
       )}
 
       {viewingContact && (
@@ -97,12 +181,13 @@ export default function ContactPage() {
             </div>
             <dl className="space-y-3 text-sm">
               <div className="flex justify-between gap-4"><dt className="text-slate-500">Name</dt><dd className="font-semibold text-slate-900">{viewingContact.name}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-slate-500">Email</dt><dd className="font-semibold text-slate-900">{viewingContact.email}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Email</dt><dd className="max-w-[240px] truncate font-semibold text-slate-900">{viewingContact.email}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-slate-500">Phone</dt><dd className="font-semibold text-slate-900">{viewingContact.phone || "—"}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-slate-500">Date</dt><dd className="font-semibold text-slate-900">{viewingContact.createdAt ? new Date(viewingContact.createdAt).toLocaleString("en-IN") : "—"}</dd></div>
               <div><dt className="text-slate-500">Message</dt><dd className="mt-1 rounded-xl bg-slate-50 p-3 text-slate-700">{viewingContact.message}</dd></div>
             </dl>
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end gap-2">
+              <a href={`mailto:${viewingContact.email}`} className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Reply</a>
               <button type="button" onClick={() => setViewingContact(null)} className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Close</button>
             </div>
           </div>

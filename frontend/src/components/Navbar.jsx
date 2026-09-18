@@ -318,7 +318,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="flex items-center gap-2">
                 <Link
-                  to="/admin"
+                  to={user?.role === "admin" ? "/admin" : "/account"}
                   className="group flex items-center gap-2 rounded-full border border-[#0B6B3A]/20 bg-white py-1.5 pl-1.5 pr-3 shadow-sm transition-all duration-300 hover:border-[#0B6B3A]/40 hover:shadow-md sm:pr-4"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0B6B3A] to-[#128a4d] text-xs font-bold text-white shadow">
@@ -553,7 +553,7 @@ export default function Navbar() {
                 {isAuthenticated ? (
                   <div className="space-y-2">
                     <Link
-                      to="/admin"
+                      to={user?.role === "admin" ? "/admin" : "/account"}
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex w-full items-center justify-center gap-2 rounded-full border border-[#0B6B3A]/20 bg-[#f0f8f3] py-3 text-xs font-bold text-[#0B6B3A]"
                     >

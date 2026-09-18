@@ -6,6 +6,7 @@ import {
   adminLogin,
   getProfile,
   getUsers,
+  updateProfile,
 } from "../../service/auth.api";
 
 // ===============================

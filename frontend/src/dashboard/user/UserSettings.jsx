@@ -80,13 +80,13 @@ const UserSettings = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
+        <h1 className="text-2xl font-bold text-[#123d2a]">Settings</h1>
         <p className="mt-1 text-sm text-slate-500">Manage your account preferences.</p>
       </div>
 
       {/* Notifications */}
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-        <h2 className="text-lg font-bold">Account Settings</h2>
+      <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-[#0B6B3A]/10">
+        <h2 className="text-lg font-bold text-[#123d2a]">Account Settings</h2>
         <div className="mt-5 space-y-5">
           <SettingRow
             title="Email Notifications"
@@ -110,8 +110,8 @@ const UserSettings = () => {
       </div>
 
       {/* Password */}
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-        <h2 className="text-lg font-bold">Change Password</h2>
+      <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-[#0B6B3A]/10">
+        <h2 className="text-lg font-bold text-[#123d2a]">Change Password</h2>
         <form onSubmit={handlePasswordChange} className="mt-5 grid gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="mb-2 block text-sm font-medium">Current Password</label>
@@ -153,7 +153,7 @@ const UserSettings = () => {
             <button
               type="submit"
               disabled={pwLoading}
-              className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+              className="rounded-full bg-[#0B6B3A] px-7 py-3 text-sm font-bold text-white shadow-lg shadow-[#0B6B3A]/25 hover:bg-[#0a5a31] disabled:opacity-60"
             >
               {pwLoading ? "Updating…" : "Update Password"}
             </button>
@@ -189,7 +189,7 @@ const SettingRow = ({ title, description, checked, onChange }) => {
       </div>
       <label className="relative inline-flex cursor-pointer items-center">
         <input type="checkbox" checked={checked} onChange={onChange} className="peer sr-only" />
-        <div className="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-blue-600 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
+        <div className="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-[#0B6B3A] after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
       </label>
     </div>
   );

@@ -45,31 +45,167 @@ export default function OrdersPage() {
       setError(requestError.response?.data?.message || "Order status could not be saved.");
     }
   };
+const columns = [
+  {
+    key: "id",
+    label: "Order",
+    render: (row) => {
+      const orderId = String(row._id || "")
+        .slice(-6)
+        .toUpperCase();
 
-  const columns = [
-    { key: "id", label: "Order", render: (row) => <span className="font-semibold text-emerald-700">#{String(row._id || "").slice(-6).toUpperCase()}</span> },
-    { key: "customer", label: "Customer", render: (row) => <div><p className="font-semibold text-slate-800">{row.user?.name || row.shippingAddress?.name || "Customer"}</p><p className="text-xs text-slate-500">{row.user?.email || "No email"}</p></div> },
-    { key: "items", label: "Items", render: (row) => <span className="block max-w-[220px] truncate text-xs leading-5">{Array.isArray(row.items) ? row.items.map((item) => `${item.name} × ${item.quantity}`).join(", ") : "—"}</span> },
-    { key: "totalAmount", label: "Total", render: (row) => <span className="font-semibold">{formatMoney(row.totalAmount)}</span> },
-    { key: "status", label: "Status", render: (row) => <StatusBadge tone={statusTone(row.status)}>{row.status || "Pending"}</StatusBadge> },
-    { key: "date", label: "Placed", render: (row) => row.createdAt ? new Date(row.createdAt).toLocaleDateString("en-IN") : "—" },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (row) => (
-        <TableActions
-          itemName={`order #${String(row._id || "").slice(-6).toUpperCase()}`}
-          viewLabel="View order"
-          onView={() => setViewingOrder(row)}
-        />
-      ),
+      return (
+        <div className="min-w-0">
+          <span className="inline-flex rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-700">
+            #{orderId}
+          </span>
+
+          <p className="mt-1 text-[8px] text-slate-400">
+            Order ID
+          </p>
+        </div>
+      );
     },
-  ];
+  },
+
+  {
+    key: "customer",
+    label: "Customer",
+    render: (row) => (
+      <div className="min-w-0">
+        <p className="truncate text-[11px] font-bold text-slate-800">
+          {row.user?.name ||
+            row.shippingAddress?.name ||
+            "Customer"}
+        </p>
+
+        <p className="mt-0.5 truncate text-[8px] text-slate-400">
+          {row.user?.email || "No email"}
+        </p>
+      </div>
+    ),
+  },
+
+  {
+    key: "items",
+    label: "Items",
+    render: (row) => {
+      const items = Array.isArray(row.items)
+        ? row.items
+        : [];
+
+      const totalItems = items.reduce(
+        (sum, item) => sum + Number(item.quantity || 0),
+        0
+      );
+
+      return (
+        <div className="min-w-0">
+          <span className="inline-flex rounded-md bg-slate-50 px-2 py-1 text-[9px] font-bold text-slate-600">
+            {totalItems} {totalItems === 1 ? "Item" : "Items"}
+          </span>
+
+          {items.length > 0 && (
+            <p
+              title={items
+                .map(
+                  (item) =>
+                    `${item.name} × ${item.quantity}`
+                )
+                .join(", ")}
+              className="mt-1 max-w-[150px] truncate text-[8px] text-slate-400"
+            >
+              {items
+                .map(
+                  (item) =>
+                    `${item.name} × ${item.quantity}`
+                )
+                .join(", ")}
+            </p>
+          )}
+        </div>
+      );
+    },
+  },
+
+  {
+    key: "totalAmount",
+    label: "Total",
+    render: (row) => (
+      <div>
+        <p className="whitespace-nowrap text-[11px] font-bold text-slate-800">
+          {formatMoney(row.totalAmount)}
+        </p>
+
+        <p className="mt-0.5 text-[8px] text-slate-400">
+          Order total
+        </p>
+      </div>
+    ),
+  },
+
+  {
+    key: "status",
+    label: "Status",
+    render: (row) => (
+      <StatusBadge tone={statusTone(row.status)}>
+        {row.status || "Pending"}
+      </StatusBadge>
+    ),
+  },
+
+  {
+    key: "date",
+    label: "Placed",
+    render: (row) => (
+      <div>
+        <p className="whitespace-nowrap text-[9px] font-semibold text-slate-600">
+          {row.createdAt
+            ? new Date(row.createdAt).toLocaleDateString(
+                "en-IN",
+                {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }
+              )
+            : "—"}
+        </p>
+
+        {row.createdAt && (
+          <p className="mt-0.5 whitespace-nowrap text-[8px] text-slate-400">
+            {new Date(row.createdAt).toLocaleTimeString(
+              "en-IN",
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+              }
+            )}
+          </p>
+        )}
+      </div>
+    ),
+  },
+
+  {
+    key: "actions",
+    label: "Actions",
+    render: (row) => (
+      <TableActions
+        itemName={`order #${String(row._id || "")
+          .slice(-6)
+          .toUpperCase()}`}
+        viewLabel="View order"
+        onView={() => setViewingOrder(row)}
+      />
+    ),
+  },
+];
 
   return (
     <AdminSectionPage title="Orders" description="Live customer orders and fulfillment status." badge="Operations" action={<button type="button" onClick={loadOrders} disabled={loading} className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:opacity-60"><RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Refresh</button>}>
       {error && <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-700"><p>{error}</p><button type="button" onClick={loadOrders} className="mt-2 font-semibold underline">Try again</button></div>}
-      {loading ? <div className="rounded-3xl border border-emerald-100 bg-white p-12 text-center text-sm font-medium text-emerald-700">Loading orders…</div> : <AdminTable emptyMessage="No orders have been placed yet. Orders will appear here after customers complete checkout." rows={orders} columns={columns} />}
+      {loading ? <div className="rounded-3xl border border-emerald-100 bg-white p-12 text-center text-sm font-medium text-emerald-700">Loading orders…</div> : <AdminTable title="Orders" subtitle="Live customer orders and fulfillment" entityPlural="orders" emptyMessage="No orders have been placed yet. Orders will appear here after customers complete checkout." rows={orders} columns={columns} />}
 
       {viewingOrder && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/45 p-4">

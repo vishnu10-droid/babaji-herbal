@@ -8,6 +8,7 @@ import {
   toggleHeroSlide,
   updateHeroSlide,
 } from "../../../service/heroSlide.api";
+import { fetchproduct } from "../../../service/product.api";
 
 import { API_ORIGIN } from "../../../config/config";
 
@@ -31,6 +32,23 @@ export default function HeroSlides() {
   const [image, setImage] = useState(null);
 
   const [preview, setPreview] = useState("");
+
+  const [products, setProducts] = useState([]);
+
+  const [selectedProductId, setSelectedProductId] = useState("");
+
+  const getLinkedProductId = (slide) => {
+    if (!slide) return "";
+    if (slide.productId) {
+      if (typeof slide.productId === "string") return slide.productId;
+      if (typeof slide.productId === "object" && slide.productId._id)
+        return slide.productId._id;
+    }
+    if (typeof slide.to === "string" && slide.to.startsWith("/product/")) {
+      return slide.to.replace("/product/", "").trim();
+    }
+    return "";
+  };
 
   /* =========================
      FETCH
@@ -69,6 +87,16 @@ export default function HeroSlides() {
 
   useEffect(() => {
     loadSlides();
+    const loadProducts = async () => {
+      try {
+        const data = await fetchproduct();
+        const list = Array.isArray(data) ? data : data?.products || [];
+        setProducts(list);
+      } catch (e) {
+        console.error("Products load error:", e);
+      }
+    };
+    loadProducts();
   }, []);
 
   /* =========================
@@ -82,11 +110,13 @@ export default function HeroSlides() {
 
     setPreview("");
 
+    setSelectedProductId("");
+
     setModal(true);
   };
 
   /* =========================
-     OPEN EDIT (sirf image badlo)
+     OPEN EDIT (image + product link)
   ========================= */
 
   const openEdit = (slide) => {
@@ -95,6 +125,8 @@ export default function HeroSlides() {
     setImage(null);
 
     setPreview(slide.image ? resolveImage(slide.image) : "");
+
+    setSelectedProductId(getLinkedProductId(slide));
 
     setModal(true);
   };
@@ -113,6 +145,8 @@ export default function HeroSlides() {
     setImage(null);
 
     setPreview("");
+
+    setSelectedProductId("");
   };
 
   /* =========================
@@ -141,7 +175,7 @@ export default function HeroSlides() {
   };
 
   /* =========================
-     SUBMIT (sirf image)
+     SUBMIT (image + product link)
   ========================= */
 
   const handleSubmit = async (e) => {
@@ -162,10 +196,16 @@ export default function HeroSlides() {
       formData.append("title", "");
       formData.append("description", "");
       formData.append("action", "");
-      formData.append("to", "/shop");
       formData.append("position", "center");
       formData.append("sortOrder", "0");
       formData.append("isActive", "true");
+
+      // Banner click par product khulega
+      formData.append("productId", selectedProductId || "");
+      formData.append(
+        "to",
+        selectedProductId ? `/product/${selectedProductId}` : "/shop",
+      );
 
       if (image) {
         formData.append("image", image);
@@ -183,6 +223,7 @@ export default function HeroSlides() {
       setEditingId(null);
       setImage(null);
       setPreview("");
+      setSelectedProductId("");
     } catch (error) {
       console.error("Save hero slide error:", error);
       console.error("Response:", error?.response?.data);
@@ -310,12 +351,22 @@ export default function HeroSlides() {
 
                 {/* ACTIONS */}
 
-                <div className="flex items-center gap-2 p-3">
+                <div className="px-3 pt-2">
+                  <p className="truncate text-[10px] text-slate-500">
+                    {slide.productId?.name
+                      ? `Linked: ${slide.productId.name}`
+                      : getLinkedProductId(slide)
+                        ? `Linked: /product/${getLinkedProductId(slide)}`
+                        : "No product linked (click -> /shop)"}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 p-3 pt-1">
                   <button
                     onClick={() => openEdit(slide)}
                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    Change Image
+                    Edit / Link Product
                   </button>
 
                   <button
@@ -343,7 +394,7 @@ export default function HeroSlides() {
       </div>
 
       {/* =========================
-          MODAL - SIRF IMAGE
+          MODAL - IMAGE + PRODUCT LINK
       ========================= */}
 
       {modal && (
@@ -354,11 +405,11 @@ export default function HeroSlides() {
             <div className="flex items-center justify-between border-b bg-white px-4 py-3">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">
-                  {editingId ? "Change Hero Image" : "Add Hero Image"}
+                  {editingId ? "Edit Banner" : "Add Banner"}
                 </h2>
 
                 <p className="text-[9px] text-slate-500">
-                  Sirf image select karo
+                  Image + click par khulne wala product select karo
                 </p>
               </div>
 
@@ -411,6 +462,31 @@ export default function HeroSlides() {
                 </label>
               </div>
 
+              {/* PRODUCT LINK */}
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  Click par kaun sa product khulega?
+                </label>
+                <select
+                  value={selectedProductId}
+                  onChange={(e) => setSelectedProductId(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs text-slate-700 outline-none focus:border-slate-900"
+                >
+                  <option value="">No link (click -&gt; Shop page)</option>
+                  {products.map((p) => (
+                    <option key={p._id} value={p._id}>
+                      {p.name} {p.sellingPrice ? `- ₹${p.sellingPrice}` : ""}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-[10px] text-slate-500">
+                  Banner par jo product ki image hai, wahi product yahan
+                  select karo. Customer banner click karega to wahi product
+                  open hoga.
+                </p>
+              </div>
+
               {/* BUTTONS */}
 
               <div className="flex justify-end gap-2 border-t pt-3">
@@ -429,7 +505,7 @@ export default function HeroSlides() {
                 >
                   {saving && <Loader2 size={13} className="animate-spin" />}
 
-                  {editingId ? "Update Image" : "Add Image"}
+                  {editingId ? "Update Banner" : "Add Banner"}
                 </button>
               </div>
             </form>

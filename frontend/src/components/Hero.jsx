@@ -53,7 +53,23 @@ const FALLBACK_SLIDE = {
 
   to: "/shop",
 
+  productId: null,
+
   image: "",
+};
+
+/* Banner click -> linked product khulega */
+const getSlideLink = (slide) => {
+  if (!slide) return "/shop";
+  const pid = slide.productId;
+  if (pid) {
+    if (typeof pid === "string" && pid.trim()) return `/product/${pid.trim()}`;
+    if (typeof pid === "object" && pid._id) return `/product/${pid._id}`;
+  }
+  if (slide.to && typeof slide.to === "string" && slide.to.trim()) {
+    return slide.to.trim();
+  }
+  return "/shop";
 };
 
 /* =========================================================
@@ -151,6 +167,8 @@ export default function Hero() {
 
   const imageSrc = resolveImage(slide?.image);
 
+  const slideLink = getSlideLink(slide);
+
   /* =========================================================
      RETURN
   ========================================================= */
@@ -158,17 +176,21 @@ export default function Hero() {
   return (
     <section className="relative isolate w-full overflow-hidden">
       {/* =====================================================
-          HERO BANNER CONTAINER
+          HERO BANNER CONTAINER (click -> product khulega)
 
           Original wide banner ratio maintained
       ===================================================== */}
 
-      <div
+      <Link
+        to={slideLink}
+        aria-label="Open linked product"
         className="
           relative
+          block
           aspect-[3/1]
           min-h-[250px]
           w-full
+          cursor-pointer
           overflow-hidden
           bg-slate-900
 
@@ -422,6 +444,10 @@ export default function Hero() {
 
               sm:bottom-5
             "
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             {/* =================================================
                 DOTS
@@ -432,7 +458,11 @@ export default function Hero() {
                 <button
                   key={item._id || index}
                   type="button"
-                  onClick={() => setActive(index)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setActive(index);
+                  }}
                   aria-label={`Show slide ${index + 1}`}
                   aria-current={active === index ? "true" : "false"}
                   className={`
@@ -459,7 +489,11 @@ export default function Hero() {
             <div className="flex gap-1.5 sm:gap-2">
               <button
                 type="button"
-                onClick={() => changeSlide(-1)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  changeSlide(-1);
+                }}
                 aria-label="Previous slide"
                 className="
                   rounded-full
@@ -483,7 +517,11 @@ export default function Hero() {
 
               <button
                 type="button"
-                onClick={() => changeSlide(1)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  changeSlide(1);
+                }}
                 aria-label="Next slide"
                 className="
                   rounded-full
@@ -507,7 +545,7 @@ export default function Hero() {
             </div>
           </div>
         )}
-      </div>
+      </Link>
     </section>
   );
 }

@@ -23,7 +23,7 @@ export default function Register() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Registration failed");
       login(data.data, data.token);
-      navigate("/", { replace: true });
+      navigate(data.data.role === "admin" ? "/admin" : "/account", { replace: true });
     } catch (requestError) {
       setError(requestError.message || "Unable to register");
     } finally {

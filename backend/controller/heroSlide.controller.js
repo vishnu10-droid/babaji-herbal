@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import HeroSlide from "../model/heroSlide.model.js";
 import {
   deleteImagekitFile,
@@ -11,6 +12,7 @@ import {
 export const getHeroSlides = async (req, res) => {
   try {
     const slides = await HeroSlide.find()
+      .populate("productId", "name")
       .sort({ sortOrder: 1, createdAt: -1 });
 
     res.status(200).json({
@@ -36,7 +38,7 @@ export const getActiveHeroSlides = async (req, res) => {
   try {
     const slides = await HeroSlide.find({
       isActive: true,
-    }).sort({
+    }).populate("productId", "name").sort({
       sortOrder: 1,
       createdAt: -1,
     });
@@ -96,6 +98,7 @@ export const createHeroSlide = async (req, res) => {
       description,
       action,
       to,
+      productId,
       position,
       isActive,
       sortOrder,
@@ -118,12 +121,22 @@ export const createHeroSlide = async (req, res) => {
       imageFileId = uploaded.fileId;
     }
 
+    /* Product link -> /product/:id (banner click par product khulega) */
+    let linkedProductId = null;
+    let linkTo = to || "/shop";
+    const rawProductId = typeof productId === "string" ? productId.trim() : productId;
+    if (rawProductId && mongoose.isValidObjectId(rawProductId)) {
+      linkedProductId = rawProductId;
+      linkTo = `/product/${rawProductId}`;
+    }
+
     const slide = await HeroSlide.create({
       eyebrow: eyebrow || "",
       title: title || "",
       description: description || "",
       action: action || "",
-      to: to || "/shop",
+      to: linkTo,
+      productId: linkedProductId,
       image,
       imageFileId,
       position: position || "center",
@@ -171,6 +184,7 @@ export const updateHeroSlide = async (req, res) => {
       description,
       action,
       to,
+      productId,
       position,
       isActive,
       sortOrder,
@@ -180,8 +194,24 @@ export const updateHeroSlide = async (req, res) => {
     slide.title = title ?? slide.title;
     slide.description = description ?? slide.description;
     slide.action = action ?? slide.action;
-    slide.to = to ?? slide.to;
     slide.position = position ?? slide.position;
+
+    /* Product link update */
+    if (productId !== undefined) {
+      const rawProductId = typeof productId === "string" ? productId.trim() : productId;
+      if (rawProductId && mongoose.isValidObjectId(rawProductId)) {
+        slide.productId = rawProductId;
+        slide.to = `/product/${rawProductId}`;
+      } else if (rawProductId === "" || rawProductId === null) {
+        slide.productId = null;
+        if (to !== undefined) slide.to = to || "/shop";
+        else if (slide.to?.startsWith("/product/")) slide.to = "/shop";
+      } else if (to !== undefined) {
+        slide.to = to;
+      }
+    } else if (to !== undefined) {
+      slide.to = to;
+    }
 
     if (isActive !== undefined) {
       slide.isActive =

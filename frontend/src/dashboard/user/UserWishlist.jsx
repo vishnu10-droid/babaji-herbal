@@ -39,10 +39,10 @@ const UserWishlist = () => {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">My Wishlist</h1>
+          <h1 className="text-2xl font-bold text-[#123d2a]">My Wishlist</h1>
           <p className="mt-1 text-sm text-slate-500">Products you have saved for later.</p>
         </div>
-        <span className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-600">
+        <span className="rounded-full bg-[#0B6B3A]/10 px-4 py-2 text-sm font-bold text-[#0B6B3A]">
           {items.length} Items
         </span>
       </div>
@@ -62,7 +62,7 @@ const UserWishlist = () => {
           </span>
           <p className="mt-3 font-semibold text-slate-800">Your wishlist is empty</p>
           <p className="mt-1 text-sm text-slate-500">Save products you love and find them here.</p>
-          <Link to="/shop" className="mt-4 inline-block rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+          <Link to="/shop" className="mt-4 inline-block rounded-full bg-[#0B6B3A] px-6 py-2.5 text-sm font-bold text-white hover:bg-[#0a5a31]">
             Discover products
           </Link>
         </div>
@@ -97,7 +97,7 @@ const UserWishlist = () => {
                 <div className="p-4">
                   <h3 className="truncate font-semibold text-slate-900">{product.name || "Product"}</h3>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="font-bold text-blue-600">₹{Number(getPrice(product)).toLocaleString("en-IN")}</span>
+                    <span className="font-bold text-[#0B6B3A]">₹{Number(getPrice(product)).toLocaleString("en-IN")}</span>
                     {product.mrp && Number(product.mrp) > Number(getPrice(product)) && (
                       <span className="text-sm text-slate-400 line-through">₹{Number(product.mrp).toLocaleString("en-IN")}</span>
                     )}
@@ -113,7 +113,7 @@ const UserWishlist = () => {
                     ) : null}
                     <button
                       onClick={() => handleAddToCart(product)}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#0B6B3A] py-2.5 text-sm font-semibold text-white hover:bg-[#0a5a31]"
                     >
                       <ShoppingCart size={15} /> Add to Cart
                     </button>

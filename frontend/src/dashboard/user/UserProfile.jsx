@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { Mail, Phone, User as UserIcon, CalendarDays, BadgeCheck, Save } from "lucide-react";
 import { useAuth } from "../../context/auth-context";
 import { getProfile, updateProfile } from "../../service/auth.api";
 
@@ -31,6 +32,7 @@ const UserProfile = () => {
       setForm({ name: user?.name || "", email: user?.email || "", phone: user?.phone || "" });
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const handleChange = (e) => {
@@ -47,8 +49,8 @@ const UserProfile = () => {
       const res = await updateProfile(form, token);
       updateUser(res.data || {});
       setSuccess(res.message || "Profile updated successfully.");
-    } catch (e) {
-      setError(e.response?.data?.message || "Could not save profile.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not save profile.");
     } finally {
       setSaving(false);
     }
@@ -59,35 +61,45 @@ const UserProfile = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
-        <p className="mt-1 text-sm text-slate-500">Manage your personal information.</p>
+        <h1 className="text-2xl font-bold text-[#123d2a]">My Profile</h1>
+        <p className="mt-1 text-sm text-slate-500">Keep your details updated for faster checkout.</p>
       </div>
 
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-        <div className="flex flex-col items-center gap-5 border-b border-slate-100 pb-6 sm:flex-row">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-100 text-3xl font-bold text-blue-700">
-            {initial}
-          </div>
-          <div className="text-center sm:text-left">
-            <h2 className="text-xl font-bold text-slate-900">{form.name || user?.name || "User"}</h2>
-            <p className="mt-1 text-sm text-slate-500">{form.email || user?.email || ""}</p>
-            <span className="mt-3 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-              Customer
-            </span>
+      <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-[#0B6B3A]/10">
+        <div className="bg-gradient-to-r from-[#0B3B24] via-[#0E5C36] to-[#128a4d] px-6 py-6 text-white">
+          <div className="flex flex-col items-center gap-4 sm:flex-row">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#f9cd73] text-3xl font-bold text-[#0B3B24] ring-4 ring-white/25">
+              {initial}
+            </div>
+            <div className="text-center sm:text-left">
+              <h2 className="flex flex-wrap items-center justify-center gap-2 text-xl font-bold sm:justify-start">
+                {form.name || user?.name || "User"}
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold text-[#f9cd73]">
+                  <BadgeCheck size={12} /> Customer
+                </span>
+              </h2>
+              <p className="mt-1 text-sm text-white/80">{form.email || user?.email || ""}</p>
+              <p className="mt-1 flex items-center justify-center gap-1.5 text-xs text-white/70 sm:justify-start">
+                <CalendarDays size={13} />
+                Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "—"}
+              </p>
+            </div>
           </div>
         </div>
 
         {loading ? (
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 p-6 md:grid-cols-2">
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="h-14 animate-pulse rounded-xl bg-slate-100" />
+              <div key={i} className="h-14 animate-pulse rounded-2xl bg-slate-100" />
             ))}
           </div>
         ) : (
-          <form onSubmit={handleSave} className="mt-6">
-            <div className="grid gap-5 md:grid-cols-2">
+          <form onSubmit={handleSave} className="p-6">
+            <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
+                <label className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#123d2a]">
+                  <UserIcon size={14} className="text-[#0B6B3A]" /> Full Name
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -95,11 +107,13 @@ const UserProfile = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter full name"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[#0B6B3A] focus:ring-4 focus:ring-[#0B6B3A]/10"
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Email Address</label>
+                <label className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#123d2a]">
+                  <Mail size={14} className="text-[#0B6B3A]" /> Email Address
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -107,41 +121,45 @@ const UserProfile = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter email address"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[#0B6B3A] focus:ring-4 focus:ring-[#0B6B3A]/10"
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Phone Number</label>
+                <label className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#123d2a]">
+                  <Phone size={14} className="text-[#0B6B3A]" /> Phone Number
+                </label>
                 <input
                   type="tel"
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="Enter phone number"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  pattern="[0-9+ -]{7,15}"
+                  title="Enter a valid phone number"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[#0B6B3A] focus:ring-4 focus:ring-[#0B6B3A]/10"
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Member Since</label>
+                <label className="mb-2 block text-sm font-bold text-[#123d2a]">Account Role</label>
                 <input
                   type="text"
-                  value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-IN") : "—"}
+                  value={user?.role === "admin" ? "Admin" : "Customer"}
                   disabled
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-500 outline-none"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500 outline-none"
                 />
               </div>
             </div>
 
-            {error && <p className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-600">{error}</p>}
-            {success && <p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{success}</p>}
+            {error && <p className="mt-4 rounded-2xl bg-red-50 p-3 text-sm font-medium text-red-600 ring-1 ring-red-100">{error}</p>}
+            {success && <p className="mt-4 rounded-2xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200">{success}</p>}
 
             <div className="mt-6 flex justify-end">
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full bg-[#0B6B3A] px-7 py-3 text-sm font-bold text-white shadow-lg shadow-[#0B6B3A]/25 transition hover:bg-[#0a5a31] disabled:opacity-60"
               >
-                {saving ? "Saving…" : "Save Changes"}
+                <Save size={15} /> {saving ? "Saving…" : "Save Changes"}
               </button>
             </div>
           </form>

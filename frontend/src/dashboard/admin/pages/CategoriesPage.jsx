@@ -78,21 +78,115 @@ export default function CategoriesPage() {
     }
   };
 
-  const columns = [
-    { key: "image", label: "Image", render: (category) => category.image ? <img src={thumbnail(category.image, 96)} alt={category.name} className="h-12 w-12 rounded-xl object-cover" /> : <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-xs text-blue-600">N/A</div> },
-    { key: "name", label: "Category", render: (category) => <span className="font-semibold text-slate-900">{category.name}</span> },
-    { key: "description", label: "Description", render: (category) => <span className="block max-w-sm truncate text-slate-500">{category.description || "No description"}</span> },
-    { key: "productCount", label: "Products", render: (category) => <span className="font-semibold text-slate-700">{category.productCount || 0}</span> },
-    { key: "isActive", label: "Status", render: (category) => <StatusBadge tone={category.isActive ? "green" : "rose"}>{category.isActive ? "Active" : "Inactive"}</StatusBadge> },
-    { key: "createdAt", label: "Created", render: (category) => new Date(category.createdAt).toLocaleDateString() },
-    { key: "actions", label: "Actions", render: (category) => <TableActions itemName={category.name} viewLabel="View category" editLabel="Edit category" deleteLabel="Delete category" onView={() => setViewingCategory(category)} onEdit={() => startEdit(category)} onDelete={() => removeCategory(category)} /> },
-  ];
+ const columns = [
+  {
+    key: "image",
+    label: "Category",
+    render: (category) => (
+      <div className="flex min-w-0 items-center gap-2.5">
+        {category.image ? (
+          <img
+            src={thumbnail(category.image, 80)}
+            alt={category.name}
+            className="h-10 w-10 shrink-0 rounded-lg border border-slate-100 object-cover"
+          />
+        ) : (
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[8px] font-bold text-blue-500">
+            N/A
+          </div>
+        )}
 
+        <div className="min-w-0">
+          <p className="truncate text-[11px] font-bold text-slate-800">
+            {category.name}
+          </p>
+
+          <p className="mt-0.5 text-[8px] text-slate-400">
+            Category
+          </p>
+        </div>
+      </div>
+    ),
+  },
+
+  {
+    key: "description",
+    label: "Description",
+    render: (category) => (
+      <p
+        title={category.description || "No description"}
+        className="max-w-[220px] truncate text-[9px] leading-4 text-slate-500"
+      >
+        {category.description || "No description"}
+      </p>
+    ),
+  },
+
+  {
+    key: "productCount",
+    label: "Products",
+    render: (category) => (
+      <div className="flex items-center gap-1.5">
+        <span className="flex h-6 min-w-6 items-center justify-center rounded-md bg-blue-50 px-1.5 text-[9px] font-bold text-blue-600">
+          {category.productCount || 0}
+        </span>
+
+        <span className="text-[8px] text-slate-400">
+          items
+        </span>
+      </div>
+    ),
+  },
+
+  {
+    key: "isActive",
+    label: "Status",
+    render: (category) => (
+      <StatusBadge
+        tone={category.isActive ? "green" : "rose"}
+      >
+        {category.isActive ? "Active" : "Inactive"}
+      </StatusBadge>
+    ),
+  },
+
+  {
+    key: "createdAt",
+    label: "Created",
+    render: (category) => (
+      <span className="whitespace-nowrap text-[9px] font-medium text-slate-500">
+        {category.createdAt
+          ? new Date(category.createdAt).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "—"}
+      </span>
+    ),
+  },
+
+  {
+    key: "actions",
+    label: "Actions",
+    render: (category) => (
+      <TableActions
+        itemName={category.name}
+        viewLabel="View category"
+        editLabel="Edit category"
+        deleteLabel="Delete category"
+        onView={() => setViewingCategory(category)}
+        onEdit={() => startEdit(category)}
+        onDelete={() => removeCategory(category)}
+      />
+    ),
+  },
+];
   return <AdminSectionPage title="All Categories" description="Manage category images, descriptions, and visibility." badge="Structure" action={<Link to="/admin/categories/add" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700">+ Add Category</Link>}>
     {actionError && <p className="mb-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-600">{actionError}</p>}
     {loading && <p className="text-sm text-blue-600">Loading categories...</p>}
     {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-600">{error}</p>}
-    {!loading && <AdminTable columns={columns} rows={categories} emptyMessage="No categories found. Add your first category." />}
+    {!loading && <AdminTable title="Categories" subtitle="Category images, descriptions and visibility" entityPlural="categories" columns={columns} rows={categories} emptyMessage="No categories found. Add your first category." />}
 
     {viewingCategory && <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/45 p-4"><div className="mx-auto my-8 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"><div className="mb-4 flex items-start justify-between gap-4"><div><h2 className="text-xl font-bold text-slate-900">Category details</h2><p className="mt-1 text-sm text-slate-500">Complete information for this category.</p></div><button type="button" onClick={() => setViewingCategory(null)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="Close category details"><X size={20} /></button></div>{viewingCategory.image && <img src={thumbnail(viewingCategory.image, 600)} alt={viewingCategory.name} className="h-44 w-full rounded-xl object-cover" />}<dl className="mt-4 space-y-3 text-sm"><div className="flex justify-between gap-4"><dt className="text-slate-500">Name</dt><dd className="font-semibold text-slate-900">{viewingCategory.name}</dd></div><div className="flex justify-between gap-4"><dt className="text-slate-500">Products</dt><dd className="font-semibold text-slate-900">{viewingCategory.productCount || 0}</dd></div><div className="flex justify-between gap-4"><dt className="text-slate-500">Status</dt><dd><StatusBadge tone={viewingCategory.isActive ? "green" : "rose"}>{viewingCategory.isActive ? "Active" : "Inactive"}</StatusBadge></dd></div><div><dt className="text-slate-500">Description</dt><dd className="mt-1 text-slate-700">{viewingCategory.description || "No description"}</dd></div></dl><div className="mt-6 flex justify-end"><button type="button" onClick={() => setViewingCategory(null)} className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Close</button></div></div></div>}
 

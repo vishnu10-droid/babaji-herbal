@@ -566,80 +566,140 @@ export default function ProductsPage() {
     }
   };
 
-  const columns = [
-    {
-      key: "image",
-      label: "Product",
-      render: (item) => (
-        <div className="flex items-center gap-3">
-          <img
-            src={
-              item.images?.[0]
-                ? thumbnail(item.images[0], 96)
-                : "https://placehold.co/48x48/eaf2ff/2563eb?text=P"
-            }
-            alt={item.name}
-            className="h-12 w-12 rounded-xl object-cover"
-          />
-          <span className="font-semibold text-slate-900">{item.name}</span>
-        </div>
-      ),
-    },
-    { key: "category", label: "Category" },
-    {
-      key: "sellingPrice",
-      label: "Price",
-      render: (item) => `Rs. ${item.sellingPrice || 0}`,
-    },
-    {
-      key: "stock",
-      label: "Stock",
-      render: (item) => (
-        <span
-          className={
-            item.stock < 10 ? "font-semibold text-rose-600" : "text-slate-700"
+const columns = [
+  {
+    key: "image",
+    label: "Product",
+    render: (item) => (
+      <div className="flex min-w-0 items-center gap-2.5">
+        <img
+          src={
+            item.images?.[0]
+              ? thumbnail(item.images[0], 80)
+              : "https://placehold.co/48x48/eaf2ff/2563eb?text=P"
           }
-        >
-          {item.stock || 0}
+          alt={item.name}
+          className="h-10 w-10 shrink-0 rounded-lg border border-slate-100 object-cover"
+        />
+
+        <div className="min-w-0">
+          <p className="truncate text-[11px] font-bold text-slate-800">
+            {item.name}
+          </p>
+
+          <p className="mt-0.5 truncate text-[9px] text-slate-400">
+            {item.brand || "Babaji Herbal"}
+          </p>
+        </div>
+      </div>
+    ),
+  },
+
+  {
+    key: "category",
+    label: "Category",
+    render: (item) => (
+      <span className="inline-flex max-w-full truncate rounded-md bg-slate-50 px-2 py-1 text-[9px] font-semibold text-slate-600">
+        {item.category || "—"}
+      </span>
+    ),
+  },
+
+  {
+    key: "sellingPrice",
+    label: "Price",
+    render: (item) => (
+      <div>
+        <p className="whitespace-nowrap text-[11px] font-bold text-slate-800">
+          ₹{item.sellingPrice || 0}
+        </p>
+
+        {item.mrp && (
+          <p className="mt-0.5 whitespace-nowrap text-[8px] text-slate-400 line-through">
+            ₹{item.mrp}
+          </p>
+        )}
+      </div>
+    ),
+  },
+
+  {
+    key: "stock",
+    label: "Stock",
+    render: (item) => {
+      const stock = Number(item.stock) || 0;
+
+      return (
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+              stock === 0
+                ? "bg-rose-500"
+                : stock < 10
+                ? "bg-amber-500"
+                : "bg-emerald-500"
+            }`}
+          />
+
+          <span
+            className={`text-[10px] font-bold ${
+              stock === 0
+                ? "text-rose-600"
+                : stock < 10
+                ? "text-amber-600"
+                : "text-slate-700"
+            }`}
+          >
+            {stock}
+          </span>
+        </div>
+      );
+    },
+  },
+
+  {
+    key: "status",
+    label: "Status",
+    render: (item) => (
+      <StatusBadge
+        tone={item.status === "Active" ? "green" : "rose"}
+      >
+        {item.status || "Draft"}
+      </StatusBadge>
+    ),
+  },
+
+  {
+    key: "featured",
+    label: "Featured",
+    render: (item) =>
+      item.featured ? (
+        <StatusBadge tone="amber">
+          Yes
+        </StatusBadge>
+      ) : (
+        <span className="text-[9px] text-slate-400">
+          No
         </span>
       ),
-    },
-    {
-      key: "status",
-      label: "Status",
-      render: (item) => (
-        <StatusBadge tone={item.status === "Active" ? "green" : "rose"}>
-          {item.status || "Draft"}
-        </StatusBadge>
-      ),
-    },
-    {
-      key: "featured",
-      label: "Featured",
-      render: (item) =>
-        item.featured ? (
-          <StatusBadge>Yes</StatusBadge>
-        ) : (
-          <span className="text-slate-400">No</span>
-        ),
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (item) => (
-        <TableActions
-          itemName={item.name}
-          viewLabel="View product"
-          editLabel="Edit product"
-          deleteLabel="Delete product"
-          onView={() => setViewingProduct(item)}
-          onEdit={() => startEdit(item)}
-          onDelete={() => removeProduct(item)}
-        />
-      ),
-    },
-  ];
+  },
 
+  {
+    key: "actions",
+    label: "Actions",
+    render: (item) => (
+      <TableActions
+        itemName={item.name}
+        viewLabel="View product"
+        editLabel="Edit product"
+        deleteLabel="Delete product"
+        onView={() => setViewingProduct(item)}
+        onEdit={() => startEdit(item)}
+        onDelete={() => removeProduct(item)}
+      />
+    ),
+  },
+];
   return (
     <AdminSectionPage
       title="All Products"
@@ -670,7 +730,7 @@ export default function ProductsPage() {
           {error}
         </p>
       )}
-      {!loading && <AdminTable columns={columns} rows={products} emptyMessage="No products found. Add your first product." />}
+      {!loading && <AdminTable title="Products" subtitle="Product inventory and management" entityPlural="products" columns={columns} rows={products} emptyMessage="No products found. Add your first product." />}
 
       {viewingProduct && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/45 p-4">

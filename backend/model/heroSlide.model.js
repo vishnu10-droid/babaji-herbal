@@ -32,6 +32,12 @@ const heroSlideSchema = new mongoose.Schema(
       trim: true,
     },
 
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      default: null,
+    },
+
     image: {
       type: String,
       required: true,

@@ -16,3 +16,28 @@ export const createOrder = async (req, res) => {
 };
 
 export const getMyOrders = async (req, res) => res.json({ success: true, orders: await Order.find({ user: req.user._id }).sort({ createdAt: -1 }) });
+
+export const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    return res.json({ success: true, order });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const cancelMyOrder = async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    if (!["Pending", "Processing"].includes(order.status)) {
+      return res.status(400).json({ success: false, message: `Order cannot be cancelled in "${order.status}" state` });
+    }
+    order.status = "Cancelled";
+    await order.save();
+    return res.json({ success: true, message: "Order cancelled", order });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
