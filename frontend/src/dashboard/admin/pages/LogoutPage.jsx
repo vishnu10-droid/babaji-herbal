@@ -5,6 +5,6 @@ import { useAuth } from "../../../context/auth-context";
 export default function LogoutPage() {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  useEffect(() => { logout(); navigate("/login", { replace: true }); }, [logout, navigate]);
+  useEffect(() => { logout(); navigate("/admin/login", { replace: true }); }, [logout, navigate]);
   return null;
 }

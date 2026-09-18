@@ -19,6 +19,7 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./dashboard/Dashboard";
 import UserDashboard from "./dashboard/user/UserDashboard";
+import AdminLogin from "./pages/AdminLogin";
 import Category from "./pages/Category";
 import CategoryProducts from "./pages/CategoryProducts";
 import ProductDetails from "./pages/ProductDetails";
@@ -31,6 +32,19 @@ function ProtectedDashboard() {
   ) : (
     <Navigate to="/admin/login" replace />
   );
+}
+
+function ProtectedAccount() {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <UserDashboard /> : <Navigate to="/login" replace />;
+}
+
+function AdminLoginRoute() {
+  const { isAuthenticated, user } = useAuth();
+  if (isAuthenticated && user?.role === "admin") {
+    return <Navigate to="/admin" replace />;
+  }
+  return <AdminLogin />;
 }
 
 export default function App() {
@@ -60,14 +74,9 @@ export default function App() {
         <Route path="/return-refund-policy" element={<ReturnRefundPolicy />} />
         <Route path="/payment-policy" element={<PaymentPolicy />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
-        <Route path="/account" element={<UserDashboard />} />
-        <Route path="/account/profile" element={<UserDashboard />} />
-        <Route path="/account/orders" element={<UserDashboard />} />
-        <Route path="/account/transactions" element={<UserDashboard />} />
-        <Route path="/account/reviews" element={<UserDashboard />} />
-        <Route path="/account/wishlist" element={<UserDashboard />} />
-        <Route path="/account/settings" element={<UserDashboard />} />
       </Route>
+      <Route path="/account/*" element={<ProtectedAccount />} />
+      <Route path="/admin/login" element={<AdminLoginRoute />} />
       <Route path="/admin/*" element={<ProtectedDashboard />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

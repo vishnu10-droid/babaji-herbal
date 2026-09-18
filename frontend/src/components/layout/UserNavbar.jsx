@@ -1,81 +1,124 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, LogOut, Menu, Store } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Bell, Search, ChevronDown, LogOut, User as UserIcon, Settings, Store } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "../../context/auth-context";
-
-const titles = {
-  "/account": { title: "Dashboard", sub: "Overview of your account" },
-  "/account/profile": { title: "My Profile", sub: "Manage your personal information" },
-  "/account/orders": { title: "My Orders", sub: "Track and manage your orders" },
-  "/account/wishlist": { title: "Wishlist", sub: "Your saved products" },
-  "/account/transactions": { title: "Transactions", sub: "All your payments in one place" },
-  "/account/reviews": { title: "My Reviews", sub: "Rate products you purchased" },
-  "/account/settings": { title: "Settings", sub: "Password, preferences & account" },
-};
 
 const UserNavbar = ({ onMenu }) => {
   const { user, logout } = useAuth();
-  const { pathname } = useLocation();
   const navigate = useNavigate();
-  const meta = titles[pathname] || { title: "My Account", sub: "Customer panel" };
-  const userName = user?.name || "User";
+  const [searchQuery, setSearchQuery] = useState("");
+  const initials = (user?.name || "User").slice(0, 2).toUpperCase();
 
   const handleLogout = () => {
     logout?.();
     navigate("/");
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+  };
+
   return (
-    <header className="sticky top-0 z-30 border-b border-[#0B6B3A]/10 bg-[#faf8f1]/95 px-4 py-3 backdrop-blur-md md:px-6">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
+    <motion.header
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-[#0B6B3A]/15 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-xl"
+    >
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenu}
+          className="rounded-2xl border border-[#0B6B3A] bg-[#0B6B3A] p-2 text-white transition hover:bg-[#0a5a31] lg:hidden"
+          aria-label="Open account menu"
+        >
+          <span className="block h-0.5 w-4 bg-current" />
+          <span className="mt-1 block h-0.5 w-4 bg-current" />
+          <span className="mt-1 block h-0.5 w-4 bg-current" />
+        </button>
+
+        <form
+          onSubmit={handleSearch}
+          className="hidden items-center gap-3 rounded-2xl border border-[#0B6B3A]/15 bg-[#0B6B3A]/5 px-3 py-2 md:flex"
+        >
+          <Search size={16} className="shrink-0 text-[#0B6B3A]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search herbal products"
+            className="w-56 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 xl:w-64"
+          />
+        </form>
+      </div>
+
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Link
+          to="/shop"
+          title="Continue shopping"
+          className="rounded-2xl border border-[#0B6B3A]/15 bg-white p-2.5 text-[#0B6B3A] transition hover:bg-[#0B6B3A]/5"
+        >
+          <Store size={18} />
+        </Link>
+        <Link
+          to="/account/orders"
+          title="My orders"
+          className="relative rounded-2xl border border-[#0B6B3A]/15 bg-white p-2.5 text-[#0B6B3A] transition hover:bg-[#0B6B3A]/5"
+        >
+          <Bell size={18} />
+        </Link>
+
+        <div className="group relative hidden md:block">
           <button
-            onClick={onMenu}
-            className="rounded-xl border border-[#0B6B3A]/15 bg-white p-2.5 text-[#0B6B3A] shadow-sm transition hover:bg-[#0B6B3A]/5 md:hidden"
-            aria-label="Open account menu"
+            type="button"
+            className="flex items-center gap-3 rounded-2xl border border-[#0B6B3A]/15 bg-white px-3 py-2 text-left transition hover:border-[#0B6B3A]/40"
           >
-            <Menu size={19} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0B6B3A]/10 font-semibold text-[#0B6B3A]">
+              {initials}
+            </div>
+            <div className="hidden xl:block">
+              <p className="max-w-[140px] truncate text-sm font-semibold text-slate-900">{user?.name || "User"}</p>
+              <p className="max-w-[140px] truncate text-xs text-slate-500">{user?.email || ""}</p>
+            </div>
+            <ChevronDown size={16} className="text-slate-400" />
           </button>
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#0B6B3A]/70">
-              {meta.sub}
-            </p>
-            <h2 className="truncate text-lg font-bold text-[#123d2a] md:text-xl">{meta.title}</h2>
+
+          <div className="absolute right-0 top-12 hidden w-48 rounded-2xl border border-[#0B3B24] bg-[#0B3B24] p-2 shadow-xl group-hover:block">
+            <Link
+              to="/account/profile"
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
+            >
+              <UserIcon size={15} /> My Profile
+            </Link>
+            <Link
+              to="/account/settings"
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
+            >
+              <Settings size={15} /> Settings
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-300 transition hover:bg-white/10 hover:text-red-200"
+            >
+              <LogOut size={15} /> Logout
+            </button>
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <Link
-            to="/shop"
-            className="hidden items-center gap-1.5 rounded-full border border-[#0B6B3A]/20 bg-white px-4 py-2 text-xs font-bold text-[#0B6B3A] transition hover:bg-[#0B6B3A]/5 sm:inline-flex"
-          >
-            <Store size={14} />
-            Shop
-          </Link>
-          <button
-            onClick={() => navigate(-1)}
-            className="hidden rounded-full border border-slate-200 bg-white p-2.5 text-slate-500 transition hover:bg-slate-50 sm:block"
-            aria-label="Go back"
-            title="Go back"
-          >
-            <ArrowLeft size={16} />
-          </button>
-          <div className="hidden items-center gap-2.5 rounded-full border border-[#0B6B3A]/15 bg-white py-1.5 pl-1.5 pr-4 sm:flex">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0B6B3A] to-[#128a4d] text-sm font-bold text-white">
-              {userName.charAt(0).toUpperCase()}
-            </span>
-            <span className="max-w-[110px] truncate text-sm font-bold text-[#123d2a]">{userName}</span>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="rounded-full border border-red-200 bg-red-50 p-2.5 text-red-500 transition hover:bg-red-500 hover:text-white"
-            aria-label="Logout"
-            title="Logout"
-          >
-            <LogOut size={16} />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          title="Logout"
+          className="rounded-2xl border border-red-200 bg-red-50 p-2.5 text-red-500 transition hover:bg-red-500 hover:text-white md:hidden"
+        >
+          <LogOut size={18} />
+        </button>
       </div>
-    </header>
+    </motion.header>
   );
 };
 

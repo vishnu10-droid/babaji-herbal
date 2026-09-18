@@ -102,33 +102,11 @@ const UserDashboard = () => {
         <div className="min-w-0 flex-1">
           <UserNavbar onMenu={() => setMobileMenu(true)} />
 
-          {/* Mobile pills nav */}
-          <div className="border-b border-[#0B6B3A]/10 bg-white/70 px-3 py-2.5 md:hidden">
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-              {userMenuItems.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  end={item.path === "/account"}
-                  className={({ isActive }) =>
-                    `shrink-0 rounded-full px-4 py-2 text-xs font-bold transition ${
-                      isActive
-                        ? "bg-[#0B6B3A] text-white shadow-md shadow-[#0B6B3A]/30"
-                        : "bg-[#0B6B3A]/8 text-[#0B6B3A]"
-                    }`
-                  }
-                >
-                  {item.name}
-                </NavLink>
-              ))}
-            </div>
-          </div>
-
           <motion.main
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mx-auto w-full max-w-6xl space-y-5 p-3 pb-16 md:p-6 md:pb-10"
+            transition={{ duration: 0.45 }}
+            className="relative space-y-6 overflow-hidden p-4 md:p-6 lg:p-8"
           >
             {isDashboard ? (
               <>
@@ -304,14 +282,14 @@ const UserDashboard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenu(false)}
-              className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm lg:hidden"
             />
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed left-0 top-0 z-50 flex h-full w-[84%] max-w-xs flex-col bg-gradient-to-b from-[#0B3B24] to-[#0E5C36] text-white shadow-2xl md:hidden"
+              className="fixed left-0 top-0 z-50 flex h-full w-[84%] max-w-xs flex-col bg-gradient-to-b from-[#0B3B24] to-[#0E5C36] text-white shadow-2xl lg:hidden"
             >
               <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                 <div className="flex items-center gap-2">

@@ -3,8 +3,9 @@ import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../config/config";
 import axios from "axios";
+import { useAuth } from "../context/auth-context";
 export default function AdminLogin() {
-  
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -14,13 +15,20 @@ export default function AdminLogin() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const data = {
-      email: formData.email,
-      password: formData.password,
-    };
-    const response = await axios.post(`${API_URL}/auth/admin/login`, data);
-    console.log(response.data);
-    navigate("/admin");
+    try {
+      const response = await axios.post(`${API_URL}/auth/admin/login`, {
+        email: formData.email,
+        password: formData.password,
+      });
+      login(response.data.data, response.data.token);
+      navigate("/admin", { replace: true });
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.message || "Invalid admin email or password",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#eff6ef] px-4 py-10">
