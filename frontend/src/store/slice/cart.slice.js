@@ -156,18 +156,50 @@ const cartSlice = createSlice({
         state.totalAmount = action.payload?.totalAmount || 0;
       })
 
-      // UPDATE
+      // UPDATE (optimistic — price turant badhe)
+      .addCase(updateCartItem.pending, (state, action) => {
+        const { itemId, quantity } = action.meta.arg || {};
+        if (!itemId || !quantity || quantity < 1) return;
+        state.items = state.items.map((item) =>
+          item._id === itemId ? { ...item, quantity } : item
+        );
+        state.totalAmount = state.items.reduce(
+          (sum, item) =>
+            sum + Number(item.price || 0) * Number(item.quantity || 0),
+          0
+        );
+      })
+
       .addCase(updateCartItem.fulfilled, (state, action) => {
         state.items = action.payload?.items || [];
 
         state.totalAmount = action.payload?.totalAmount || 0;
       })
 
-      // REMOVE
+      .addCase(updateCartItem.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
+      // REMOVE (optimistic)
+      .addCase(removeCartItem.pending, (state, action) => {
+        const itemId = action.meta.arg;
+        if (!itemId) return;
+        state.items = state.items.filter((item) => item._id !== itemId);
+        state.totalAmount = state.items.reduce(
+          (sum, item) =>
+            sum + Number(item.price || 0) * Number(item.quantity || 0),
+          0
+        );
+      })
+
       .addCase(removeCartItem.fulfilled, (state, action) => {
         state.items = action.payload?.items || [];
 
         state.totalAmount = action.payload?.totalAmount || 0;
+      })
+
+      .addCase(removeCartItem.rejected, (state, action) => {
+        state.error = action.payload;
       })
 
       // CLEAR

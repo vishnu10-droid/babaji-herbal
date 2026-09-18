@@ -14,7 +14,9 @@ import {
   Truck,
   Leaf,
   BadgeCheck,
-  LayoutGrid,
+  User,
+  Package,
+  Settings,
 } from "lucide-react";
 
 import logo from "../assets/babaji-logo.jpg";
@@ -25,11 +27,9 @@ import {
   resetWishlist,
 } from "../store/slice/wishlist.slice";
 import { fetchCart, resetCart } from "../store/slice/cart.slice";
-import { fetchCategories } from "../store/slice/category.slice";
 
 const navLinks = [
   { label: "Home", to: "/" },
-  { label: "Categories", to: "/category", hasDropdown: true },
   { label: "Shop", to: "/shop" },
   { label: "Contact", to: "/contact" },
 ];
@@ -38,10 +38,6 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const dispatch = useDispatch();
   const location = useLocation();
-
-  const { data: categories = [] } = useSelector(
-    (state) => state.category
-  );
 
   const wishlistItems = useSelector((state) => state.wishlist.items || []);
   const cartItems = useSelector((state) => state.cart.items || []);
@@ -55,7 +51,6 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedMobileMenu, setExpandedMobileMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
 
@@ -82,21 +77,6 @@ export default function Navbar() {
       dispatch(resetCart());
     }
   }, [dispatch, isAuthenticated]);
-
-  // Fetch categories
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
-
-  const activeCategories = categories.filter(
-    (category) => category.isActive
-  );
-
-  const toggleMobileSubmenu = (label) => {
-    setExpandedMobileMenu((prev) =>
-      prev === label ? null : label
-    );
-  };
 
   const handleLogout = () => {
     logout();
@@ -167,73 +147,21 @@ export default function Navbar() {
 
           {/* DESKTOP NAVIGATION */}
           <nav className="hidden items-center gap-1 lg:flex xl:gap-2">
-            {navLinks.map((link) =>
-              link.hasDropdown ? (
-                <div key={link.label} className="group relative">
-                  <NavLink
-                    to={link.to}
-                    className={({ isActive }) =>
-                      `relative flex items-center gap-1 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
-                        isActive
-                          ? "bg-[#0B6B3A] text-white shadow-md shadow-[#0B6B3A]/30"
-                          : "text-[#1B1B1B] hover:bg-[#0B6B3A]/10 hover:text-[#0B6B3A]"
-                      }`
-                    }
-                  >
-                    <LayoutGrid size={15} />
-                    {link.label}
-                    <ChevronDown
-                      size={15}
-                      className="transition-transform duration-300 group-hover:rotate-180"
-                    />
-                  </NavLink>
-
-                  {/* CATEGORIES DROPDOWN */}
-                  <div className="invisible absolute left-0 top-full w-64 translate-y-3 pt-2 opacity-0 transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                    <div className="overflow-hidden rounded-2xl border border-[#0B6B3A]/10 bg-white p-2 shadow-2xl shadow-[#0B6B3A]/15">
-                      <Link
-                        to="/category"
-                        className="mb-1 flex items-center justify-between rounded-xl bg-gradient-to-r from-[#0B6B3A] to-[#128a4d] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
-                      >
-                        All Categories
-                        <ChevronDown size={15} className="-rotate-90" />
-                      </Link>
-                      {activeCategories.slice(0, 6).map((cat) => (
-                        <Link
-                          key={cat._id}
-                          to={`/shop?category=${encodeURIComponent(cat._id)}`}
-                          className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-[#f0f8f3] hover:text-[#0B6B3A]"
-                        >
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0B6B3A]/10 text-[#0B6B3A]">
-                            <Leaf size={13} />
-                          </span>
-                          {cat.name}
-                        </Link>
-                      ))}
-                      {activeCategories.length === 0 && (
-                        <p className="px-4 py-3 text-xs text-gray-400">
-                          No categories yet
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <NavLink
-                  key={link.label}
-                  to={link.to}
-                  className={({ isActive }) =>
-                    `relative rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
-                      isActive
-                        ? "bg-[#0B6B3A] text-white shadow-md shadow-[#0B6B3A]/30"
-                        : "text-[#1B1B1B] hover:bg-[#0B6B3A]/10 hover:text-[#0B6B3A]"
-                    }`
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              )
-            )}
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.label}
+                to={link.to}
+                className={({ isActive }) =>
+                  `relative rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300 ${
+                    isActive
+                      ? "bg-[#0B6B3A] text-white shadow-md shadow-[#0B6B3A]/30"
+                      : "text-[#1B1B1B] hover:bg-[#0B6B3A]/10 hover:text-[#0B6B3A]"
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
           </nav>
 
           {/* DESKTOP SEARCH BAR */}
@@ -314,12 +242,12 @@ export default function Navbar() {
 
             <span className="mx-1 hidden h-6 w-px bg-[#0B6B3A]/15 lg:block" />
 
-            {/* AUTH BUTTON */}
+            {/* AUTH BUTTON — admin navbar jaisa hover dropdown */}
             {isAuthenticated ? (
-              <div className="flex items-center gap-2">
-                <Link
-                  to={user?.role === "admin" ? "/admin" : "/account"}
-                  className="group flex items-center gap-2 rounded-full border border-[#0B6B3A]/20 bg-white py-1.5 pl-1.5 pr-3 shadow-sm transition-all duration-300 hover:border-[#0B6B3A]/40 hover:shadow-md sm:pr-4"
+              <div className="group relative">
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-full border border-[#0B6B3A]/20 bg-white py-1.5 pl-1.5 pr-3 shadow-sm transition-all duration-300 hover:border-[#0B6B3A]/40 hover:shadow-md sm:pr-4"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0B6B3A] to-[#128a4d] text-xs font-bold text-white shadow">
                     {(user?.name || "U").charAt(0).toUpperCase()}
@@ -327,16 +255,48 @@ export default function Navbar() {
                   <span className="max-w-[80px] truncate text-sm font-semibold text-[#123d2a] sm:max-w-[110px]">
                     {user?.name || "User"}
                   </span>
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  aria-label="Logout"
-                  title="Logout"
-                  className="rounded-full border border-red-200 bg-red-50 p-2.5 text-red-500 transition-all duration-300 hover:bg-red-500 hover:text-white hover:shadow-md active:scale-95"
-                >
-                  <LogOut size={16} />
+                  <ChevronDown
+                    size={15}
+                    className="text-gray-400 transition-transform duration-300 group-hover:rotate-180"
+                  />
                 </button>
+
+                <div className="invisible absolute right-0 top-full w-52 translate-y-2 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                  <div className="overflow-hidden rounded-2xl border border-[#0B6B3A]/10 bg-white p-2 shadow-2xl shadow-[#0B6B3A]/15">
+                    <div className="truncate px-3 py-2 text-xs text-gray-500">
+                      {user?.email || user?.name || "My Account"}
+                    </div>
+                    <Link
+                      to={user?.role === "admin" ? "/admin" : "/account"}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-[#f0f8f3] hover:text-[#0B6B3A]"
+                    >
+                      <User size={15} />{" "}
+                      {user?.role === "admin" ? "Admin Panel" : "My Account"}
+                    </Link>
+                    {user?.role !== "admin" && (
+                      <>
+                        <Link
+                          to="/account/orders"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-[#f0f8f3] hover:text-[#0B6B3A]"
+                        >
+                          <Package size={15} /> My Orders
+                        </Link>
+                        <Link
+                          to="/account/settings"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-[#f0f8f3] hover:text-[#0B6B3A]"
+                        >
+                          <Settings size={15} /> Settings
+                        </Link>
+                      </>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-red-500 transition hover:bg-red-50"
+                    >
+                      <LogOut size={15} /> Logout
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <Link
@@ -441,79 +401,19 @@ export default function Navbar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.05 * i }}
                   >
-                    {link.hasDropdown ? (
-                      <div className="overflow-hidden rounded-2xl">
-                        <button
-                          onClick={() => toggleMobileSubmenu(link.label)}
-                          className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold transition ${
-                            expandedMobileMenu === link.label
-                              ? "bg-[#0B6B3A]/10 text-[#0B6B3A]"
-                              : "text-gray-800 hover:bg-gray-50"
-                          }`}
-                        >
-                          <span className="flex items-center gap-2.5">
-                            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0B6B3A]/10 text-[#0B6B3A]">
-                              <LayoutGrid size={15} />
-                            </span>
-                            {link.label}
-                          </span>
-                          <ChevronDown
-                            size={17}
-                            className={`transition-transform duration-300 ${
-                              expandedMobileMenu === link.label
-                                ? "rotate-180"
-                                : ""
-                            }`}
-                          />
-                        </button>
-
-                        <AnimatePresence initial={false}>
-                          {expandedMobileMenu === link.label && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.25 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="space-y-1 px-2 py-2">
-                                <Link
-                                  to="/category"
-                                  onClick={() => setMobileMenuOpen(false)}
-                                  className="block rounded-xl bg-[#0B6B3A] px-4 py-2.5 text-xs font-bold text-white"
-                                >
-                                  All Categories
-                                </Link>
-                                {activeCategories.map((cat) => (
-                                  <Link
-                                    key={cat._id}
-                                    to={`/shop?category=${encodeURIComponent(cat._id)}`}
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-[#f0f8f3] hover:text-[#0B6B3A]"
-                                  >
-                                    {cat.name}
-                                  </Link>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ) : (
-                      <NavLink
-                        to={link.to}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={({ isActive }) =>
-                          `block rounded-2xl px-4 py-3 text-sm font-bold transition ${
-                            isActive
-                              ? "bg-[#0B6B3A] text-white shadow-md shadow-[#0B6B3A]/25"
-                              : "text-gray-800 hover:bg-gray-50"
-                          }`
-                        }
-                      >
-                        {link.label}
-                      </NavLink>
-                    )}
+                    <NavLink
+                      to={link.to}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `block rounded-2xl px-4 py-3 text-xs font-bold transition ${
+                          isActive
+                            ? "bg-[#0B6B3A] text-white shadow-md shadow-[#0B6B3A]/25"
+                            : "text-gray-800 hover:bg-gray-50"
+                        }`
+                      }
+                    >
+                      {link.label}
+                    </NavLink>
                   </motion.div>
                 ))}
 
@@ -591,31 +491,6 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* =====================================================
-          CATEGORY BAR
-      ====================================================== */}
-      {activeCategories.length > 0 && (
-        <nav
-          aria-label="Product categories"
-          className="bg-gradient-to-r from-[#123d2a] via-[#0e5c36] to-[#123d2a] text-white shadow-md"
-        >
-          <div className="flex items-center gap-2 overflow-x-auto px-4 py-2 whitespace-nowrap scrollbar-none [scrollbar-width:none] sm:justify-center sm:gap-3 sm:px-8">
-            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#f9cd73] sm:flex">
-              <Leaf size={12} />
-              Shop by
-            </span>
-            {activeCategories.map((category) => (
-              <Link
-                key={category._id}
-                to={`/shop?category=${encodeURIComponent(category._id)}`}
-                className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-white/85 transition-all duration-300 hover:bg-white/15 hover:text-[#f9cd73] hover:shadow sm:text-[13px]"
-              >
-                {category.name}
-              </Link>
-            ))}
-          </div>
-        </nav>
-      )}
     </header>
   );
 }

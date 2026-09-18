@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Plus, Trash2, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import AdminSectionPage from "../../../components/admin/AdminSectionPage";
 import AdminTable, { StatusBadge, TableActions } from "../../../components/admin/AdminTable";
 import ImageUploader from "../../../components/ImageUploader";
 import {
-  createproduct,
   deleteproduct,
   fetchproduct,
   updateproduct,
@@ -33,23 +33,6 @@ const emptyVariation = () => ({
   price: "",
   stock: "",
   isActive: true,
-});
-
-const emptyProductForm = () => ({
-  name: "",
-  categoryId: "",
-  category: "",
-  brand: "Babaji Herbal",
-  mrp: "",
-  sellingPrice: "",
-  discount: "",
-  stock: "",
-  shortDescription: "",
-  status: "Active",
-  availability: "In Stock",
-  featured: false,
-  images: [],
-  variations: [],
 });
 
 const toEditForm = (product) => ({
@@ -422,8 +405,6 @@ export default function ProductsPage() {
     error,
   } = useSelector((state) => state.product);
   const { data: categories } = useSelector((state) => state.category);
-  const [addingProduct, setAddingProduct] = useState(false);
-  const [addForm, setAddForm] = useState(emptyProductForm);
   const [editingProduct, setEditingProduct] = useState(null);
   const [viewingProduct, setViewingProduct] = useState(null);
   const [form, setForm] = useState(null);
@@ -486,45 +467,6 @@ export default function ProductsPage() {
     setActionError("");
     setEditingProduct(product);
     setForm(toEditForm(product));
-  };
-
-  const addProduct = async (event) => {
-    event.preventDefault();
-    const variationError = validateVariations(addForm.variations);
-    if (!addForm.categoryId || variationError) {
-      setActionError(variationError || "Please select a category.");
-      return;
-    }
-
-    const payload = {
-      name: addForm.name,
-      category: addForm.category,
-      categoryId: addForm.categoryId,
-      brand: addForm.brand,
-      mrp: addForm.mrp,
-      sellingPrice: addForm.sellingPrice,
-      discount: addForm.discount,
-      stock: addForm.stock,
-      shortDescription: addForm.shortDescription,
-      status: addForm.status,
-      availability: addForm.availability,
-      featured: addForm.featured,
-      images: addForm.images,
-      variations: normaliseVariations(addForm.variations),
-    };
-
-    setSaving(true);
-    setActionError("");
-    try {
-      await dispatch(createproduct(payload)).unwrap();
-      await dispatch(fetchCategories());
-      setAddingProduct(false);
-      setAddForm(emptyProductForm());
-    } catch (requestError) {
-      setActionError(requestError || "Product could not be added.");
-    } finally {
-      setSaving(false);
-    }
   };
 
   const saveProduct = async (event) => {
@@ -706,17 +648,12 @@ const columns = [
       description="Manage inventory, pricing, stock, and product visibility."
       badge="Catalog"
       action={
-        <button
-          type="button"
-          onClick={() => {
-            setActionError("");
-            setAddForm(emptyProductForm());
-            setAddingProduct(true);
-          }}
+        <Link
+          to="/admin/products/add"
           className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
         >
           <Plus size={18} /> Add Product
-        </button>
+        </Link>
       }
     >
       {actionError && (
@@ -768,46 +705,6 @@ const columns = [
               <button type="button" onClick={() => { setViewingProduct(null); startEdit(viewingProduct); }} className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Edit product</button>
               <button type="button" onClick={() => setViewingProduct(null)} className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Close</button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {addingProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/45 p-4">
-          <div className="mx-auto my-8 w-full max-w-4xl rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="mb-6 flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">
-                  Add Product
-                </h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Add a product and its pouch-wise prices.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAddingProduct(false)}
-                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
-                aria-label="Close add product"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={addProduct} className="space-y-5">
-              <ProductForm
-                form={addForm}
-                categories={categories}
-                onChange={updateFormField(setAddForm)}
-                onCategoryChange={selectCategory(setAddForm)}
-                onVariationChange={updateVariation(setAddForm)}
-                onAddVariation={addVariation(setAddForm)}
-                onRemoveVariation={removeVariation(setAddForm)}
-                onImagesChange={updateImages(setAddForm)}
-                submitLabel="Add product"
-                saving={saving}
-                actionError={actionError}
-              />
-            </form>
           </div>
         </div>
       )}

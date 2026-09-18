@@ -1,4 +1,5 @@
 import ProductsPage from '../pages/ProductsPage'
+import AddProduct from '../pages/AddProduct'
 import CategoriesPage from '../pages/CategoriesPage'
 import OrdersPage from '../pages/OrdersPage'
 import CustomersPage from '../pages/CustomersPage'
@@ -17,6 +18,7 @@ import HeroSlides from '../pages/HeroSlides'
 export function renderSectionPage(pathname) {
   const path = pathname.replace(/\/+$/, '') || '/admin'
   if (path === '/admin/products') return <ProductsPage />
+  if (path === '/admin/products/add') return <AddProduct />
   if (path === '/admin/categories') return <CategoriesPage />
   if (path === '/admin/categories/add') return <AddCategory />
   if (path === '/admin/orders') return <OrdersPage />

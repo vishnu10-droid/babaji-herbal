@@ -12,11 +12,11 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Leaf,
   Store,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../../context/auth-context";
+import logo from "../../assets/babaji-logo.jpg";
 
 export const userMenuItems = [
   { name: "Dashboard", path: "/account", icon: LayoutDashboard },
@@ -32,7 +32,7 @@ export const userMenuItems = [
 const UserSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     logout?.();
@@ -51,9 +51,11 @@ const UserSidebar = () => {
       {/* Compact Header / Brand */}
       <div className="mb-2 flex items-center justify-between rounded-xl border border-white/20 bg-white/10 px-2.5 py-1.5">
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="rounded-lg bg-[#f9cd73] p-1.5 text-[#0B3B24]">
-            <Leaf size={16} />
-          </div>
+          <img
+            src={logo}
+            alt="Babaji Herbals"
+            className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-white/30"
+          />
           {!collapsed && (
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white">Babaji Herbals</p>
@@ -70,19 +72,6 @@ const UserSidebar = () => {
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </div>
-
-      {/* User card */}
-      {!collapsed && user?.name && (
-        <div className="mb-2 flex items-center gap-2.5 rounded-xl bg-white/10 p-2.5 ring-1 ring-white/10">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f9cd73] text-sm font-bold text-[#0B3B24]">
-            {(user.name || "U").charAt(0).toUpperCase()}
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-white">{user.name}</p>
-            <p className="truncate text-[11px] text-white/60">{user.email}</p>
-          </div>
-        </div>
-      )}
 
       {/* Main Navigation */}
       <div className="flex-1 space-y-2 overflow-y-auto pr-0.5">

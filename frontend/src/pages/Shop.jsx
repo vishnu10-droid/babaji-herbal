@@ -49,6 +49,10 @@ export default function Shop() {
   const selectedCategoryId =
     searchParams.get("category") || "";
 
+  const searchQuery = (
+    searchParams.get("search") || ""
+  ).trim();
+
   // =====================================================
   // FETCH CATEGORIES
   // =====================================================
@@ -122,14 +126,36 @@ export default function Shop() {
   // CATEGORY SELECT
   // =====================================================
 
+  // =====================================================
+  // FILTERED PRODUCTS (category + search)
+  // =====================================================
+
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery) return products;
+    const q = searchQuery.toLowerCase();
+    return products.filter((product) => {
+      const name = String(product?.name || "").toLowerCase();
+      const description = String(
+        product?.description || ""
+      ).toLowerCase();
+      const categoryName = String(
+        product?.category ||
+          product?.categoryName ||
+          ""
+      ).toLowerCase();
+      return (
+        name.includes(q) ||
+        description.includes(q) ||
+        categoryName.includes(q)
+      );
+    });
+  }, [products, searchQuery]);
+
   const selectCategory = (categoryId) => {
-    if (categoryId) {
-      setSearchParams({
-        category: categoryId,
-      });
-    } else {
-      setSearchParams({});
-    }
+    const next = {};
+    if (categoryId) next.category = categoryId;
+    if (searchQuery) next.search = searchQuery;
+    setSearchParams(next);
 
     setFiltersOpen(false);
   };
@@ -141,6 +167,13 @@ export default function Shop() {
   const clearFilters = () => {
     setSearchParams({});
     setFiltersOpen(false);
+  };
+
+  const clearSearch = () => {
+    const next = {};
+    if (selectedCategoryId)
+      next.category = selectedCategoryId;
+    setSearchParams(next);
   };
 
   // =====================================================
@@ -160,7 +193,7 @@ export default function Shop() {
           Our collection
         </p>
 
-        <h1 className="mt-2 font-serif text-3xl font-semibold text-[#173b29] sm:text-4xl">
+        <h1 className="mt-2 font-serif text-2xl font-semibold text-[#173b29] sm:text-3xl">
           Shop herbal products
         </h1>
 
@@ -481,8 +514,8 @@ export default function Shop() {
 
             <p className="text-xs text-slate-500">
 
-              {products.length} product
-              {products.length === 1
+              {filteredProducts.length} product
+              {filteredProducts.length === 1
                 ? ""
                 : "s"}
 
@@ -490,39 +523,69 @@ export default function Shop() {
                 ? ` in ${selectedCategory.name}`
                 : ""}
 
+              {searchQuery
+                ? ` for "${searchQuery}"`
+                : ""}
+
             </p>
 
 
-            {/* ACTIVE CATEGORY */}
+            {/* ACTIVE FILTERS */}
 
-            {selectedCategory && (
-              <button
-                type="button"
-                onClick={() =>
-                  selectCategory("")
-                }
-                className="
-                  inline-flex
-                  items-center
-                  gap-1
-                  rounded-full
-                  bg-[#edf4eb]
-                  px-2.5
-                  py-1
-                  text-[10px]
-                  font-bold
-                  text-[#28714a]
-                  transition
-                  hover:bg-[#dfeedd]
-                "
-              >
+            <div className="flex flex-wrap items-center gap-2">
+              {selectedCategory && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    selectCategory("")
+                  }
+                  className="
+                    inline-flex
+                    items-center
+                    gap-1
+                    rounded-full
+                    bg-[#edf4eb]
+                    px-2.5
+                    py-1
+                    text-[10px]
+                    font-bold
+                    text-[#28714a]
+                    transition
+                    hover:bg-[#dfeedd]
+                  "
+                >
 
-                {selectedCategory.name}
+                  {selectedCategory.name}
 
-                <X size={12} />
+                  <X size={12} />
 
-              </button>
-            )}
+                </button>
+              )}
+
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="
+                    inline-flex
+                    items-center
+                    gap-1
+                    rounded-full
+                    bg-[#174d32]
+                    px-2.5
+                    py-1
+                    text-[10px]
+                    font-bold
+                    text-white
+                    transition
+                    hover:bg-[#28714a]
+                  "
+                >
+                  Search: {searchQuery}
+                  <X size={12} />
+                </button>
+              )}
+            </div>
 
           </div>
 
@@ -565,7 +628,7 @@ export default function Shop() {
 
           {!loading &&
             !error &&
-            products.length > 0 && (
+            filteredProducts.length > 0 && (
 
               <div
                 className="
@@ -579,7 +642,7 @@ export default function Shop() {
                 "
               >
 
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <ProductCard
                     key={product._id}
                     item={product}
@@ -597,7 +660,7 @@ export default function Shop() {
 
           {!loading &&
             !error &&
-            products.length === 0 && (
+            filteredProducts.length === 0 && (
 
               <div className="rounded-2xl border border-dashed border-[#c8dec9] bg-[#f8faf7] px-6 py-14 text-center">
 
@@ -609,11 +672,14 @@ export default function Shop() {
                   No products are available
                   {selectedCategory
                     ? ` in ${selectedCategory.name}`
+                    : ""}
+                  {searchQuery
+                    ? ` for "${searchQuery}"`
                     : ""}.
                 </p>
 
 
-                {selectedCategoryId && (
+                {(selectedCategoryId || searchQuery) && (
                   <button
                     type="button"
                     onClick={clearFilters}

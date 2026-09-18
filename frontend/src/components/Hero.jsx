@@ -187,20 +187,17 @@ export default function Hero() {
         className="
           relative
           block
-          aspect-[3/1]
-          min-h-[250px]
+          aspect-[4/3]
           w-full
           cursor-pointer
           overflow-hidden
           bg-slate-900
 
-          sm:min-h-[320px]
+          sm:aspect-[16/7]
 
-          md:min-h-[360px]
+          lg:aspect-[21/8]
 
-          lg:min-h-[400px]
-
-          xl:min-h-[430px]
+          xl:aspect-[21/7]
         "
       >
         {/* ===================================================
@@ -235,9 +232,10 @@ export default function Hero() {
                 h-full
                 w-full
                 object-cover
+                object-center
               "
               style={{
-                objectPosition: slide.position || "center",
+                objectPosition: slide.position || "center center",
               }}
             />
           ) : null}
@@ -262,18 +260,11 @@ export default function Hero() {
             z-10
             flex
             h-full
-            min-h-[250px]
+            w-full
             items-center
             py-6
 
-            sm:min-h-[320px]
             sm:py-8
-
-            md:min-h-[360px]
-
-            lg:min-h-[400px]
-
-            xl:min-h-[430px]
           "
         >
           <AnimatePresence mode="wait">
@@ -344,21 +335,19 @@ export default function Hero() {
                   max-w-xl
                   whitespace-pre-line
                   font-serif
-                  text-3xl
+                  text-2xl
                   font-semibold
-                  leading-[1.03]
+                  leading-[1.05]
                   tracking-tight
                   text-white
                   drop-shadow-lg
 
-                  sm:mt-5
-                  sm:text-4xl
+                  sm:mt-4
+                  sm:text-3xl
 
-                  md:text-5xl
+                  md:text-4xl
 
-                  lg:text-6xl
-
-                  xl:text-7xl
+                  lg:text-5xl
                 "
               >
                 {slide.title}

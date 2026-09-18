@@ -20,35 +20,33 @@ export default function Cart() {
   const { isAuthenticated } = useAuth();
   const { items, totalAmount, loading, error } = useSelector((state) => state.cart);
   const [actionError, setActionError] = useState("");
-  const [updatingItemId, setUpdatingItemId] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) dispatch(fetchCart());
   }, [dispatch, isAuthenticated]);
 
-  const changeQuantity = async (item, quantity) => {
+  const changeQuantity = (item, quantity) => {
     if (quantity < 1) return;
     setActionError("");
-    setUpdatingItemId(item._id);
-    try {
-      await dispatch(updateCartItem({ itemId: item._id, quantity })).unwrap();
-    } catch (requestError) {
-      setActionError(requestError || "Cart quantity could not be updated.");
-    } finally {
-      setUpdatingItemId("");
-    }
+    // Optimistic update slice me turant price badha deta hai,
+    // server response ka wait nahi karna padta.
+    dispatch(updateCartItem({ itemId: item._id, quantity }))
+      .unwrap()
+      .catch((requestError) => {
+        setActionError(requestError || "Cart quantity could not be updated.");
+        // Server se sync wapas lao taaki galat qty na atke
+        dispatch(fetchCart());
+      });
   };
 
-  const removeItem = async (itemId) => {
+  const removeItem = (itemId) => {
     setActionError("");
-    setUpdatingItemId(itemId);
-    try {
-      await dispatch(removeCartItem(itemId)).unwrap();
-    } catch (requestError) {
-      setActionError(requestError || "Product could not be removed from cart.");
-    } finally {
-      setUpdatingItemId("");
-    }
+    dispatch(removeCartItem(itemId))
+      .unwrap()
+      .catch((requestError) => {
+        setActionError(requestError || "Product could not be removed from cart.");
+        dispatch(fetchCart());
+      });
   };
 
   const emptyCart = async () => {
@@ -102,7 +100,6 @@ export default function Cart() {
                 const product = item.productId || {};
                 const name = item.productName || product.name || "Product";
                 const variation = item.variationName || (item.pouches ? `${item.pouches} pouches` : "");
-                const isUpdating = updatingItemId === item._id;
                 const lineTotal = Number(item.price || 0) * Number(item.quantity || 0);
                 return <div key={item._id} className="group flex flex-col items-center gap-5 rounded-3xl border border-emerald-900/10 bg-white p-5 shadow-sm transition hover:shadow-md sm:flex-row">
                   <img src={productImage(item.image || product.images?.[0])} alt={name} className="h-24 w-24 shrink-0 rounded-2xl border border-gray-100 bg-gray-50 object-cover sm:h-28 sm:w-28" />
@@ -114,11 +111,11 @@ export default function Cart() {
                   </div>
                   <div className="flex w-full items-center justify-between gap-4 border-t border-gray-100 pt-3 sm:w-auto sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
                     <div className="flex items-center rounded-full border border-gray-200 bg-gray-50 p-1">
-                      <button type="button" disabled={isUpdating || item.quantity <= 1} onClick={() => changeQuantity(item, item.quantity - 1)} className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-gray-600 shadow-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"><Minus size={12} /></button>
+                      <button type="button" disabled={item.quantity <= 1} onClick={() => changeQuantity(item, item.quantity - 1)} className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-gray-600 shadow-sm transition hover:bg-gray-100 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40"><Minus size={12} /></button>
                       <span className="w-8 text-center text-xs font-bold text-gray-800">{item.quantity}</span>
-                      <button type="button" disabled={isUpdating} onClick={() => changeQuantity(item, item.quantity + 1)} className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0b6b3a] text-white shadow-sm hover:bg-[#08522c] disabled:opacity-40"><Plus size={12} /></button>
+                      <button type="button" onClick={() => changeQuantity(item, item.quantity + 1)} className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0b6b3a] text-white shadow-sm transition hover:bg-[#08522c] active:scale-90"><Plus size={12} /></button>
                     </div>
-                    <button type="button" disabled={isUpdating} onClick={() => removeItem(item._id)} className="rounded-full p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-40" title="Remove item"><Trash2 size={16} /></button>
+                    <button type="button" onClick={() => removeItem(item._id)} className="rounded-full p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-500" title="Remove item"><Trash2 size={16} /></button>
                   </div>
                 </div>;
               })}

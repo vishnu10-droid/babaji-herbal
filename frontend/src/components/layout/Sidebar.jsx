@@ -17,9 +17,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  Leaf,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import logo from "../../assets/babaji-logo.jpg";
 
 const menuGroups = [
   {
@@ -106,9 +106,11 @@ export default function Sidebar() {
       {/* Compact Header / Brand */}
       <div className="mb-2 flex items-center justify-between rounded-xl border border-white/20 bg-white/10 px-2.5 py-1.5">
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="rounded-lg bg-white/15 p-1.5 text-white">
-            <Leaf size={16} />
-          </div>
+          <img
+            src={logo}
+            alt="Babaji Herbals"
+            className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-white/30"
+          />
           {!collapsed && (
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white">
