@@ -266,22 +266,13 @@ export default function Home() {
 
 
             {/* =================================================
-                PRODUCTS
-
-                8 products:
-                Row 1 = 5
-                Row 2 = 3
+                PRODUCTS - ALL PRODUCTS
             ================================================= */}
 
             {!loading &&
-              products
-                .slice(0, 8)
-                .map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    item={product}
-                  />
-                ))}
+              products.map((product) => (
+                <ProductCard key={product._id} item={product} />
+              ))}
 
           </div>
 

@@ -27,11 +27,11 @@ import {
   resetWishlist,
 } from "../store/slice/wishlist.slice";
 import { fetchCart, resetCart } from "../store/slice/cart.slice";
+import { fetchCategories } from "../store/slice/category.slice";
 
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Shop", to: "/shop" },
-  { label: "Contact", to: "/contact" },
 ];
 
 export default function Navbar() {
@@ -41,6 +41,7 @@ export default function Navbar() {
 
   const wishlistItems = useSelector((state) => state.wishlist.items || []);
   const cartItems = useSelector((state) => state.cart.items || []);
+  const { data: categories = [] } = useSelector((state) => state.category);
 
   const wishlistCount = wishlistItems.length;
   const cartCount = cartItems.reduce(
@@ -77,6 +78,56 @@ export default function Navbar() {
       dispatch(resetCart());
     }
   }, [dispatch, isAuthenticated]);
+
+  // Fetch categories for category bar below navbar
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  const activeCategories = (categories || []).filter(
+    (category) => category.isActive !== false
+  );
+
+  // Navbar category bar ka fixed order (user defined)
+  // pain relief, weight gain, female wellness, supplement nutrition,
+  // de-addiction, weight loss, diabetes care, general wellness
+  const normalizeName = (s) =>
+    (s || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const getCategoryOrder = (name) => {
+    const n = normalizeName(name);
+    if (n.includes("pain") && n.includes("relief")) return 0;
+    if (n.includes("weight") && n.includes("gain")) return 1;
+    if (n.includes("female")) return 2;
+    if (
+      n.includes("supplement") ||
+      n.includes("suplement") ||
+      n.includes("nutrition")
+    )
+      return 3;
+    if (
+      n.includes("addiction") ||
+      n.includes("diction") ||
+      n.includes("de add") ||
+      n.includes("d ad") ||
+      n.includes("nasha")
+    )
+      return 4;
+    if (n.includes("weight") && n.includes("loss")) return 5;
+    if (n.includes("diabet")) return 6;
+    if (n.includes("general")) return 7;
+    return 99;
+  };
+
+  const orderedCategories = [...activeCategories].sort(
+    (a, b) =>
+      getCategoryOrder(a.name) - getCategoryOrder(b.name) ||
+      (a.name || "").localeCompare(b.name || "")
+  );
 
   const handleLogout = () => {
     logout();
@@ -152,7 +203,7 @@ export default function Navbar() {
                 key={link.label}
                 to={link.to}
                 className={({ isActive }) =>
-                  `relative rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300 ${
+                  `relative rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                     isActive
                       ? "bg-[#0B6B3A] text-white shadow-md shadow-[#0B6B3A]/30"
                       : "text-[#1B1B1B] hover:bg-[#0B6B3A]/10 hover:text-[#0B6B3A]"
@@ -405,7 +456,7 @@ export default function Navbar() {
                       to={link.to}
                       onClick={() => setMobileMenuOpen(false)}
                       className={({ isActive }) =>
-                        `block rounded-2xl px-4 py-3 text-xs font-bold transition ${
+                        `block rounded-2xl px-4 py-3 text-sm font-bold transition ${
                           isActive
                             ? "bg-[#0B6B3A] text-white shadow-md shadow-[#0B6B3A]/25"
                             : "text-gray-800 hover:bg-gray-50"
@@ -491,6 +542,31 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
+      {/* =====================================================
+          CATEGORY BAR (navbar ke niche) - fixed order me
+      ====================================================== */}
+      {orderedCategories.length > 0 && (
+        <nav
+          aria-label="Product categories"
+          className="bg-gradient-to-r from-[#123d2a] via-[#0e5c36] to-[#123d2a] text-white shadow-md"
+        >
+          <div className="flex items-center gap-2 overflow-x-auto px-4 py-2 whitespace-nowrap scrollbar-none [scrollbar-width:none] sm:justify-center sm:gap-3 sm:px-8 [&::-webkit-scrollbar]:hidden">
+            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#f9cd73] sm:flex">
+              <Leaf size={12} />
+              Shop by
+            </span>
+            {orderedCategories.map((category) => (
+              <Link
+                key={category._id}
+                to={`/shop?category=${encodeURIComponent(category._id)}`}
+                className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-white/85 transition-all duration-300 hover:bg-white/15 hover:text-[#f9cd73] hover:shadow sm:text-[13px]"
+              >
+                {category.name}
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
     </header>
   );
 }

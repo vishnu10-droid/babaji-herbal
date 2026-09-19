@@ -190,17 +190,18 @@ export default function ProductCard({ item }) {
         className="
           relative
           overflow-hidden
-          bg-[#edf4eb]
+          bg-white
         "
       >
-        <Link to={`/product/${item._id}`} className="block">
+        <Link to={`/product/${item._id}`} className="block h-40 w-full bg-white p-2">
           <img
             src={image}
             alt={item.name}
+            loading="lazy"
             className="
-              h-40
+              h-full
               w-full
-              object-cover
+              object-contain
               transition
               duration-500
               group-hover:scale-105
