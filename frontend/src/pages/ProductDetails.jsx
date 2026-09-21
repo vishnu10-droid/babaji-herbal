@@ -82,7 +82,7 @@ export default function ProductDetails() {
 
   const productImages = useMemo(
     () =>
-      product?.images?.map((productImage) => detailImage(productImage, 700)) ||
+      product?.images?.map((productImage) => detailImage(productImage, 1000)) ||
       [],
     [product],
   );
@@ -263,17 +263,17 @@ export default function ProductDetails() {
             mx-auto
             grid
             w-full
-            max-w-5xl
+            max-w-6xl
             grid-cols-1
             gap-3
             rounded-xl
             bg-white
             p-3
             shadow-md
-            sm:grid-cols-[320px_minmax(0,1fr)]
+            sm:grid-cols-[420px_minmax(0,1fr)]
             sm:gap-5
             sm:p-5
-            lg:grid-cols-[400px_minmax(0,1fr)]
+            lg:grid-cols-[520px_minmax(0,1fr)]
           "
         >
           {/* =================================================
@@ -284,15 +284,15 @@ export default function ProductDetails() {
             className="
               relative
               flex
-              h-[280px]
+              h-[360px]
               items-center
               justify-center
               overflow-hidden
               rounded-lg
               bg-slate-50
               p-3
-              sm:h-[400px]
-              lg:h-[440px]
+              sm:h-[500px]
+              lg:h-[560px]
             "
           >
             <img
