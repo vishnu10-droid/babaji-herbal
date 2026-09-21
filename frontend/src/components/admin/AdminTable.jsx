@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import AdminPagination from "./AdminPagination";
 
 /* =========================
    STATUS BADGE
@@ -99,8 +100,24 @@ export default function AdminTable({
   title = "Records",
   subtitle = "Manage all records in one place",
   entityPlural = "records",
+  pageSize = 10,
 }) {
   const label = rows.length === 1 ? entityPlural.replace(/s$/, "") : entityPlural;
+
+  // Pagination: ek baar me 10 rows
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rows.length, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedRows = rows.slice(
+    (safePage - 1) * pageSize,
+    safePage * pageSize
+  );
+  const rangeStart = rows.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const rangeEnd = Math.min(safePage * pageSize, rows.length);
 
   return (
     <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -157,7 +174,7 @@ export default function AdminTable({
                 </td>
               </tr>
             ) : (
-              rows.map((row, rowIndex) => (
+              paginatedRows.map((row, rowIndex) => (
                 <tr
                   key={row._id || row.id || rowIndex}
                   className="group border-b border-slate-100 last:border-b-0 transition-colors hover:bg-slate-50/70"
@@ -191,12 +208,23 @@ export default function AdminTable({
 
       {/* TABLE FOOTER */}
       {rows.length > 0 && (
-        <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-4 py-2.5">
-          <p className="text-[9px] text-slate-400">
-            Showing <span className="font-semibold text-slate-600">{rows.length}</span>{" "}
-            {label}
-          </p>
-          <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <div className="flex flex-col gap-1 border-t border-slate-100 bg-slate-50/50 px-4 py-2.5">
+          <div className="flex items-center justify-between">
+            <p className="text-[9px] text-slate-400">
+              Showing{" "}
+              <span className="font-semibold text-slate-600">
+                {rangeStart}–{rangeEnd}
+              </span>{" "}
+              of <span className="font-semibold text-slate-600">{rows.length}</span>{" "}
+              {label}
+            </p>
+            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          </div>
+          <AdminPagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

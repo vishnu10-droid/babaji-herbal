@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
+import AdminPagination from "../../../components/admin/AdminPagination";
 
 import {
   createHeroSlide,
@@ -36,6 +37,18 @@ export default function HeroSlides() {
   const [products, setProducts] = useState([]);
 
   const [selectedProductId, setSelectedProductId] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
+  const totalPages = Math.max(1, Math.ceil(slides.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedSlides = useMemo(
+    () => slides.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [slides, safePage]
+  );
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [slides.length]);
 
   const getLinkedProductId = (slide) => {
     if (!slide) return "";
@@ -321,8 +334,9 @@ export default function HeroSlides() {
             </button>
           </div>
         ) : (
+          <>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {slides.map((slide) => (
+            {paginatedSlides.map((slide) => (
               <div
                 key={slide._id}
                 className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
@@ -390,6 +404,12 @@ export default function HeroSlides() {
               </div>
             ))}
           </div>
+          <AdminPagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onChange={setCurrentPage}
+          />
+          </>
         )}
       </div>
 

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminSectionPage from "../../../components/admin/AdminSectionPage";
+import AdminPagination from "../../../components/admin/AdminPagination";
 import { API_ORIGIN } from "../../../config/config";
 import { getHeroSlides, toggleHeroSlide } from "../../../service/heroSlide.api";
 
@@ -14,6 +15,17 @@ export default function BannerPage() {
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [slides.length]);
+  const totalPages = Math.max(1, Math.ceil(slides.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedSlides = useMemo(
+    () => slides.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [slides, safePage]
+  );
 
   const load = async () => {
     try {
@@ -68,8 +80,9 @@ export default function BannerPage() {
           </Link>
         </div>
       ) : (
+        <>
         <div className="grid gap-4 md:grid-cols-2">
-          {slides.map((slide) => (
+          {paginatedSlides.map((slide) => (
             <div key={slide._id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="relative h-40 bg-slate-100">
                 {slide.image ? (
@@ -93,6 +106,12 @@ export default function BannerPage() {
             </div>
           ))}
         </div>
+        <AdminPagination
+          currentPage={safePage}
+          totalPages={totalPages}
+          onChange={setCurrentPage}
+        />
+        </>
       )}
     </AdminSectionPage>
   );

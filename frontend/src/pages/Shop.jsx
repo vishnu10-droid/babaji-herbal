@@ -9,14 +9,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
 import ProductCard from "../components/ProductCard";
+import Pagination from "../components/Pagination";
 
 import { fetchproduct } from "../store/slice/product.Slice";
 import { fetchCategories } from "../store/slice/category.slice";
+
+const PAGE_SIZE = 10;
 
 export default function Shop() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [categoriesExpanded, setCategoriesExpanded] =
     useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [searchParams, setSearchParams] =
     useSearchParams();
@@ -158,6 +162,40 @@ export default function Shop() {
     setSearchParams(next);
 
     setFiltersOpen(false);
+  };
+
+  // =====================================================
+  // PAGINATION (filter/search badalne par page 1 par lao)
+  // =====================================================
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategoryId, products.length]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / PAGE_SIZE)
+  );
+
+  const safePage = Math.min(currentPage, totalPages);
+
+  const paginatedProducts = filteredProducts.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE
+  );
+
+  const rangeStart =
+    filteredProducts.length === 0
+      ? 0
+      : (safePage - 1) * PAGE_SIZE + 1;
+  const rangeEnd = Math.min(
+    safePage * PAGE_SIZE,
+    filteredProducts.length
+  );
+
+  const changePage = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // =====================================================
@@ -514,6 +552,7 @@ export default function Shop() {
 
             <p className="text-xs text-slate-500">
 
+              Showing {rangeStart}–{rangeEnd} of{" "}
               {filteredProducts.length} product
               {filteredProducts.length === 1
                 ? ""
@@ -525,6 +564,10 @@ export default function Shop() {
 
               {searchQuery
                 ? ` for "${searchQuery}"`
+                : ""}
+
+              {totalPages > 1
+                ? ` · Page ${safePage}/${totalPages}`
                 : ""}
 
             </p>
@@ -629,7 +672,7 @@ export default function Shop() {
           {!loading &&
             !error &&
             filteredProducts.length > 0 && (
-
+              <>
               <div
                 className="
                   grid
@@ -642,7 +685,7 @@ export default function Shop() {
                 "
               >
 
-                {filteredProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <ProductCard
                     key={product._id}
                     item={product}
@@ -651,6 +694,12 @@ export default function Shop() {
 
               </div>
 
+              <Pagination
+                currentPage={safePage}
+                totalPages={totalPages}
+                onChange={changePage}
+              />
+              </>
             )}
 
 

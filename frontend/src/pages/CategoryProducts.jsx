@@ -1,14 +1,18 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Package } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories } from "../store/slice/category.slice";
 import { fetchproduct } from "../store/slice/product.Slice";
 import ProductCard from "../components/ProductCard";
+import Pagination from "../components/Pagination";
+
+const PAGE_SIZE = 10;
 
 export default function CategoryProducts() {
   const { categoryId } = useParams();
   const dispatch = useDispatch();
+  const [currentPage, setCurrentPage] = useState(1);
   const { data: categories, loading: categoriesLoading } = useSelector(
     (state) => state.category,
   );
@@ -27,7 +31,20 @@ export default function CategoryProducts() {
   }, [categories.length, dispatch]);
   useEffect(() => {
     dispatch(fetchproduct({ categoryId }));
+    setCurrentPage(1);
   }, [categoryId, dispatch]);
+
+  const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedProducts = products.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE
+  );
+
+  const changePage = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <section className="section-shell py-12">
@@ -64,11 +81,18 @@ export default function CategoryProducts() {
             product{products.length === 1 ? "" : "s"} found
           </p>
           {products.length ? (
+            <>
             <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
+              {paginatedProducts.map((product) => (
                 <ProductCard key={product._id} item={product} />
               ))}
             </div>
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onChange={changePage}
+            />
+            </>
           ) : (
             <div className="mt-5 rounded-2xl border border-dashed border-emerald-200 p-10 text-center text-slate-500">
               No products have been added to this category yet.

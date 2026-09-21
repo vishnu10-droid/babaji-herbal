@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AdminSectionPage from "../../../components/admin/AdminSectionPage";
+import AdminPagination from "../../../components/admin/AdminPagination";
 import { API_ORIGIN } from "../../../config/config";
 import { getMedia } from "../../../service/admin.api";
 
@@ -35,6 +36,18 @@ export default function MediaPage() {
   const sources = ["All", ...new Set(media.map((m) => m.source))];
   const filtered = filter === "All" ? media : media.filter((m) => m.source === filter);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, media.length]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedMedia = useMemo(
+    () => filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filtered, safePage]
+  );
+
   return (
     <AdminSectionPage
       title="Media Gallery"
@@ -69,7 +82,7 @@ export default function MediaPage() {
             ))}
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {filtered.map((item, i) => (
+            {paginatedMedia.map((item, i) => (
               <a key={i} href={resolveImage(item.url)} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div className="relative h-36 bg-slate-100">
                   <img src={resolveImage(item.url)} alt={item.name} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />
@@ -81,6 +94,14 @@ export default function MediaPage() {
               </a>
             ))}
           </div>
+          <p className="mt-2 text-center text-[11px] text-slate-400">
+            Showing {paginatedMedia.length} of {filtered.length} files · Page {safePage}/{totalPages}
+          </p>
+          <AdminPagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onChange={setCurrentPage}
+          />
         </>
       )}
     </AdminSectionPage>
