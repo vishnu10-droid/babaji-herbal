@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -22,12 +22,11 @@ import {
 import logo from "../assets/babaji-logo.jpg";
 
 import { useAuth } from "../context/auth-context";
-import {
-  fetchWishlist,
-  resetWishlist,
-} from "../store/slice/wishlist.slice";
+import { fetchWishlist, resetWishlist } from "../store/slice/wishlist.slice";
 import { fetchCart, resetCart } from "../store/slice/cart.slice";
 import { fetchCategories } from "../store/slice/category.slice";
+import { fetchproduct } from "../store/slice/product.Slice";
+import { thumbnail } from "../utils/image";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -54,6 +53,10 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState(-1);
+  const desktopSearchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
 
   // Shadow on scroll
   useEffect(() => {
@@ -83,6 +86,49 @@ export default function Navbar() {
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  // Products pehle se loaded nahi hain to suggestions ke liye load karo
+  const { data: products = [] } = useSelector((state) => state.product);
+  useEffect(() => {
+    if (!products || products.length === 0) dispatch(fetchproduct());
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Search suggestions: naam / category / description me match
+  const suggestions = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q.length < 1) return [];
+    return (products || [])
+      .filter((p) => {
+        const name = String(p?.name || "").toLowerCase();
+        const desc = String(p?.description || "").toLowerCase();
+        const cat = String(
+          p?.category?.name || p?.category || p?.categoryName || ""
+        ).toLowerCase();
+        return name.includes(q) || cat.includes(q) || desc.includes(q);
+      })
+      .slice(0, 6);
+  }, [products, searchQuery]);
+
+  // Bahar click / route change par dropdown band karo
+  useEffect(() => {
+    const onPointerDown = (e) => {
+      if (
+        desktopSearchRef.current &&
+        !desktopSearchRef.current.contains(e.target) &&
+        mobileSearchRef.current &&
+        !mobileSearchRef.current.contains(e.target)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
+
+  useEffect(() => {
+    setShowSuggestions(false);
+    setHighlightIndex(-1);
+  }, [location.pathname]);
 
   const activeCategories = (categories || []).filter(
     (category) => category.isActive !== false
@@ -134,10 +180,47 @@ export default function Navbar() {
     navigate("/");
   };
 
+  const goToSearch = (value) => {
+    const q = String(value || "").trim();
+    if (!q) return;
+    setShowSuggestions(false);
+    setHighlightIndex(-1);
+    navigate(`/shop?search=${encodeURIComponent(q)}`);
+  };
+
+  const goToProduct = (id) => {
+    if (!id) return;
+    setShowSuggestions(false);
+    setHighlightIndex(-1);
+    setSearchQuery("");
+    navigate(`/product/${id}`);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+    goToSearch(searchQuery);
+  };
+
+  const handleSuggestionKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setShowSuggestions(true);
+      setHighlightIndex((i) => Math.min(i + 1, suggestions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIndex((i) => Math.max(i - 1, -1));
+    } else if (e.key === "Enter" && highlightIndex >= 0 && suggestions[highlightIndex]) {
+      e.preventDefault();
+      goToProduct(suggestions[highlightIndex]._id);
+    } else if (e.key === "Escape") {
+      setShowSuggestions(false);
+      setHighlightIndex(-1);
+    }
+  };
+
+  const suggestionPrice = (p) => {
+    const v = (p?.variations || []).find((x) => x.isActive !== false) || p?.variations?.[0];
+    return Number(v?.price ?? p?.sellingPrice ?? p?.price ?? 0) || 0;
   };
 
   return (
@@ -216,10 +299,11 @@ export default function Navbar() {
           </nav>
 
           {/* DESKTOP SEARCH BAR */}
-          <form
-            onSubmit={handleSearch}
+          <div
+            ref={desktopSearchRef}
             className="hidden max-w-xs flex-1 md:block lg:max-w-xs xl:max-w-sm"
           >
+          <form onSubmit={handleSearch} className="relative" autoComplete="off">
             <div className="group relative w-full">
               <Search
                 size={17}
@@ -229,7 +313,13 @@ export default function Navbar() {
                 type="text"
                 placeholder="Search remedies, herbs..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                  setHighlightIndex(-1);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={handleSuggestionKeyDown}
                 className="w-full rounded-full border border-[#0B6B3A]/20 bg-white py-2.5 pl-11 pr-20 text-sm text-gray-800 shadow-sm outline-none transition-all duration-300 placeholder:text-gray-400 focus:border-[#0B6B3A] focus:shadow-lg focus:shadow-[#0B6B3A]/10 focus:ring-4 focus:ring-[#0B6B3A]/10"
               />
               <button
@@ -239,7 +329,77 @@ export default function Navbar() {
                 Search
               </button>
             </div>
+
+            {/* SUGGESTIONS DROPDOWN */}
+            {showSuggestions && searchQuery.trim().length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-[#0B6B3A]/10 bg-white shadow-2xl shadow-[#0B6B3A]/15">
+                {suggestions.length > 0 ? (
+                  <>
+                    {suggestions.map((p, idx) => {
+                      const img = p?.images?.[0]
+                        ? thumbnail(p.images[0], 100)
+                        : "";
+                      return (
+                        <button
+                          key={p._id}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => goToProduct(p._id)}
+                          onMouseEnter={() => setHighlightIndex(idx)}
+                          className={`flex w-full items-center gap-3 px-3 py-2 text-left transition ${
+                            idx === highlightIndex
+                              ? "bg-[#f0f8f3]"
+                              : "hover:bg-[#f0f8f3]"
+                          }`}
+                        >
+                          {img ? (
+                            <img
+                              src={img}
+                              alt={p.name}
+                              className="h-9 w-9 shrink-0 rounded-xl border border-[#0B6B3A]/10 object-cover"
+                            />
+                          ) : (
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f0f8f3] text-[#0B6B3A]">
+                              <Search size={14} />
+                            </span>
+                          )}
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-semibold text-[#123d2a]">
+                              {p.name}
+                            </span>
+                            <span className="block truncate text-[11px] text-gray-500">
+                              {String(
+                                p?.category?.name ||
+                                  p?.category ||
+                                  p?.categoryName ||
+                                  "Herbal care"
+                              )}{" "}
+                              {suggestionPrice(p)
+                                ? `· ₹${suggestionPrice(p).toLocaleString("en-IN")}`
+                                : ""}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => goToSearch(searchQuery)}
+                      className="block w-full border-t border-[#0B6B3A]/10 bg-[#f7faf6] px-3 py-2.5 text-center text-xs font-bold text-[#0B6B3A] transition hover:bg-[#edf4eb]"
+                    >
+                      See all results for “{searchQuery.trim()}”
+                    </button>
+                  </>
+                ) : (
+                  <p className="px-4 py-3 text-center text-xs text-gray-500">
+                    No match for “{searchQuery.trim()}” — press Enter to search anyway
+                  </p>
+                )}
+              </div>
+            )}
           </form>
+          </div>
 
           {/* DESKTOP RIGHT ACTIONS */}
           <div className="hidden items-center gap-2 sm:flex">
@@ -374,8 +534,8 @@ export default function Navbar() {
         </div>
 
         {/* MOBILE SEARCH BAR */}
-        <div className="px-4 pb-3 md:hidden">
-          <form onSubmit={handleSearch} className="relative w-full">
+        <div className="px-4 pb-3 md:hidden" ref={mobileSearchRef}>
+          <form onSubmit={handleSearch} className="relative w-full" autoComplete="off">
             <Search
               size={16}
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
@@ -384,7 +544,13 @@ export default function Navbar() {
               type="text"
               placeholder="Search herbal products..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+                setHighlightIndex(-1);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onKeyDown={handleSuggestionKeyDown}
               className="w-full rounded-full border border-[#0B6B3A]/20 bg-white py-2.5 pl-10 pr-20 text-xs text-gray-800 shadow-sm outline-none transition focus:border-[#0B6B3A] focus:ring-4 focus:ring-[#0B6B3A]/10"
             />
             <button
@@ -393,6 +559,58 @@ export default function Navbar() {
             >
               Search
             </button>
+
+            {showSuggestions && searchQuery.trim().length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-[#0B6B3A]/10 bg-white shadow-2xl">
+                {suggestions.length > 0 ? (
+                  <>
+                    {suggestions.map((p) => (
+                      <button
+                        key={p._id}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => goToProduct(p._id)}
+                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition hover:bg-[#f0f8f3]"
+                      >
+                        {p?.images?.[0] ? (
+                          <img
+                            src={thumbnail(p.images[0], 100)}
+                            alt={p.name}
+                            className="h-8 w-8 shrink-0 rounded-lg border border-[#0B6B3A]/10 object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f0f8f3] text-[#0B6B3A]">
+                            <Search size={13} />
+                          </span>
+                        )}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-xs font-semibold text-[#123d2a]">
+                            {p.name}
+                          </span>
+                          <span className="block truncate text-[10px] text-gray-500">
+                            {suggestionPrice(p)
+                              ? `₹${suggestionPrice(p).toLocaleString("en-IN")}`
+                              : ""}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => goToSearch(searchQuery)}
+                      className="block w-full border-t border-[#0B6B3A]/10 bg-[#f7faf6] px-3 py-2 text-center text-[11px] font-bold text-[#0B6B3A]"
+                    >
+                      See all results
+                    </button>
+                  </>
+                ) : (
+                  <p className="px-4 py-3 text-center text-[11px] text-gray-500">
+                    No match — press Search
+                  </p>
+                )}
+              </div>
+            )}
           </form>
         </div>
       </div>
