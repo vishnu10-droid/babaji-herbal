@@ -31,7 +31,7 @@ export const cancelMyOrder = async (req, res) => {
   try {
     const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
-    if (!["Pending", "Processing"].includes(order.status)) {
+    if (!["Pending", "Confirmed", "Processing"].includes(order.status)) {
       return res.status(400).json({ success: false, message: `Order cannot be cancelled in "${order.status}" state` });
     }
     order.status = "Cancelled";

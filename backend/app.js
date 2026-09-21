@@ -16,6 +16,7 @@ import reviewRouter from "./routes/review.routes.js";
 import adminRouter from "./routes/admin.routes.js";
 import heroSlideRouteS from "./routes/heroSlide.routes.js";
 import couponRouter from "./routes/coupon.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
 
 dotenv.config();
 
@@ -88,6 +89,17 @@ app.use("/api/hero-slides",heroSlideRouteS)
 // Backward-compatible alias (old singular path)
 app.use("/api/hero-slide",heroSlideRouteS)
 app.use("/api/coupons", couponRouter);
+app.use("/api/payment", paymentRoutes);
+
+// Unknown /api routes -> JSON 404 (instead of Express default HTML page).
+// Isse pata chalta hai ki route is deploy me maujood nahi hai
+// (aam taur par purana code deploy hone ki wajah se).
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `API route not found: ${req.method} ${req.originalUrl}. The deployed backend may be running older code.`,
+  });
+});
 
 // ========================================
 // TEST ROUTE
