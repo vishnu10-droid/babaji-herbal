@@ -151,8 +151,8 @@ export default function CategoryShowcase({ limit, categoryList }) {
   // =====================================================
 
   return (
-    <section className="w-full bg-gradient-to-b from-white via-emerald-50/20 to-white px-3 py-12 sm:px-5 md:px-8 md:py-16 lg:px-10">
-      <div className="mx-auto max-w-7xl">
+    <section className="w-full bg-gradient-to-b from-white via-emerald-50/20 to-white px-1  sm:px-5 md:px-8 md:py-16 lg:px-10">
+      <div className=" max-w-7xl">
         {/* =================================================
             HEADER + CAROUSEL ARROWS
         ================================================= */}
@@ -341,69 +341,6 @@ export default function CategoryShowcase({ limit, categoryList }) {
 
                     {/* CONTENT */}
 
-                    <div className="p-3.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <h3
-                            title={category.name}
-                            className="truncate text-sm font-extrabold text-slate-900 transition-colors group-hover:text-emerald-700"
-                          >
-                            {category.name}
-                          </h3>
-
-                          <p className="mt-0.5 text-[8px] font-bold uppercase tracking-[0.12em] text-emerald-600">
-                            Wellness category
-                          </p>
-                        </div>
-
-                        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-all duration-300 group-hover:bg-emerald-600 group-hover:text-white">
-                          <ChevronRight size={13} />
-                        </span>
-                      </div>
-
-                      <p className="mt-2 line-clamp-2 min-h-[30px] text-[10px] leading-[15px] text-slate-500">
-                        {category.description ||
-                          "Natural herbal products for your everyday wellness."}
-                      </p>
-
-                      <div className="mt-2.5 min-h-[30px]">
-                        {category.productNames?.length ? (
-                          <div className="flex flex-wrap gap-1">
-                            {category.productNames.slice(0, 2).map((name) => (
-                              <span
-                                key={name}
-                                className="max-w-full truncate rounded-md bg-slate-50 px-1.5 py-1 text-[8px] font-semibold text-slate-500"
-                              >
-                                {name}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 text-[9px] text-slate-400">
-                            <Leaf
-                              size={10}
-                              className="shrink-0 text-emerald-500"
-                            />
-
-                            <span>Products coming soon</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
-                        <span className="text-[9px] font-bold text-slate-400">
-                          Explore collection
-                        </span>
-
-                        <span className="flex items-center gap-1 text-[9px] font-extrabold text-emerald-600 transition-all group-hover:gap-1.5">
-                          Shop
-                          <ArrowRight
-                            size={12}
-                            className="transition-transform duration-300 group-hover:translate-x-0.5"
-                          />
-                        </span>
-                      </div>
-                    </div>
                   </Link>
                 );
               })}

@@ -342,7 +342,7 @@ export default function Wishlist() {
                       IMAGE
                   ================================================= */}
 
-                  <div className="relative h-36 overflow-hidden bg-[#f5f8f5] sm:h-40">
+                  <div className="relative aspect-square overflow-hidden bg-[#f5f8f5] p-2">
 
                     <img
                       src={productImage}
@@ -353,7 +353,7 @@ export default function Wishlist() {
                       className="
                         h-full
                         w-full
-                        object-cover
+                        object-contain
                         transition
                         duration-500
                         group-hover:scale-105

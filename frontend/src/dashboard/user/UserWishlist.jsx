@@ -77,12 +77,12 @@ const UserWishlist = () => {
                 whileHover={{ y: -4 }}
                 className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100"
               >
-                <div className="relative aspect-square overflow-hidden bg-slate-100">
+                <div className="relative aspect-square overflow-hidden bg-slate-50 p-2">
                   <Link to={product._id ? `/product/${product._id}` : "#"}>
                     <img
                       src={product.images?.[0] ? thumbnail(product.images[0], 500) : "https://placehold.co/500x500/eaf2ff/2563eb?text=P"}
                       alt={product.name || "Product"}
-                      className="h-full w-full object-cover transition duration-300 hover:scale-105"
+                      className="h-full w-full object-contain transition duration-300 hover:scale-105"
                     />
                   </Link>
                   <button

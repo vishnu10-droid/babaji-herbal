@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { ChevronLeft, ChevronRight, ShoppingCart, Star, Check } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ShoppingCart,
+  Star,
+  Check,
+} from "lucide-react";
 
 import Breadcrumb from "../components/Breadcrumb";
 import Button from "../components/Button";
@@ -75,7 +81,9 @@ export default function ProductDetails() {
   }, [id]);
 
   const productImages = useMemo(
-    () => product?.images?.map((productImage) => detailImage(productImage, 700)) || [],
+    () =>
+      product?.images?.map((productImage) => detailImage(productImage, 700)) ||
+      [],
     [product],
   );
 
@@ -102,9 +110,7 @@ export default function ProductDetails() {
       product.variations.find(
         (variation) => variation._id === selectedVariationId,
       ) ||
-      product.variations.find(
-        (variation) => variation.isActive !== false,
-      ) ||
+      product.variations.find((variation) => variation.isActive !== false) ||
       product.variations[0]
     );
   }, [product, selectedVariationId]);
@@ -118,8 +124,8 @@ export default function ProductDetails() {
     : "https://placehold.co/500x450/ffffff/2563eb?text=Babaji+Herbals";
 
   const showPreviousImage = () => {
-    setActiveImageIndex((index) =>
-      (index - 1 + productImages.length) % productImages.length,
+    setActiveImageIndex(
+      (index) => (index - 1 + productImages.length) % productImages.length,
     );
   };
 
@@ -131,14 +137,11 @@ export default function ProductDetails() {
   // PRICE
   // =====================================================
 
-  const currentPrice =
-    selectedVariation?.price ?? product?.sellingPrice ?? 0;
+  const currentPrice = selectedVariation?.price ?? product?.sellingPrice ?? 0;
 
-const currentMrp =
-    selectedVariation?.mrp ?? product?.mrp ?? currentPrice;
+  const currentMrp = selectedVariation?.mrp ?? product?.mrp ?? currentPrice;
 
-  const currentStock =
-    selectedVariation?.stock ?? product?.stock ?? 0;
+  const currentStock = selectedVariation?.stock ?? product?.stock ?? 0;
 
   // =====================================================
   // DISCOUNT
@@ -196,8 +199,7 @@ const currentMrp =
       const message =
         typeof requestError === "string"
           ? requestError
-          : requestError?.message ||
-            "Product could not be added to cart.";
+          : requestError?.message || "Product could not be added to cart.";
 
       setCartMessage(message);
     } finally {
@@ -212,9 +214,7 @@ const currentMrp =
   if (!product && !error) {
     return (
       <section className="section-shell py-10 text-center">
-        <p className="text-sm text-blue-600">
-          Loading product...
-        </p>
+        <p className="text-sm text-blue-600">Loading product...</p>
       </section>
     );
   }
@@ -263,17 +263,17 @@ const currentMrp =
             mx-auto
             grid
             w-full
-            max-w-4xl
+            max-w-5xl
             grid-cols-1
             gap-3
             rounded-xl
             bg-white
             p-3
             shadow-md
-            sm:grid-cols-[230px_minmax(0,1fr)]
-            sm:gap-4
-            sm:p-4
-            lg:grid-cols-[270px_minmax(0,1fr)]
+            sm:grid-cols-[320px_minmax(0,1fr)]
+            sm:gap-5
+            sm:p-5
+            lg:grid-cols-[400px_minmax(0,1fr)]
           "
         >
           {/* =================================================
@@ -284,15 +284,15 @@ const currentMrp =
             className="
               relative
               flex
-              h-[220px]
+              h-[280px]
               items-center
               justify-center
               overflow-hidden
               rounded-lg
               bg-slate-50
-              p-2
-              sm:h-[300px]
-              lg:h-[330px]
+              p-3
+              sm:h-[400px]
+              lg:h-[440px]
             "
           >
             <img
@@ -307,15 +307,31 @@ const currentMrp =
             />
             {productImages.length > 1 && (
               <>
-                <button type="button" onClick={showPreviousImage} aria-label="Show previous product image" className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow transition hover:bg-white">
+                <button
+                  type="button"
+                  onClick={showPreviousImage}
+                  aria-label="Show previous product image"
+                  className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow transition hover:bg-white"
+                >
                   <ChevronLeft size={20} />
                 </button>
-                <button type="button" onClick={showNextImage} aria-label="Show next product image" className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow transition hover:bg-white">
+                <button
+                  type="button"
+                  onClick={showNextImage}
+                  aria-label="Show next product image"
+                  className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow transition hover:bg-white"
+                >
                   <ChevronRight size={20} />
                 </button>
                 <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-slate-900/50 px-2 py-1.5">
                   {productImages.map((_, index) => (
-                    <button key={index} type="button" onClick={() => setActiveImageIndex(index)} aria-label={`Show product image ${index + 1}`} className={`h-2 w-2 rounded-full transition ${activeImageIndex === index ? "bg-white" : "bg-white/45 hover:bg-white/75"}`} />
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setActiveImageIndex(index)}
+                      aria-label={`Show product image ${index + 1}`}
+                      className={`h-2 w-2 rounded-full transition ${activeImageIndex === index ? "bg-white" : "bg-white/45 hover:bg-white/75"}`}
+                    />
                   ))}
                 </div>
               </>
@@ -394,25 +410,19 @@ const currentMrp =
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-3 gap-1.5">
                   {product.variations
-                    .filter(
-                      (variation) =>
-                        variation.isActive !== false,
-                    )
+                    .filter((variation) => variation.isActive !== false)
                     .map((variation) => {
                       const isSelected =
-                        selectedVariation?._id ===
-                        variation._id;
+                        selectedVariation?._id === variation._id;
 
-                      const variationStock =
-                        Number(variation.stock) || 0;
+                      const variationStock = Number(variation.stock) || 0;
 
                       const variationDiscount =
                         variation.mrp > variation.price
                           ? Math.round(
-                              ((variation.mrp -
-                                variation.price) /
+                              ((variation.mrp - variation.price) /
                                 variation.mrp) *
                                 100,
                             )
@@ -423,11 +433,7 @@ const currentMrp =
                           key={variation._id}
                           type="button"
                           disabled={variationStock <= 0}
-                          onClick={() =>
-                            setSelectedVariationId(
-                              variation._id,
-                            )
-                          }
+                          onClick={() => setSelectedVariationId(variation._id)}
                           className={`
                             relative
                             rounded-md
@@ -476,34 +482,22 @@ const currentMrp =
                               pr-5
                               text-[11px]
                               font-bold
-                              ${
-                                isSelected
-                                  ? "text-blue-700"
-                                  : "text-slate-800"
-                              }
+                              ${isSelected ? "text-blue-700" : "text-slate-800"}
                             `}
                           >
-                            {variation.name ||
-                              `${variation.pouches} pouches`}
+                            {variation.name || `${variation.pouches} pouches`}
                           </p>
 
                           {/* PRICE */}
 
                           <div className="mt-0.5 flex items-center gap-1.5">
                             <span className="text-sm font-bold text-slate-900">
-                              ₹
-                              {Number(
-                                variation.price,
-                              ).toLocaleString("en-IN")}
+                              ₹{Number(variation.price).toLocaleString("en-IN")}
                             </span>
 
-                            {variation.mrp >
-                              variation.price && (
+                            {variation.mrp > variation.price && (
                               <span className="text-[9px] text-slate-400 line-through">
-                                ₹
-                                {Number(
-                                  variation.mrp,
-                                ).toLocaleString("en-IN")}
+                                ₹{Number(variation.mrp).toLocaleString("en-IN")}
                               </span>
                             )}
                           </div>
@@ -512,8 +506,7 @@ const currentMrp =
 
                           <div className="mt-0.5 flex items-center justify-between">
                             <span className="text-[9px] text-slate-500">
-                              {variation.pouches ?? 0}{" "}
-                              pouches
+                              {variation.pouches ?? 0} pouches
                             </span>
 
                             <span
@@ -527,9 +520,7 @@ const currentMrp =
                                 }
                               `}
                             >
-                              {variationStock > 0
-                                ? "In Stock"
-                                : "Out"}
+                              {variationStock > 0 ? "In Stock" : "Out"}
                             </span>
                           </div>
 
@@ -579,9 +570,7 @@ const currentMrp =
               {/* MRP */}
 
               <div>
-                <p className="text-[9px] text-slate-400">
-                  Product MRP
-                </p>
+                <p className="text-[9px] text-slate-400">Product MRP</p>
 
                 <p className="text-xs font-semibold text-slate-400 line-through">
                   ₹{Number(currentMrp).toLocaleString("en-IN")}
@@ -591,15 +580,10 @@ const currentMrp =
               {/* SELLING PRICE */}
 
               <div>
-                <p className="text-[9px] text-slate-500">
-                  Selling Price
-                </p>
+                <p className="text-[9px] text-slate-500">Selling Price</p>
 
                 <p className="text-xl font-bold text-slate-900">
-                  ₹
-                  {Number(currentPrice).toLocaleString(
-                    "en-IN",
-                  )}
+                  ₹{Number(currentPrice).toLocaleString("en-IN")}
                 </p>
               </div>
 
@@ -660,16 +644,10 @@ const currentMrp =
 
               <div className="flex items-center gap-0.5 text-amber-500">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    size={12}
-                    fill="currentColor"
-                  />
+                  <Star key={star} size={12} fill="currentColor" />
                 ))}
 
-                <span className="ml-1 text-[9px] text-slate-500">
-                  5.0
-                </span>
+                <span className="ml-1 text-[9px] text-slate-500">5.0</span>
               </div>
             </div>
 
@@ -680,11 +658,7 @@ const currentMrp =
             <Button
               type="button"
               onClick={handleAddToCart}
-              disabled={
-                !product ||
-                Number(currentStock) <= 0 ||
-                isAddingToCart
-              }
+              disabled={!product || Number(currentStock) <= 0 || isAddingToCart}
               className="
                 mt-3
                 flex
@@ -706,10 +680,7 @@ const currentMrp =
                 disabled:bg-slate-400
               "
             >
-              <ShoppingCart
-                className="mr-1.5"
-                size={15}
-              />
+              <ShoppingCart className="mr-1.5" size={15} />
 
               {isAddingToCart
                 ? "Adding..."
@@ -733,9 +704,7 @@ const currentMrp =
                   text-[10px]
                   font-semibold
                   ${
-                    cartMessage
-                      .toLowerCase()
-                      .includes("added")
+                    cartMessage.toLowerCase().includes("added")
                       ? "border-emerald-100 bg-emerald-50 text-emerald-700"
                       : "border-rose-100 bg-rose-50 text-rose-700"
                   }
