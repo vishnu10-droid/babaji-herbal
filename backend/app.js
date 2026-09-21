@@ -22,22 +22,40 @@ dotenv.config();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
+  "https://frontend-tau-amber-fcjg2ssata.vercel.app",
   ...String(process.env.FRONTEND_URLS || "")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),
+  ...String(process.env.FRONTEND_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 ];
+
+// Vercel preview deployments (xxx.vercel.app) ko allow karo.
+// Production me FRONTEND_URLS env me exact domain set karna best hai,
+// lekin ye regex preview URL break hone se bachata hai.
+const allowedOriginPatterns = [/\.vercel\.app$/];
+
+function isOriginAllowed(origin) {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+  return allowedOriginPatterns.some((pattern) => pattern.test(origin));
+}
 
 const app = express();
 app.use(
   cors({
     origin(origin, callback) {
       // Server-to-server requests and Render health checks do not send Origin.
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      if (isOriginAllowed(origin)) return callback(null, true);
       return callback(new Error("This origin is not allowed by CORS"));
     },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true,
+    optionsSuccessStatus: 200,
   }),
 );
 
@@ -92,6 +110,25 @@ app.get("/", (req, res) => {
 
 app.use((error, req, res, next) => {
   void next;
+
+  // Error response me bhi CORS headers bhejo, taaki browser
+  // asal status (403/500) dikhaye, "blocked by CORS" nahi.
+  const requestOrigin = req.headers.origin;
+  if (requestOrigin && isOriginAllowed(requestOrigin)) {
+    res.header("Access-Control-Allow-Origin", requestOrigin);
+    res.header("Vary", "Origin");
+    res.header("Access-Control-Allow-Credentials", "true");
+  }
+
+  // CORS rejection ko 500 ki jagah 403 banao (debugging easy hoga)
+  if (error?.message === "This origin is not allowed by CORS") {
+    console.error("CORS BLOCKED origin:", requestOrigin);
+    return res.status(403).json({
+      success: false,
+      message: `CORS: Origin ${requestOrigin} not allowed. Add it to FRONTEND_URLS env.`,
+    });
+  }
+
   console.error("EXPRESS ERROR:", error?.message || error);
 
   if (error instanceof multer.MulterError) {
