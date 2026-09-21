@@ -346,7 +346,7 @@ export default function Navbar() {
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => goToProduct(p._id)}
                           onMouseEnter={() => setHighlightIndex(idx)}
-                          className={`flex w-full items-center gap-3 px-3 py-2 text-left transition ${
+                          className={`flex w-full cursor-pointer items-center gap-3 px-3 py-2 text-left transition ${
                             idx === highlightIndex
                               ? "bg-[#f0f8f3]"
                               : "hover:bg-[#f0f8f3]"
@@ -386,7 +386,7 @@ export default function Navbar() {
                       type="button"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => goToSearch(searchQuery)}
-                      className="block w-full border-t border-[#0B6B3A]/10 bg-[#f7faf6] px-3 py-2.5 text-center text-xs font-bold text-[#0B6B3A] transition hover:bg-[#edf4eb]"
+                      className="block w-full cursor-pointer border-t border-[#0B6B3A]/10 bg-[#f7faf6] px-3 py-2.5 text-center text-xs font-bold text-[#0B6B3A] transition hover:bg-[#edf4eb]"
                     >
                       See all results for “{searchQuery.trim()}”
                     </button>
@@ -570,7 +570,7 @@ export default function Navbar() {
                         type="button"
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => goToProduct(p._id)}
-                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition hover:bg-[#f0f8f3]"
+                        className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left transition hover:bg-[#f0f8f3]"
                       >
                         {p?.images?.[0] ? (
                           <img
@@ -599,7 +599,7 @@ export default function Navbar() {
                       type="button"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => goToSearch(searchQuery)}
-                      className="block w-full border-t border-[#0B6B3A]/10 bg-[#f7faf6] px-3 py-2 text-center text-[11px] font-bold text-[#0B6B3A]"
+                      className="block w-full cursor-pointer border-t border-[#0B6B3A]/10 bg-[#f7faf6] px-3 py-2 text-center text-[11px] font-bold text-[#0B6B3A]"
                     >
                       See all results
                     </button>

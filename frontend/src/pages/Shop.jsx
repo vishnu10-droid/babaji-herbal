@@ -341,7 +341,7 @@ export default function Shop() {
                 onClick={() =>
                   selectCategory("")
                 }
-                className="text-[11px] font-bold text-[#28714a] hover:underline"
+                className="cursor-pointer text-[11px] font-bold text-[#28714a] hover:underline"
               >
                 Clear
               </button>
@@ -361,7 +361,7 @@ export default function Shop() {
                   (expanded) => !expanded
                 )
               }
-              className="flex w-full items-center justify-between text-left"
+              className="flex w-full cursor-pointer items-center justify-between text-left"
             >
 
               <h3 className="text-xs font-bold uppercase tracking-wide text-[#173b29]">
@@ -400,7 +400,7 @@ export default function Shop() {
                     onChange={() =>
                       selectCategory("")
                     }
-                    className="h-3.5 w-3.5 rounded border-slate-300 accent-[#28714a]"
+                    className="h-3.5 w-3.5 cursor-pointer rounded border-slate-300 accent-[#28714a]"
                   />
 
                   All Categories
@@ -461,7 +461,7 @@ export default function Shop() {
                                   : category._id
                               )
                             }
-                            className="h-3.5 w-3.5 shrink-0 rounded border-slate-300 accent-[#28714a]"
+                            className="h-3.5 w-3.5 shrink-0 cursor-pointer rounded border-slate-300 accent-[#28714a]"
                           />
 
                           <span className="truncate">
@@ -493,7 +493,7 @@ export default function Shop() {
                     (expanded) => !expanded
                   )
                 }
-                className="mt-4 text-[10px] font-bold uppercase tracking-wide text-[#28714a] hover:underline"
+                className="mt-4 cursor-pointer text-[10px] font-bold uppercase tracking-wide text-[#28714a] hover:underline"
               >
                 {categoriesExpanded
                   ? "Show less"
