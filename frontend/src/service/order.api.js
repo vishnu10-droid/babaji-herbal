@@ -13,3 +13,5 @@ api.interceptors.request.use((config) => {
 export const getMyOrders = () => api.get("/orders").then((r) => r.data.orders || []);
 export const getOrderById = (id) => api.get(`/orders/${id}`).then((r) => r.data.order);
 export const cancelMyOrder = (id) => api.patch(`/orders/${id}/cancel`).then((r) => r.data);
+// COD order (Rs.100 extra backend me judta hai)
+export const createCodOrder = (payload) => api.post("/orders", payload).then((r) => r.data);

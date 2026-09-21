@@ -12,6 +12,7 @@ import {
   markPaymentFailed,
   validateCouponCode,
 } from "../service/payment.api";
+import { createCodOrder } from "../service/order.api";
 
 const inr = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
 
@@ -30,6 +31,7 @@ export default function Checkout() {
   const [message, setMessage] = useState("");
   const [paying, setPaying] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("razorpay"); // razorpay | cod
 
   useEffect(() => {
     if (isAuthenticated) dispatch(fetchCart());
@@ -37,7 +39,8 @@ export default function Checkout() {
 
   const subtotal = useMemo(() => Number(totalAmount || 0), [totalAmount]);
   const discount = useMemo(() => Math.min(Number(couponDiscount || 0), subtotal), [couponDiscount, subtotal]);
-  const shipping = subtotal - discount > 999 || !items.length ? 0 : 79;
+  // Rule: Online (Razorpay) = 0 delivery, COD = Rs.100 extra
+  const shipping = paymentMethod === "cod" ? 100 : 0;
   const payable = Math.max(0, subtotal - discount + shipping);
 
   const applyCoupon = async () => {
@@ -62,6 +65,24 @@ export default function Checkout() {
     setMessage("");
     if (!items.length) {
       setMessage("Your cart is empty.");
+      return;
+    }
+    // COD flow: backend Rs.100 add karke order confirm karta hai, no Razorpay
+    if (paymentMethod === "cod") {
+      setPaying(true);
+      try {
+        const data = await createCodOrder({
+          ...form,
+          couponCode: couponDiscount > 0 ? coupon.trim().toUpperCase() : "",
+          discount,
+        });
+        await dispatch(fetchCart());
+        navigate("/payment-success", { state: { orderId: data.order?._id, cod: true }, replace: true });
+      } catch (e) {
+        setMessage(e.response?.data?.message || "COD order failed. Please try again.");
+      } finally {
+        setPaying(false);
+      }
       return;
     }
     setPaying(true);
@@ -163,6 +184,26 @@ export default function Checkout() {
               </div>
               {couponMsg && <p className="mt-2 text-sm text-slate-600">{couponMsg}</p>}
             </div>
+
+            <div className="mt-6">
+              <h2 className="font-display text-xl">Payment method</h2>
+              <div className="mt-2 space-y-2">
+                <label className={`flex cursor-pointer items-center justify-between rounded-2xl border px-4 py-3 ${paymentMethod === "razorpay" ? "border-[#0B6B3A] bg-[#0B6B3A]/5" : "border-[#0B6B3A]/10"}`}>
+                  <span className="flex items-center gap-2 font-semibold">
+                    <input type="radio" name="paymentMethod" checked={paymentMethod === "razorpay"} onChange={() => setPaymentMethod("razorpay")} />
+                    Online Payment (Razorpay)
+                  </span>
+                  <span className="text-sm font-bold text-[#0B6B3A]">FREE delivery</span>
+                </label>
+                <label className={`flex cursor-pointer items-center justify-between rounded-2xl border px-4 py-3 ${paymentMethod === "cod" ? "border-[#0B6B3A] bg-[#0B6B3A]/5" : "border-[#0B6B3A]/10"}`}>
+                  <span className="flex items-center gap-2 font-semibold">
+                    <input type="radio" name="paymentMethod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} />
+                    Cash on Delivery
+                  </span>
+                  <span className="text-sm font-bold">+ ₹100 extra</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div className="rounded-[2rem] bg-[#eef6ef] p-6 shadow-lg">
@@ -181,16 +222,16 @@ export default function Checkout() {
               ))}
               <div className="flex justify-between border-t border-emerald-900/10 pt-3"><span>Subtotal</span><span>{inr(subtotal)}</span></div>
               <div className="flex justify-between"><span>Discount</span><span>{discount ? `−${inr(discount)}` : "—"}</span></div>
-              <div className="flex justify-between"><span>Shipping</span><span>{shipping ? inr(shipping) : "FREE"}</span></div>
+              <div className="flex justify-between"><span>Shipping {paymentMethod === "cod" ? "(COD fee)" : "(Online)"}</span><span>{shipping ? inr(shipping) : "FREE"}</span></div>
               <div className="flex justify-between text-base font-bold"><span>Payable amount</span><span>{inr(payable)}</span></div>
             </div>
             {message && <p className="mt-4 text-sm text-rose-600">{message}</p>}
             {verifying && <p className="mt-2 text-sm font-semibold text-[#0B6B3A]">Verifying payment with bank… do not close this page.</p>}
             <div className="mt-6">
               <Button disabled={!items.length || busy} className="rounded-full">
-                {verifying ? "Verifying payment…" : paying || opening ? "Opening Razorpay…" : `Pay Now ${inr(payable)}`}
+                {verifying ? "Verifying payment…" : paying || opening ? (paymentMethod === "cod" ? "Placing order…" : "Opening Razorpay…") : (paymentMethod === "cod" ? `Place COD Order ${inr(payable)}` : `Pay Now ${inr(payable)}`)}
               </Button>
-              <p className="mt-3 text-xs text-slate-500">Secured by Razorpay (Test Mode). You will be charged only after successful verification.</p>
+              <p className="mt-3 text-xs text-slate-500">{paymentMethod === "cod" ? "Pay in cash when your order arrives. Rs.100 COD fee included." : "Secured by Razorpay (Test Mode). You will be charged only after successful verification."}</p>
             </div>
           </div>
         </form>

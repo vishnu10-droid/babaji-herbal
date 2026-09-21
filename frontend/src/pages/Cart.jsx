@@ -59,7 +59,8 @@ export default function Cart() {
   };
 
   const itemCount = items.reduce((total, item) => total + Number(item.quantity || 0), 0);
-  const shipping = totalAmount > 999 || items.length === 0 ? 0 : 79;
+  // TESTING: shipping temporarily disabled - abhi 0 rahega
+  const shipping = 0;
   const total = Number(totalAmount || 0) + shipping;
 
   return (
@@ -119,7 +120,7 @@ export default function Cart() {
                   </div>
                 </div>;
               })}
-              <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3.5 text-xs font-medium text-[#0b6b3a]"><Truck size={20} className="shrink-0" /><span>{shipping === 0 ? "Free delivery applied to this order." : "Free delivery is available on orders above ₹999."}</span></div>
+              <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3.5 text-xs font-medium text-[#0b6b3a]"><Truck size={20} className="shrink-0" /><span>Online payment par FREE delivery. Cash on Delivery par ₹100 extra lagega (Checkout me select karo).</span></div>
             </div>
 
             <aside className="lg:col-span-5 xl:col-span-4"><div className="sticky top-6 space-y-5 rounded-[2rem] border border-emerald-900/10 bg-white p-6 shadow-xl">

@@ -6,7 +6,7 @@ import Coupon from "../model/coupon.js";
 import { getRazorpay } from "../config/razorpay.js";
 
 const FREE_SHIPPING_ABOVE = 999;
-const SHIPPING_FLAT = 79;
+const SHIPPING_FLAT = 0; // TESTING: shipping temporarily disabled - abhi 0 rahega
 
 // Re-price every cart line from the DB so the frontend amount is never trusted.
 async function priceCartItems(cartItems) {
@@ -107,8 +107,7 @@ export const createPaymentOrder = async (req, res) => {
       couponCode: validCode,
       coupon,
     } = await resolveCoupon(couponCode, subtotal);
-    const shipping =
-      subtotal - discount > FREE_SHIPPING_ABOVE ? 0 : SHIPPING_FLAT;
+    const shipping = 0; // Rule: Online (Razorpay) par 0 delivery charge, COD par 100 (order.controller me)
     const totalAmount = Math.max(0, subtotal - discount + shipping);
     if (totalAmount < 1) {
       return res
