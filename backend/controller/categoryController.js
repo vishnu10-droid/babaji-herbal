@@ -119,22 +119,58 @@ export const createCategory = async (req, res) => {
 export const getCategories = async (req, res) => {
   try {
     const categories = await Category.find().sort({ name: 1 }).lean();
-    const products = await Product.find()
-      .select("name category categoryId status")
-      .lean();
+
+    // Time-lag fix: saare products load karke JS me filter karne ki
+    // jagah MongoDB aggregation se direct count + names nikalo.
+    const counts = await Product.aggregate([
+      {
+        $group: {
+          _id: "$categoryId",
+          count: { $sum: 1 },
+          names: { $push: "$name" },
+        },
+      },
+    ]);
+
+    const byId = new Map(
+      counts.map((c) => [String(c._id), c]),
+    );
+
+    // category string wale legacy products ke liye alag group
+    const nameCounts = await Product.aggregate([
+      {
+        $group: {
+          _id: { $toLower: "$category" },
+          count: { $sum: 1 },
+          names: { $push: "$name" },
+        },
+      },
+    ]);
+
+    const byName = new Map(
+      nameCounts.map((c) => [String(c._id), c]),
+    );
 
     const categoriesWithProducts = categories.map((category) => {
-      const categoryProducts = products.filter((product) =>
-        product.categoryId?.toString() === category._id.toString() ||
-        product.category?.trim().toLowerCase() === category.name.trim().toLowerCase()
-      );
+      const idKey = String(category._id);
+      const nameKey = String(category.name || "")
+        .trim()
+        .toLowerCase();
+
+      const idData = byId.get(idKey);
+      const nameData = byName.get(nameKey);
+
+      // categoryId match ko priority, warna name match
+      const matched = idData || nameData || { count: 0, names: [] };
 
       return {
         ...category,
-        productCount: categoryProducts.length,
-        productNames: categoryProducts.slice(0, 4).map((product) => product.name),
+        productCount: matched.count || 0,
+        productNames: (matched.names || []).slice(0, 4),
       };
     });
+
+    res.set("Cache-Control", "public, max-age=30");
 
     res.status(200).json({
       success: true,

@@ -19,6 +19,22 @@ export const fetchCategories = createAsyncThunk(
       return thunkAPI.rejectWithValue(getError(error));
     }
   },
+  {
+    // 60s tak dobara API hit mat karo — Home + Shop dono mount
+    // hone par bhi ek hi call jayegi
+    condition: (_, { getState }) => {
+      const { category } = getState();
+      const now = Date.now();
+      if (
+        category.lastFetchedAt &&
+        now - category.lastFetchedAt < 60 * 1000 &&
+        category.data?.length
+      ) {
+        return false;
+      }
+      return true;
+    },
+  },
 );
 export const createCategory = createAsyncThunk(
   "category/addCategory",
@@ -54,16 +70,17 @@ export const deleteCatgeorydata = createAsyncThunk(
 
 const categorySlice = createSlice({
   name: "category",
-  initialState: { data: [], loading: false, error: null },
+  initialState: { data: [], loading: false, error: null, lastFetchedAt: 0 },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCategories.pending, (state) => {
-        state.loading = true;
+        if (!state.data?.length) state.loading = true;
         state.error = null;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
         state.data = unwrap(action.payload);
+        state.lastFetchedAt = Date.now();
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;

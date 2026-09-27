@@ -195,6 +195,12 @@ const productSchema = new mongoose.Schema(
   },
 );
 
+// Time-lag fix: list/filter queries par index (category filter + sort)
+productSchema.index({ categoryId: 1, createdAt: -1 });
+productSchema.index({ category: 1, createdAt: -1 });
+productSchema.index({ status: 1, featured: 1 });
+productSchema.index({ createdAt: -1 });
+
 const Product = mongoose.model("Product", productSchema);
 
 export default Product;

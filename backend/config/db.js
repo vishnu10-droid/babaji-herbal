@@ -10,6 +10,11 @@ async function connectdb() {
   try {
     await mongoose.connect(mongoUri, {
       dbName: "babajiherbals",
+      // Time-lag fix: connection pool reuse + fast fail
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 30000,
     });
     console.log("Database connected successfully");
   } catch (err) {

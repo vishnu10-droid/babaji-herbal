@@ -9,18 +9,38 @@ import {
 
 const unwrapProduct = (payload) => payload?.product || payload?.data || payload;
 
-// GET PRODUCT
+// GET PRODUCT (60s cache: dobara page khulne par turant data dikhega,
+// background me fresh hoga — baar-baar lag nahi lagega)
+const CACHE_TTL = 60 * 1000;
+
 export const fetchproduct = createAsyncThunk(
   "product/fetchproduct",
   async (params, thunkAPI) => {
     try {
       const response = await getProducts(params);
-      return response;
+      return { response, params };
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || error.message
       );
     }
+  },
+  {
+    condition: (params, { getState }) => {
+      const { product } = getState();
+      const key = JSON.stringify(params || {});
+      const now = Date.now();
+      // Same params + fresh cache + already data => skip refetch
+      if (
+        product.lastFetchedKey === key &&
+        product.lastFetchedAt &&
+        now - product.lastFetchedAt < CACHE_TTL &&
+        product.data?.length
+      ) {
+        return false;
+      }
+      return true;
+    },
   }
 );
 
@@ -74,6 +94,8 @@ const initialState = {
   data: [],
   loading: false,
   error: null,
+  lastFetchedAt: 0,
+  lastFetchedKey: "",
 };
 
 // SLICE
@@ -86,14 +108,18 @@ const productSlice = createSlice({
     // GET
     builder
       .addCase(fetchproduct.pending, (state) => {
-        state.loading = true;
+        // Purana data turant dikhta rahe, spinner sirf first load par
+        if (!state.data?.length) state.loading = true;
         state.error = null;
       })
 
       .addCase(fetchproduct.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.data = Array.isArray(action.payload) ? action.payload : unwrapProduct(action.payload);
+        const payload = action.payload?.response ?? action.payload;
+        state.data = Array.isArray(payload) ? payload : unwrapProduct(payload);
+        state.lastFetchedAt = Date.now();
+        state.lastFetchedKey = JSON.stringify(action.payload?.params || {});
       })
 
       .addCase(fetchproduct.rejected, (state, action) => {

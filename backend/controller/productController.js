@@ -257,6 +257,8 @@ export const createProduct = async (req, res) => {
       variations: parsedVariations,
     });
 
+    clearProductListCache();
+
     return res.status(201).json({
       success: true,
       message: "Product Added Successfully",
@@ -279,11 +281,29 @@ export const createProduct = async (req, res) => {
 // GET ALL PRODUCTS
 // ========================================
 
+// List response 30 sec tak memory me cache hota hai
+// (Render cold + Atlas latency ka lag kam karta hai)
+const productListCache = new Map();
+const PRODUCT_LIST_TTL = 30 * 1000;
+
+const getCacheKey = (query) =>
+  JSON.stringify({
+    categoryId: query.categoryId || "",
+    category: query.category || "",
+    limit: query.limit || "",
+    page: query.page || "",
+  });
+
+// Product change hone par list cache clear (stale data na mile)
+const clearProductListCache = () => productListCache.clear();
+
 export const getProducts = async (req, res) => {
   try {
     const {
       categoryId,
       category,
+      limit,
+      page,
     } = req.query;
 
     const selectedCategory =
@@ -321,11 +341,41 @@ export const getProducts = async (req, res) => {
         }
       : {};
 
-    const products =
-      await Product.find(filter).sort({
-        createdAt: -1,
-      });
+    // Cache check (sirf fresh data ke liye)
+    const cacheKey = getCacheKey(req.query);
+    const cached = productListCache.get(cacheKey);
+    if (cached && Date.now() - cached.time < PRODUCT_LIST_TTL) {
+      res.set("X-Cache", "HIT");
+      return res.status(200).json(cached.data);
+    }
 
+    // Pagination support (purana frontend bina params ke bhi chalega)
+    const parsedLimit = Math.min(
+      Math.max(parseInt(limit, 10) || 0, 0),
+      100,
+    );
+    const parsedPage = Math.max(parseInt(page, 10) || 1, 1);
+
+    let query = Product.find(filter)
+      .sort({ createdAt: -1 })
+      .lean(); // plain JS object = fast + kam memory
+
+    if (parsedLimit > 0) {
+      query = query
+        .skip((parsedPage - 1) * parsedLimit)
+        .limit(parsedLimit);
+    }
+
+    const products = await query;
+
+    productListCache.set(cacheKey, { time: Date.now(), data: products });
+    // Cache ko zyada bada hone se roko
+    if (productListCache.size > 50) {
+      const firstKey = productListCache.keys().next().value;
+      productListCache.delete(firstKey);
+    }
+
+    res.set("X-Cache", "MISS");
     return res.status(200).json(products);
   } catch (error) {
     console.error(
@@ -347,7 +397,7 @@ export const getProducts = async (req, res) => {
 export const getProduct = async (req, res) => {
   try {
     const product =
-      await Product.findById(req.params.id);
+      await Product.findById(req.params.id).lean();
 
     if (!product) {
       return res.status(404).json({
@@ -583,6 +633,8 @@ export const updateProduct = async (req, res) => {
       });
     }
 
+    clearProductListCache();
+
     return res.status(200).json({
       success: true,
       message: "Product Updated",
@@ -628,6 +680,8 @@ export const deleteProduct = async (req, res) => {
     for (const fileId of fileIds) {
       await deleteImagekitFile(fileId);
     }
+
+    clearProductListCache();
 
     return res.status(200).json({
       success: true,

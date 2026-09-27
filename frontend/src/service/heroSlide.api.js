@@ -4,6 +4,7 @@ import { API_URL } from "../config/config";
 
 const heroApi = axios.create({
   baseURL: API_URL,
+  timeout: 15000,
 });
 
 heroApi.interceptors.request.use((config) => {
