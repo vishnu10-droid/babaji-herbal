@@ -5,6 +5,7 @@ import {
   deleteImagekitFile,
   uploadMultipleToImageKit,
 } from "../services/imagekitUpload.js";
+import { clearCategoryListCache } from "../services/categoryListCache.js";
 
 // ========================================
 // HELPERS
@@ -258,6 +259,7 @@ export const createProduct = async (req, res) => {
     });
 
     clearProductListCache();
+    clearCategoryListCache();
 
     return res.status(201).json({
       success: true,
@@ -634,6 +636,7 @@ export const updateProduct = async (req, res) => {
     }
 
     clearProductListCache();
+    clearCategoryListCache();
 
     return res.status(200).json({
       success: true,
@@ -682,6 +685,7 @@ export const deleteProduct = async (req, res) => {
     }
 
     clearProductListCache();
+    clearCategoryListCache();
 
     return res.status(200).json({
       success: true,

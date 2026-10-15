@@ -4,6 +4,11 @@ import {
   deleteImagekitFile,
   uploadToImageKit,
 } from "../services/imagekitUpload.js";
+import {
+  clearCategoryListCache,
+  getCachedCategoryList,
+  setCachedCategoryList,
+} from "../services/categoryListCache.js";
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -102,6 +107,8 @@ export const createCategory = async (req, res) => {
       imageFileId: imageData.fileId,
     });
 
+    clearCategoryListCache();
+
     res.status(201).json({
       success: true,
       message: "Category created successfully",
@@ -118,11 +125,17 @@ export const createCategory = async (req, res) => {
 // Get All Categories
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find().sort({ name: 1 }).lean();
+    const cached = getCachedCategoryList();
+    if (cached) {
+      res.set("X-Cache", "HIT");
+      res.set("Cache-Control", "public, max-age=60");
+      return res.status(200).json(cached);
+    }
 
-    // Time-lag fix: saare products load karke JS me filter karne ki
-    // jagah MongoDB aggregation se direct count + names nikalo.
-    const counts = await Product.aggregate([
+    // These queries do not depend on one another, so run them together.
+    const [categories, counts, nameCounts] = await Promise.all([
+      Category.find().sort({ name: 1 }).lean(),
+      Product.aggregate([
       {
         $group: {
           _id: "$categoryId",
@@ -130,14 +143,10 @@ export const getCategories = async (req, res) => {
           names: { $push: "$name" },
         },
       },
-    ]);
+      ]),
 
-    const byId = new Map(
-      counts.map((c) => [String(c._id), c]),
-    );
-
-    // category string wale legacy products ke liye alag group
-    const nameCounts = await Product.aggregate([
+      // category string wale legacy products ke liye alag group
+      Product.aggregate([
       {
         $group: {
           _id: { $toLower: "$category" },
@@ -145,7 +154,12 @@ export const getCategories = async (req, res) => {
           names: { $push: "$name" },
         },
       },
+      ]),
     ]);
+
+    const byId = new Map(
+      counts.map((c) => [String(c._id), c]),
+    );
 
     const byName = new Map(
       nameCounts.map((c) => [String(c._id), c]),
@@ -170,13 +184,16 @@ export const getCategories = async (req, res) => {
       };
     });
 
-    res.set("Cache-Control", "public, max-age=30");
-
-    res.status(200).json({
+    const response = {
       success: true,
       count: categoriesWithProducts.length,
       data: categoriesWithProducts,
-    });
+    };
+
+    setCachedCategoryList(response);
+    res.set("X-Cache", "MISS");
+    res.set("Cache-Control", "public, max-age=60");
+    return res.status(200).json(response);
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -288,6 +305,8 @@ export const updateCategory = async (req, res) => {
       runValidators: true,
     });
 
+    clearCategoryListCache();
+
     if (category.name !== currentCategory.name) {
       await Product.updateMany(
         {
@@ -349,6 +368,7 @@ export const deleteCategory = async (req, res) => {
     }
 
     await category.deleteOne();
+    clearCategoryListCache();
 
     res.status(200).json({
       success: true,
