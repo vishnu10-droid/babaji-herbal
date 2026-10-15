@@ -20,11 +20,11 @@ export default function FAQ() {
   const [open, setOpen] = useState(0)
 
   return (
-    <section className="section-shell py-14">
-      <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+    <section className="section-shell overflow-hidden py-8 sm:py-14">
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#0B6B3A]">FAQ</p>
-          <h2 className="font-display text-3xl">Frequently Asked Questions</h2>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#0B6B3A] sm:text-xs sm:tracking-[0.3em]">FAQ</p>
+          <h2 className="mt-1.5 font-display text-2xl leading-tight sm:text-3xl">Frequently Asked Questions</h2>
         </div>
         <div className="space-y-3">
           {faqs.map((item, index) => (

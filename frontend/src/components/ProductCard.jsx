@@ -193,7 +193,7 @@ export default function ProductCard({ item }) {
           bg-white
         "
       >
-        <Link to={`/product/${item._id}`} className="block h-40 w-full bg-white p-2">
+        <Link to={`/product/${item._id}`} className="block h-36 w-full bg-white p-2 min-[400px]:h-40 sm:h-44">
           <img
             src={image}
             alt={item.name}
@@ -297,7 +297,7 @@ export default function ProductCard({ item }) {
           PRODUCT CONTENT
       ================================================== */}
 
-      <div className="p-3">
+      <div className="p-2.5 sm:p-3">
         {/* =================================================
             CATEGORY + RATING
         ================================================== */}
@@ -449,15 +449,15 @@ export default function ProductCard({ item }) {
           className="
             mt-2
             flex
-            h-8
+            h-9
             w-full
             items-center
             justify-center
             gap-1.5
-            rounded-md
+            rounded-lg
             bg-[#3d219f]
             px-3
-            text-[10px]
+            text-[11px]
             font-bold
             text-white
             transition
@@ -465,6 +465,8 @@ export default function ProductCard({ item }) {
             active:scale-[0.98]
             disabled:cursor-not-allowed
             disabled:bg-slate-400
+            sm:h-8
+            sm:text-[10px]
           "
         >
           <ShoppingBag size={13} />

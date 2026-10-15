@@ -219,7 +219,7 @@ export default function Shop() {
   // =====================================================
 
   return (
-    <section className="w-full px-2 py-8 sm:px-3 md:px-4 lg:px-5">
+    <section className="w-full overflow-hidden px-3 py-6 sm:px-3 sm:py-8 md:px-4 lg:px-5">
 
       {/* =================================================
           HEADER
@@ -247,35 +247,42 @@ export default function Shop() {
           MOBILE FILTER BUTTON
       ================================================= */}
 
-      <div className="mb-5 flex justify-end lg:hidden">
+      <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:justify-end lg:hidden">
 
         <button
           type="button"
           onClick={() =>
             setFiltersOpen((open) => !open)
           }
+          aria-expanded={filtersOpen}
           className="
             inline-flex
+            w-full
             items-center
             justify-center
             gap-2
-            rounded-full
+            rounded-xl
             border
             border-[#cfe1d0]
             bg-white
             px-4
-            py-2.5
+            py-3
             text-sm
             font-bold
             text-[#174d32]
+            shadow-sm
             transition
+            active:scale-[0.99]
             hover:bg-[#edf4eb]
+            sm:w-auto
+            sm:rounded-full
+            sm:py-2.5
           "
         >
 
           <SlidersHorizontal size={16} />
 
-          Categories
+          {filtersOpen ? "Hide Categories" : "Categories"}
 
         </button>
 

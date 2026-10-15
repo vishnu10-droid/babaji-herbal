@@ -257,7 +257,7 @@ export default function ProductDetails() {
           COMPACT PRODUCT SECTION
       ================================================= */}
 
-      <section className="section-shell px-3 py-2 sm:px-4 sm:py-3">
+      <section className="section-shell overflow-hidden px-3 py-3 sm:px-4 sm:py-3">
         <div
           className="
             mx-auto
@@ -265,8 +265,8 @@ export default function ProductDetails() {
             w-full
             max-w-6xl
             grid-cols-1
-            gap-3
-            rounded-xl
+            gap-4
+            rounded-2xl
             bg-white
             p-3
             shadow-md
@@ -284,13 +284,14 @@ export default function ProductDetails() {
             className="
               relative
               flex
-              h-[360px]
+              h-[300px]
               items-center
               justify-center
               overflow-hidden
-              rounded-lg
+              rounded-xl
               bg-slate-50
               p-3
+              min-[420px]:h-[360px]
               sm:h-[500px]
               lg:h-[560px]
             "
@@ -410,7 +411,7 @@ export default function ProductDetails() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 sm:gap-1.5">
                   {product.variations
                     .filter((variation) => variation.isActive !== false)
                     .map((variation) => {
@@ -660,16 +661,16 @@ export default function ProductDetails() {
               onClick={handleAddToCart}
               disabled={!product || Number(currentStock) <= 0 || isAddingToCart}
               className="
-                mt-3
+                mt-4
                 flex
-                h-9
+                h-12
                 w-full
                 items-center
                 justify-center
-                rounded-md
+                rounded-xl
                 bg-blue-600
                 px-4
-                text-xs
+                text-sm
                 font-bold
                 text-white
                 shadow-sm
@@ -678,6 +679,9 @@ export default function ProductDetails() {
                 active:scale-[0.98]
                 disabled:cursor-not-allowed
                 disabled:bg-slate-400
+                sm:h-9
+                sm:rounded-md
+                sm:text-xs
               "
             >
               <ShoppingCart className="mr-1.5" size={15} />

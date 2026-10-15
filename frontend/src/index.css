@@ -14,13 +14,25 @@
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 20%),
     linear-gradient(180deg, #020617 0%, #020617 100%);
 }
 
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
 #root {
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 * {
@@ -42,7 +54,41 @@ body {
 }
 
 .section-shell {
-  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8;
+}
+
+@media (max-width: 380px) {
+  .section-shell {
+    @apply px-3;
+  }
+}
+
+/* Hide scrollbars for horizontal category / carousel tracks */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth touch scrolling on mobile carousels */
+.smooth-touch {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Prevent iOS auto-zoom on inputs (font < 16px triggers zoom) */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    font-size: 14px;
+  }
 }
 
 .premium-border {

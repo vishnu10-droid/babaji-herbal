@@ -71,6 +71,14 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // Lock body scroll when drawer open (mobile UX)
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   // Fetch wishlist + cart when user is authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -269,11 +277,11 @@ export default function Navbar() {
                 <Leaf size={9} className="text-white" />
               </span>
             </span>
-            <span className="hidden flex-col leading-tight min-[400px]:flex">
+            <span className="flex flex-col leading-tight">
               <span className="font-serif text-base font-bold tracking-tight text-[#123d2a] sm:text-lg">
                 Babaji <span className="text-[#0B6B3A]">Herbals</span>
               </span>
-              <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0B6B3A]/70">
+              <span className="hidden text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0B6B3A]/70 min-[400px]:block">
                 Rooted in Ayurveda
               </span>
             </span>
@@ -523,6 +531,34 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* MOBILE QUICK ACTIONS — cart + wishlist always visible */}
+          <div className="flex items-center gap-1.5 sm:hidden">
+            <Link
+              to="/wishlist"
+              aria-label="Wishlist"
+              className="relative rounded-full border border-[#0B6B3A]/15 bg-white p-2 text-[#0B6B3A] shadow-sm transition active:scale-95"
+            >
+              <Heart size={17} />
+              {wishlistCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-rose-500 px-1 text-[9px] font-bold text-white shadow">
+                  {wishlistCount > 99 ? "99+" : wishlistCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              to="/cart"
+              aria-label="Cart"
+              className="relative rounded-full bg-gradient-to-r from-[#0B6B3A] to-[#128a4d] p-2 text-white shadow-md shadow-[#0B6B3A]/25 transition active:scale-95"
+            >
+              <ShoppingCart size={17} />
+              {cartCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#f5bd56] px-1 text-[9px] font-bold text-[#173b29] shadow ring-2 ring-white">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </Link>
+          </div>
+
           {/* MOBILE MENU BUTTON */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -633,7 +669,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 z-50 flex h-full w-[85%] max-w-sm flex-col bg-white shadow-2xl lg:hidden"
+              className="fixed right-0 top-0 z-50 flex h-full max-h-[100dvh] w-[86vw] max-w-[340px] flex-col bg-white shadow-2xl lg:hidden"
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between bg-gradient-to-r from-[#0B6B3A] to-[#128a4d] px-5 py-4">
@@ -718,7 +754,7 @@ export default function Navbar() {
               </nav>
 
               {/* Drawer footer auth */}
-              <div className="border-t border-gray-100 p-4">
+              <div className="border-t border-gray-100 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                 {isAuthenticated ? (
                   <div className="space-y-2">
                     <Link
@@ -766,22 +802,41 @@ export default function Navbar() {
       {orderedCategories.length > 0 && (
         <nav
           aria-label="Product categories"
-          className="bg-gradient-to-r from-[#123d2a] via-[#0e5c36] to-[#123d2a] text-white shadow-md"
+          className="relative bg-gradient-to-r from-[#123d2a] via-[#0e5c36] to-[#123d2a] text-white shadow-md"
         >
-          <div className="flex items-center gap-2 overflow-x-auto px-4 py-2 whitespace-nowrap scrollbar-none [scrollbar-width:none] sm:justify-center sm:gap-3 sm:px-8 [&::-webkit-scrollbar]:hidden">
-            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#f9cd73] sm:flex">
+          {/* left/right fade hints on mobile */}
+          <span className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#123d2a] to-transparent sm:hidden" />
+          <span className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-[#123d2a] to-transparent sm:hidden" />
+          <div className="scrollbar-none smooth-touch flex snap-x snap-mandatory items-center gap-1.5 overflow-x-auto whitespace-nowrap px-6 py-2 sm:snap-none sm:justify-center sm:gap-2 sm:px-8 sm:py-2 lg:gap-3">
+            <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#f9cd73] sm:flex">
               <Leaf size={12} />
               Shop by
             </span>
-            {orderedCategories.map((category) => (
-              <Link
-                key={category._id}
-                to={`/shop?category=${encodeURIComponent(category._id)}`}
-                className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-white/85 transition-all duration-300 hover:bg-white/15 hover:text-[#f9cd73] hover:shadow sm:text-[13px]"
-              >
-                {category.name}
-              </Link>
-            ))}
+            <Link
+              to="/shop"
+              className="shrink-0 snap-start rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-bold text-[#f9cd73] transition-all duration-300 hover:bg-white/20 sm:border-0 sm:bg-transparent sm:py-1.5 sm:text-[13px] sm:font-semibold sm:text-white/85 sm:hover:bg-white/15 sm:hover:text-[#f9cd73]"
+            >
+              All
+            </Link>
+            {orderedCategories.map((category) => {
+              const isActive =
+                location.search.includes(
+                  encodeURIComponent(category._id)
+                ) || location.search.includes(category._id);
+              return (
+                <Link
+                  key={category._id}
+                  to={`/shop?category=${encodeURIComponent(category._id)}`}
+                  className={`shrink-0 snap-start rounded-full px-3.5 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 sm:py-1.5 sm:text-[13px] ${
+                    isActive
+                      ? "bg-[#f9cd73] text-[#123d2a] shadow-md"
+                      : "text-white/85 hover:bg-white/15 hover:text-[#f9cd73]"
+                  }`}
+                >
+                  {category.name}
+                </Link>
+              );
+            })}
           </div>
         </nav>
       )}

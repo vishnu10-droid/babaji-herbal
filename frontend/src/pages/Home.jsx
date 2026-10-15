@@ -51,26 +51,26 @@ function AssuranceStrip() {
   return (
     <section className="border-y border-[#dce8dc] bg-white">
 
-      <div className="section-shell grid divide-y divide-[#dce8dc] sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+      <div className="section-shell grid grid-cols-2 divide-[#dce8dc] max-sm:gap-x-2 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
 
         {assurances.map(
           ({ icon: Icon, title, text }) => (
             <div
               key={title}
-              className="flex items-center gap-3 py-5 sm:px-5 lg:px-7"
+              className="flex items-center gap-2.5 py-4 sm:gap-3 sm:px-5 sm:py-5 lg:px-7"
             >
 
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#edf4eb] text-[#28714a]">
-                <Icon size={19} />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#edf4eb] text-[#28714a] sm:h-10 sm:w-10">
+                <Icon size={17} />
               </span>
 
-              <div>
+              <div className="min-w-0">
 
-                <p className="text-sm font-bold text-[#173b29]">
+                <p className="truncate text-[13px] font-bold text-[#173b29] sm:text-sm">
                   {title}
                 </p>
 
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 line-clamp-2 text-[11px] text-slate-500 sm:text-xs">
                   {text}
                 </p>
 
@@ -162,7 +162,7 @@ export default function Home() {
           PRODUCTS SECTION
       ================================================= */}
 
-      <section className="bg-[#f8faf7] py-12 md:py-14">
+      <section className="bg-[#f8faf7] py-8 sm:py-12 md:py-14">
 
         {/* =================================================
             FULL WIDTH PRODUCT CONTAINER
@@ -171,13 +171,13 @@ export default function Home() {
             product grid gets more width.
         ================================================= */}
 
-        <div className="w-full px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6">
+        <div className="w-full px-3 sm:px-3 md:px-4 lg:px-5 xl:px-6">
 
           {/* =================================================
               HEADER
           ================================================= */}
 
-          <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="mb-5 flex flex-col gap-2 sm:mb-7 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
 
             <div>
 
@@ -185,11 +185,11 @@ export default function Home() {
                 Customer favourites
               </p>
 
-              <h2 className="mt-2 font-serif text-3xl font-semibold text-[#173b29] sm:text-4xl">
+              <h2 className="mt-1.5 font-serif text-2xl font-semibold leading-tight text-[#173b29] sm:mt-2 sm:text-4xl">
                 Wellness, chosen by you
               </h2>
 
-              <p className="mt-2 max-w-xl text-xs leading-5 text-slate-500 sm:text-sm">
+              <p className="mt-1.5 max-w-xl text-[13px] leading-5 text-slate-500 sm:mt-2 sm:text-sm">
                 Shop everyday herbal essentials loved
                 for their purity, simplicity and
                 feel-good results.

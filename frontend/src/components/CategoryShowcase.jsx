@@ -155,8 +155,8 @@ export default function CategoryShowcase({ limit, categoryList }) {
   // =====================================================
 
   return (
-    <section className="w-full bg-gradient-to-b from-white via-emerald-50/20 to-white px-1  sm:px-5 md:px-8 md:py-16 lg:px-10">
-      <div className=" max-w-7xl">
+    <section className="w-full overflow-hidden bg-gradient-to-b from-white via-emerald-50/20 to-white px-3 py-10 sm:px-5 md:px-8 md:py-16 lg:px-10">
+      <div className="mx-auto max-w-7xl">
         {/* =================================================
             HEADER + CAROUSEL ARROWS
         ================================================= */}
@@ -286,7 +286,7 @@ export default function CategoryShowcase({ limit, categoryList }) {
                   <Link
                     key={category._id}
                     to={`/shop?category=${encodeURIComponent(category._id)}`}
-                    className="group relative block w-[68%] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_5px_25px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-[0_15px_40px_rgba(16,185,129,0.13)] sm:w-[46%] md:w-[31.5%] lg:w-[23.5%]"
+                    className="group relative block w-[74%] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_5px_25px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-[0_15px_40px_rgba(16,185,129,0.13)] min-[480px]:w-[46%] sm:w-[46%] md:w-[31.5%] lg:w-[23.5%]"
                   >
                     {/* IMAGE AREA */}
 

@@ -47,8 +47,8 @@ function LinkColumn({ title, links }) {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0B6B3A] text-gray-200 pt-12 pb-4 px-6 md:px-16 text-xs">
-      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-8 border-b border-green-800 pb-8">
+    <footer className="overflow-hidden bg-[#0B6B3A] px-4 pb-4 pt-10 text-xs text-gray-200 sm:px-6 md:px-16 md:pt-12">
+      <div className="mx-auto mb-6 grid max-w-6xl grid-cols-2 gap-x-4 gap-y-8 border-b border-green-800 pb-8 sm:gap-8 md:grid-cols-3 lg:grid-cols-5">
         {/* Brand */}
         <div className="col-span-2 md:col-span-3 lg:col-span-1">
           <Link to="/" className="inline-block" aria-label="Babaji Herbals home">
@@ -96,11 +96,11 @@ export default function Footer() {
         <LinkColumn title="For users" links={userLinks} />
 
         {/* QR / Payment */}
-        <div className="col-span-2 md:col-span-1">
+        <div className="col-span-2 flex flex-col items-center text-center sm:items-start sm:text-left md:col-span-1">
           <div className="border-l-2 border-amber-400/60 pl-4">
             <p className="text-sm font-medium tracking-wide text-white">BABAJI HERBALS</p>
             <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" aria-label="Pay via UPI and confirm on WhatsApp" title="Pay and confirm on WhatsApp">
-              <img src={QR_URL} alt="Scan to pay Babaji Herbals via UPI" className="mt-2 h-36 w-36 rounded-lg border border-emerald-800 object-cover bg-white" loading="lazy" />
+              <img src={QR_URL} alt="Scan to pay Babaji Herbals via UPI" className="mt-2 h-32 w-32 rounded-lg border border-emerald-800 object-cover bg-white sm:h-36 sm:w-36" loading="lazy" />
             </a>
           </div>
           <p className="mt-3 text-center text-xs leading-relaxed text-gray-300">
@@ -114,8 +114,8 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="max-w-6xl mx-auto bg-amber-400 text-gray-900 py-2.5 px-4 rounded-md flex flex-col md:flex-row justify-between items-center gap-2 font-medium">
-        <p>Copyright © 2021-2022 <strong>BABAJI HERBALS</strong> All Rights Reserved. Provided by AYULIFE HEALTH SOLUTION &amp; Designed By{" "}
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 rounded-md bg-amber-400 px-4 py-2.5 text-center font-medium text-gray-900 md:flex-row md:justify-between md:text-left">
+        <p className="text-[11px] leading-5 sm:text-xs">Copyright © 2021-2022 <strong>BABAJI HERBALS</strong> All Rights Reserved. Provided by AYULIFE HEALTH SOLUTION &amp; Designed By{" "}
           <a href="https://www.zaibainfotech.com" target="_blank" rel="noreferrer" className="hover:underline">
             www.zaibainfotech.com
           </a>

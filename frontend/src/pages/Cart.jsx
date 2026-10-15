@@ -65,9 +65,9 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-emerald-50/20 pb-20 font-sans text-gray-800">
-      <section className="relative mb-8 bg-[#0b6b3a] px-6 py-14 text-white md:py-20">
+      <section className="relative mb-6 overflow-hidden bg-[#0b6b3a] px-4 py-10 text-white sm:mb-8 sm:px-6 sm:py-14 md:py-20">
         <div className="mx-auto max-w-6xl text-center">
-          <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">Shopping Cart</h1>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">Shopping Cart</h1>
           <div className="mt-3 flex justify-center"><Breadcrumb items={[{ label: "Cart" }]} /></div>
         </div>
       </section>
@@ -90,8 +90,8 @@ export default function Cart() {
             <Link to="/shop" className="inline-block"><Button className="rounded-full px-8 py-3">Explore Products</Button></Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
-            <div className="space-y-4 lg:col-span-7 xl:col-span-8">
+          <div className="grid grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12">
+            <div className="space-y-3 sm:space-y-4 lg:col-span-7 xl:col-span-8">
               <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                 <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900"><ShoppingBag className="text-[#0b6b3a]" size={20} /> Your Products ({itemCount})</h2>
                 <button type="button" onClick={emptyCart} className="text-xs font-semibold text-rose-600 hover:underline">Clear cart</button>
@@ -102,9 +102,16 @@ export default function Cart() {
                 const name = item.productName || product.name || "Product";
                 const variation = item.variationName || (item.pouches ? `${item.pouches} pouches` : "");
                 const lineTotal = Number(item.price || 0) * Number(item.quantity || 0);
-                return <div key={item._id} className="group flex flex-col items-center gap-5 rounded-3xl border border-emerald-900/10 bg-white p-5 shadow-sm transition hover:shadow-md sm:flex-row">
-                  <img src={productImage(item.image || product.images?.[0])} alt={name} className="h-24 w-24 shrink-0 rounded-2xl border border-gray-100 bg-gray-50 object-cover sm:h-28 sm:w-28" />
-                  <div className="w-full flex-1 space-y-1 text-center sm:text-left">
+                return <div key={item._id} className="group flex flex-col gap-4 rounded-2xl border border-emerald-900/10 bg-white p-4 shadow-sm transition hover:shadow-md sm:flex-row sm:items-center sm:gap-5 sm:rounded-3xl sm:p-5">
+                  <div className="flex items-center gap-3 sm:contents">
+                    <img src={productImage(item.image || product.images?.[0])} alt={name} className="h-20 w-20 shrink-0 rounded-xl border border-gray-100 bg-gray-50 object-cover sm:h-28 sm:w-28 sm:rounded-2xl" />
+                    <div className="min-w-0 flex-1 space-y-0.5 sm:hidden">
+                      <h3 className="truncate text-sm font-bold leading-snug text-gray-900">{name}</h3>
+                      {variation && <p className="truncate text-[11px] font-medium text-gray-500">{variation}</p>}
+                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5"><span className="text-sm font-extrabold text-[#0b6b3a]">{formatMoney(lineTotal)}</span><span className="text-[11px] text-gray-500">{formatMoney(item.price)} each</span></div>
+                    </div>
+                  </div>
+                  <div className="hidden w-full flex-1 space-y-1 text-center sm:block sm:text-left">
                     <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#0b6b3a]">{product.category || "Herbal care"}</span>
                     <h3 className="text-base font-bold leading-snug text-gray-900">{name}</h3>
                     {variation && <p className="text-xs font-medium text-gray-500">{variation}</p>}
@@ -123,8 +130,8 @@ export default function Cart() {
               <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3.5 text-xs font-medium text-[#0b6b3a]"><Truck size={20} className="shrink-0" /><span>Online payment par FREE delivery. Cash on Delivery par ₹100 extra lagega (Checkout me select karo).</span></div>
             </div>
 
-            <aside className="lg:col-span-5 xl:col-span-4"><div className="sticky top-6 space-y-5 rounded-[2rem] border border-emerald-900/10 bg-white p-6 shadow-xl">
-              <h2 className="border-b border-gray-100 pb-3 font-display text-2xl font-bold text-gray-900">Order Summary</h2>
+            <aside className="lg:col-span-5 xl:col-span-4"><div className="space-y-4 rounded-3xl border border-emerald-900/10 bg-white p-5 shadow-xl sm:space-y-5 sm:rounded-[2rem] sm:p-6 lg:sticky lg:top-6">
+              <h2 className="border-b border-gray-100 pb-3 font-display text-xl font-bold text-gray-900 sm:text-2xl">Order Summary</h2>
               <div className="space-y-3 border-y border-gray-100 py-4 text-sm font-medium text-gray-600"><div className="flex justify-between"><span>Subtotal</span><span className="font-bold text-gray-900">{formatMoney(totalAmount)}</span></div><div className="flex justify-between"><span>Estimated Shipping</span><span className="font-bold text-gray-900">{shipping === 0 ? <span className="text-[#0b6b3a]">FREE</span> : formatMoney(shipping)}</span></div></div>
               <div className="flex items-baseline justify-between"><div><p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Amount</p><p className="text-[10px] text-gray-400">Taxes included</p></div><p className="text-3xl font-extrabold text-[#0b6b3a]">{formatMoney(total)}</p></div>
               <Link to="/checkout" className="block"><Button className="flex w-full items-center justify-center gap-2 rounded-full py-3.5"><Lock size={16} /> Proceed to Checkout</Button></Link>

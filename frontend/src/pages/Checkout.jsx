@@ -164,21 +164,21 @@ export default function Checkout() {
   return (
     <>
       <Breadcrumb items={[{ label: "Checkout" }]} />
-      <section className="section-shell py-10">
-        <form onSubmit={handlePayNow} className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[2rem] bg-white p-6 shadow-lg">
-            <h1 className="font-display text-3xl">Delivery details</h1>
-            <div className="mt-6 space-y-3">
-              <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full rounded-2xl border border-[#0B6B3A]/10 px-4 py-3" placeholder="Full name" />
-              <input required value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full rounded-2xl border border-[#0B6B3A]/10 px-4 py-3" placeholder="Full address" />
-              <input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="w-full rounded-2xl border border-[#0B6B3A]/10 px-4 py-3" placeholder="City" />
+      <section className="section-shell overflow-hidden py-6 sm:py-10">
+        <form onSubmit={handlePayNow} className="grid gap-4 sm:gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-3xl bg-white p-4 shadow-lg sm:rounded-[2rem] sm:p-6">
+            <h1 className="font-display text-2xl sm:text-3xl">Delivery details</h1>
+            <div className="mt-4 space-y-3 sm:mt-6">
+              <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full rounded-xl border border-[#0B6B3A]/10 bg-white px-4 py-3.5 text-base outline-none transition placeholder:text-sm focus:border-[#0B6B3A] sm:rounded-2xl sm:py-3" placeholder="Full name" autoComplete="name" />
+              <input required value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full rounded-xl border border-[#0B6B3A]/10 bg-white px-4 py-3.5 text-base outline-none transition placeholder:text-sm focus:border-[#0B6B3A] sm:rounded-2xl sm:py-3" placeholder="Full address" autoComplete="street-address" />
+              <input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="w-full rounded-xl border border-[#0B6B3A]/10 bg-white px-4 py-3.5 text-base outline-none transition placeholder:text-sm focus:border-[#0B6B3A] sm:rounded-2xl sm:py-3" placeholder="City" autoComplete="address-level2" />
             </div>
 
-            <div className="mt-6">
-              <h2 className="font-display text-xl">Have a coupon?</h2>
-              <div className="mt-2 flex gap-2">
-                <input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} className="flex-1 rounded-2xl border border-[#0B6B3A]/10 px-4 py-3 uppercase" placeholder="COUPON CODE" />
-                <button type="button" onClick={applyCoupon} disabled={couponChecking || !coupon.trim()} className="rounded-2xl bg-[#0B6B3A]/10 px-5 font-bold text-[#0B6B3A] disabled:opacity-50">
+            <div className="mt-5 sm:mt-6">
+              <h2 className="font-display text-lg sm:text-xl">Have a coupon?</h2>
+              <div className="mt-2 flex flex-col gap-2 min-[420px]:flex-row">
+                <input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} className="min-w-0 flex-1 rounded-xl border border-[#0B6B3A]/10 bg-white px-4 py-3.5 text-base uppercase outline-none placeholder:text-sm sm:rounded-2xl sm:py-3" placeholder="COUPON CODE" />
+                <button type="button" onClick={applyCoupon} disabled={couponChecking || !coupon.trim()} className="shrink-0 rounded-xl bg-[#0B6B3A]/10 px-5 py-3.5 font-bold text-[#0B6B3A] transition active:scale-95 disabled:opacity-50 sm:rounded-2xl sm:py-3">
                   {couponChecking ? "Checking…" : "Apply"}
                 </button>
               </div>
@@ -206,8 +206,8 @@ export default function Checkout() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] bg-[#eef6ef] p-6 shadow-lg">
-            <h2 className="font-display text-2xl">Order summary</h2>
+          <div className="rounded-3xl bg-[#eef6ef] p-4 shadow-lg sm:rounded-[2rem] sm:p-6">
+            <h2 className="font-display text-xl sm:text-2xl">Order summary</h2>
             <div className="mt-4 space-y-3 text-sm text-slate-700">
               {items.map((item) => (
                 <div key={item._id} className="flex justify-between gap-3">

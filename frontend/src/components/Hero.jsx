@@ -187,11 +187,13 @@ export default function Hero() {
         className="
           relative
           block
-          aspect-[4/3]
+          aspect-[16/10]
           w-full
           cursor-pointer
           overflow-hidden
           bg-slate-900
+
+          min-[480px]:aspect-[4/3]
 
           sm:aspect-[16/7]
 
@@ -331,16 +333,18 @@ export default function Hero() {
 
               <h1
                 className="
-                  mt-3
+                  mt-2.5
                   max-w-xl
                   whitespace-pre-line
                   font-serif
-                  text-2xl
+                  text-xl
                   font-semibold
-                  leading-[1.05]
+                  leading-[1.1]
                   tracking-tight
                   text-white
                   drop-shadow-lg
+
+                  min-[480px]:text-2xl
 
                   sm:mt-4
                   sm:text-3xl
@@ -362,7 +366,8 @@ export default function Hero() {
               {slide.description ? (
                 <p
                   className="
-                    mt-6
+                    mt-3
+                    line-clamp-2
                     max-w-md
                     text-xs
                     leading-5
@@ -370,6 +375,7 @@ export default function Hero() {
                     drop-shadow-md
 
                     sm:mt-8
+                    sm:line-clamp-none
                     sm:text-sm
                     sm:leading-6
 
